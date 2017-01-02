@@ -5,6 +5,7 @@ solution "battles"
 	location ( "build" )
 	configurations { "Debug", "Release" }
 	platforms {"x64"}
+        startproject "battles"
 	
    	project "nanovg"
 		language "C"
