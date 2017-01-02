@@ -12,15 +12,15 @@ solution "battles"
 		kind "StaticLib"
 		targetdir("build")
 		includedirs {
-                    "nanovg/src",
-                    "glfw-3.2.1.bin.WIN64/include/GLFW",
-                    "glew-2.0.0/include",
+                    "lib/nanovg/src",
+                    "lib/glfw-3.2.1.bin.WIN64/include/GLFW",
+                    "lib/glew-2.0.0/include",
                 }
                 libdirs {
-                    "glfw-3.2.1.bin.WIN64/lib-vc2015",
-                    "glew-2.0.0/lib/Release/x64",
+                    "lib/glfw-3.2.1.bin.WIN64/lib-vc2015",
+                    "lib/glew-2.0.0/lib/Release/x64",
                 }
-		files { "nanovg/src/*.c" }
+		files { "lib/nanovg/src/*.c" }
 		defines { "_CRT_SECURE_NO_WARNINGS" } --,"FONS_USE_FREETYPE" } Uncomment to compile with FreeType support
 		
 		configuration "Debug"
@@ -43,19 +43,30 @@ solution "battles"
                 }
 		includedirs {
                     "src",
-                    "glfw-3.2.1.bin.WIN64/include/GLFW",
-                    "glew-2.0.0/include",
                     "imgui",
+                    "lib/glfw-3.2.1.bin.WIN64/include/GLFW",
+                    "lib/glew-2.0.0/include",
+                    "lib/imgui",
+                    "lib/nanovg/src",
+                    "lib/SDL2-2.0.5/include",
                 }
                 libdirs {
-                    "glfw-3.2.1.bin.WIN64/lib-vc2015",
-                    "glew-2.0.0/lib/Release/x64",
+                    "lib/glfw-3.2.1.bin.WIN64/lib-vc2015",
+                    "lib/glew-2.0.0/lib/Release/x64",
+                    "lib/SDL2-2.0.5/lib/x64",
                 }
 		links { "nanovg" }
 
 		configuration { "windows" }
-			 links { "glfw3", "gdi32", "winmm", "user32", "glew32s", "glu32","opengl32", "kernel32" }
+			 links {
+                             "SDL2", "SDL2main", "glew32", "glfw3",
+                             "gdi32", "winmm", "user32", "glu32","opengl32", "kernel32"
+                         }
 			 defines { "NANOVG_GLEW", "_CRT_SECURE_NO_WARNINGS" }
+                         postbuildcommands {
+                            "copy ..\\lib\\SDL2-2.0.5\\lib\\x64\\SDL2.dll SDL2.dll",
+                            "copy ..\\lib\\glew-2.0.0\\bin\\Release\\x64\\glew32.dll glew32.dll",
+                         }
 
 		configuration "Debug"
 			defines { "DEBUG" }
@@ -68,7 +79,4 @@ solution "battles"
 			flags { "Optimize", "ExtraWarnings"}
 
 			 defines { "NANOVG_GLEW" }
-
-		configuration { "windows" }
-			 links { "glfw3", "gdi32", "winmm", "user32", "glew32s", "glu32","opengl32", "kernel32" }
 
