@@ -34,13 +34,17 @@ solution "battles"
 
 	project "battles"
 		kind "ConsoleApp"
-		language "C"
+		language "C++"
 		targetdir("build")
-		files { "src/*.cpp" }
+		files {
+                    "src/*.cpp",
+                    "imgui/*.cpp",
+                }
 		includedirs {
                     "src",
                     "glfw-3.2.1.bin.WIN64/include/GLFW",
                     "glew-2.0.0/include",
+                    "imgui",
                 }
                 libdirs {
                     "glfw-3.2.1.bin.WIN64/lib-vc2015",
