@@ -37,8 +37,11 @@ solution "battles"
 		kind "ConsoleApp"
 		language "C++"
 		targetdir("build")
+                flags { "NoNativeWChar" }
+                exceptionhandling "Off"
 		files {
                     "src/*.cpp",
+                    "src/*.h",
                     "imgui/*.cpp",
                 }
 		includedirs {

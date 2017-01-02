@@ -25,11 +25,11 @@
 namespace linalg {
 #endif
 
-#ifdef LINALG_SINGLE_PRECISION
-typedef float real;
-#else /* LINALG_SINGLE_PRECISION */
+#ifdef LINALG_DOUBLE_PRECISION
 typedef double real;
-#endif /* LINALG_SINGLE_PRECISION */
+#else /* LINALG_DOUBLE_PRECISION */
+typedef float real;
+#endif /* LINALG_DOUBLE_PRECISION */
 
 typedef struct {
 	real x, y;
@@ -38,6 +38,10 @@ typedef struct {
 typedef struct {
 	real x, y, z;
 } v3;
+
+typedef struct {
+	real x, y, z, w;
+} v4;
 
 typedef struct {
 	real xx, xy;
@@ -253,6 +257,55 @@ v3eq(v3 a, v3 b, real eps)
 	if (!realeq(a.y, b.y, eps)) return (0);
 	if (!realeq(a.z, b.z, eps)) return (0);
 	return (1);
+}
+
+static inline v4
+v4new(real x, real y, real z, real w)
+{
+	v4 v = { x, y, z, w };
+	return (v);
+}
+
+static inline v4
+v4zero(void)
+{
+	return v4new(0, 0, 0, 0);
+}
+
+static inline real
+v4idx(v4 v, unsigned i)
+{
+	return ((real *)&v)[i];
+}
+
+static inline v4
+v4add(v4 a, v4 b)
+{
+	return v4new(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+}
+
+static inline v4
+v4sub(v4 a, v4 b)
+{
+	return v4new(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+
+static inline v4
+v4neg(v4 v)
+{
+	return v4new(-v.x, -v.y, -v.z, -v.w);
+}
+
+static inline v4
+v4mul(v4 v, real s)
+{
+	return v4new(v.x * s, v.y * s, v.z * s, v.w * s);
+}
+
+static inline v4
+v4div(v4 v, real s)
+{
+	return v4new(v.x / s, v.y / s, v.z / s, v.w / s);
 }
 
 static inline m22
