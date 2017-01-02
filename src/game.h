@@ -25,9 +25,9 @@ struct UnitVisual
 
 struct Unit
 {
-	UnitData* const data;
+	const UnitData* data;
 
-	v2 pos;
+	v3 pos;
 	v2 dir;
 	v2 vel;
 
