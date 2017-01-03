@@ -25,14 +25,22 @@ struct Unit
 {
 	static Unit CreateTestUnit();
 
+	void AI();
+	void Update();
+
 	const UnitData* data;
 	const UnitVisual* visual;
 
-	v3 pos;
-	v2 dir;
-	v3 vel;
+	int team;
+
+	v2 pos;
+	float height;
+	float angle;
+	v2 vel;
 
 	float health;
 	float fatigue;
 	float resolve;
+
+	v2 target;
 };

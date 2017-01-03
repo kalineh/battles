@@ -29,10 +29,20 @@ namespace linalg {
 	static inline v2 operator* (v2 lhs, float rhs) { return v2mul(lhs, rhs); }
 	static inline v2 operator/ (v2 lhs, float rhs) { return v2div(lhs, rhs); }
 
+	static inline v2& operator+= (v2& lhs, v2 rhs) { lhs = v2add(lhs, rhs); return lhs; }
+	static inline v2& operator-= (v2& lhs, v2 rhs) { lhs = v2sub(lhs, rhs); return lhs; }
+	static inline v2& operator*= (v2& lhs, float rhs) { lhs = v2mul(lhs, rhs); return lhs; }
+	static inline v2& operator/= (v2& lhs, float rhs) { lhs = v2div(lhs, rhs); return lhs; }
+
 	static inline v3 operator+ (v3 lhs, v3 rhs) { return v3add(lhs, rhs); }
 	static inline v3 operator- (v3 lhs, v3 rhs) { return v3sub(lhs, rhs); }
 	static inline v3 operator* (v3 lhs, float rhs) { return v3mul(lhs, rhs); }
 	static inline v3 operator/ (v3 lhs, float rhs) { return v3div(lhs, rhs); }
+
+	static inline v3& operator+= (v3& lhs, v3 rhs) { lhs = v3add(lhs, rhs); return lhs; }
+	static inline v3& operator-= (v3& lhs, v3 rhs) { lhs = v3sub(lhs, rhs); return lhs; }
+	static inline v3& operator*= (v3& lhs, float rhs) { lhs = v3mul(lhs, rhs); return lhs; }
+	static inline v3& operator/= (v3& lhs, float rhs) { lhs = v3div(lhs, rhs); return lhs; }
 
 	static inline v4 operator+ (v4 lhs, v4 rhs) { return v4add(lhs, rhs); }
 	static inline v4 operator- (v4 lhs, v4 rhs) { return v4sub(lhs, rhs); }

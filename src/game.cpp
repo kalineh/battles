@@ -26,11 +26,11 @@ void Game::Init(void* awindow)
 
 	for (int i = 0; i < UnitCount; ++i)
 	{
-		units[i].pos = v3new(
+		units[i].pos = v2new(
 			(float)(stb_frand() * (float)width),
-			(float)(stb_frand() * (float)height),
-			0.0f
+			(float)(stb_frand() * (float)height)
 		);
+		units[i].target = units[i].pos;
 	}
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
@@ -39,7 +39,7 @@ void Game::Init(void* awindow)
 
 void Game::Release()
 {
-	units = NULL;
+	stb_arr_free(units);
 	grid = NULL;
 }
 
@@ -48,8 +48,9 @@ void Game::Update()
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
-		UnitID unitID = GetUnitID(unit);
-		unit->fatigue += 0.01f * (float)unitID;
+
+		unit->AI();
+		unit->Update();
 	}
 }
 
@@ -76,6 +77,24 @@ void Game::Render()
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);
 		nvgFillColor(context, nvgRGBAf(color.x, color.y, color.z, color.w));
 		nvgFill(context);
+		nvgClosePath(context);
+
+		v2 dir = v2fromangle(unit->angle);
+		v2 tip = unit->pos + dir * unit->data->radius * 1.25f;
+
+		nvgBeginPath(context);
+		nvgMoveTo(context, unit->pos.x, unit->pos.y);
+		nvgLineTo(context, tip.x, tip.y);
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f));
+		nvgStroke(context);
+		nvgClosePath(context);
+
+		nvgBeginPath(context);
+		nvgMoveTo(context, unit->pos.x, unit->pos.y);
+		nvgLineTo(context, unit->target.x, unit->target.y);
+		nvgStrokeColor(context, nvgRGBAf(color.x, color.y, color.z, color.w * 0.5f));
+		nvgStroke(context);
+		nvgClosePath(context);
 	}
 
 	nvgEndFrame(context);
@@ -132,8 +151,8 @@ void Game::RenderImGui()
 					}
 
 					ImGui::SliderFloat3("pos", &unit->pos.x, 0.0f, stb_max(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()));
-					ImGui::SliderFloat2("dir", &unit->dir.x, 0.0f, (float)M_PI * 2.0f);
-					ImGui::SliderFloat3("vel", &unit->vel.x, 0.0f, 100.0f);
+					ImGui::SliderFloat("angle", &unit->angle, 0.0f, TWOPI);
+					ImGui::SliderFloat2("vel", &unit->vel.x, 0.0f, 100.0f);
 
 					ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
 					ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);

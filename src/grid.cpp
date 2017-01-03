@@ -10,7 +10,6 @@ void Cell::Init()
 void Cell::Release()
 {
 	stb_arr_free(unitIDs);
-	unitIDs = NULL;
 }
 
 void Grid::Init(Game* agame, v2i adim, v2 abl, v2 atr)
@@ -29,7 +28,6 @@ void Grid::Init(Game* agame, v2i adim, v2 abl, v2 atr)
 void Grid::Release()
 {
 	stb_arr_free(cells);
-	cells = NULL;
 }
 
 int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
@@ -57,7 +55,7 @@ int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
 		{
 			UnitID unitID = cellUnitIDs[j];
 			Unit* unit = game->GetUnit(unitID);
-			v2 pos = v3xy(unit->pos);
+			v2 pos = unit->pos;
 			float rad = unit->data->radius;
 			v2 unitbl = v2sub(pos, v2new(rad, rad));
 			v2 unittr = v2add(pos, v2new(rad, rad));

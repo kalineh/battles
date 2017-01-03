@@ -25,11 +25,28 @@
 namespace linalg {
 #endif
 
+#define LINALG_SAFE_EPSILON 1.0e-06F
+
 #ifdef LINALG_DOUBLE_PRECISION
 typedef double real;
+#define LINALG_SQRT sqrt
+#define LINALG_ABS abs
+#define LINALG_MIN fmin
+#define LINALG_MAX fmax
+#define LINALG_ATAN2 atan2
+#define LINALG_SIN sin
+#define LINALG_COS cos
 #else /* LINALG_DOUBLE_PRECISION */
 typedef float real;
+#define LINALG_SQRT sqrtf
+#define LINALG_ABS fabsf
+#define LINALG_MIN fminf
+#define LINALG_MAX fmaxf
+#define LINALG_ATAN2 atan2f
+#define LINALG_SIN sinf
+#define LINALG_COS cosf
 #endif /* LINALG_DOUBLE_PRECISION */
+
 
 typedef struct {
 	int x, y;
@@ -185,13 +202,33 @@ v2lensq(v2 v)
 static inline real
 v2len(v2 v)
 {
-	return ((real)sqrt((double)v2lensq(v)));
+	return LINALG_SQRT(v2lensq(v));
+}
+
+static inline real
+v2lensafe(v2 v)
+{
+	real lensq = v2lensq(v);
+	if (realeq(lensq, 0.0f, LINALG_SAFE_EPSILON))
+		return 0;
+	return LINALG_SQRT(lensq);
 }
 
 static inline v2
 v2unit(v2 v)
 {
 	return v2div(v, v2len(v));
+}
+
+static inline v2
+v2unitsafe(v2 v)
+{
+	real lensq = v2lensq(v);
+	if (realeq(lensq, 0.0f, LINALG_SAFE_EPSILON))
+		return v2zero();
+	real len = LINALG_SQRT(lensq);
+	v2 result = v2div(v, len);
+	return result;
 }
 
 static inline real
@@ -286,13 +323,33 @@ v3lensq(v3 v)
 static inline real
 v3len(v3 v)
 {
-	return ((real)sqrt((double)v3lensq(v)));
+	return LINALG_SQRT(v3lensq(v));
+}
+
+static inline real
+v3lensafe(v3 v)
+{
+	real lensq = v3lensq(v);
+	if (realeq(lensq, 0.0f, LINALG_SAFE_EPSILON))
+		return 0;
+	return LINALG_SQRT(lensq);
 }
 
 static inline v3
 v3unit(v3 v)
 {
 	return v3div(v, v3len(v));
+}
+
+static inline v3
+v3unitsafe(v3 v)
+{
+	real lensq = v3lensq(v);
+	if (realeq(lensq, 0.0f, LINALG_SAFE_EPSILON))
+		return v3zero();
+	real len = LINALG_SQRT(lensq);
+	v3 result = v3div(v, len);
+	return result;
 }
 
 static inline real
