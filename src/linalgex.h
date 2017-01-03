@@ -56,18 +56,34 @@ v2toangle(v2 v)
 static inline float
 anglediff(real a, real b)
 {
-	return LINALG_PI - LINALG_ABS(LINALG_ABS(a - b) - LINALG_PI);
+	if (a > LINALG_PI) a -= LINALG_TWOPI;
+	if (b > LINALG_PI) b -= LINALG_TWOPI;
+	real d = b - a;
+	if (d < -LINALG_PI) d += LINALG_TWOPI;
+	if (d > +LINALG_PI) d -= LINALG_TWOPI;
+	return d;
 }
 
 static inline real
-angleto(real src, real dst, float d)
+anglewrap0TWOPI(real f)
 {
-	real diff = anglediff(dst, src);
-	if (diff < 0)
-		diff = LINALG_MAX(diff, -d);
-	if (diff > 0)
-		diff = LINALG_MIN(diff, d);
-	return src + diff;
+	while (f < 0)
+		f += LINALG_TWOPI;
+	while (f >= LINALG_TWOPI)
+		f -= LINALG_TWOPI;
+	return f;
+}
+
+static inline real
+angleto(real src, real dst, real d)
+{
+	src = anglewrap0TWOPI(src);
+	dst = anglewrap0TWOPI(dst);
+
+	real diff = anglediff(src, dst);
+	real move = diff < 0 ? LINALG_MAX(diff, -d) : LINALG_MIN(diff, d);
+
+	return src + move;
 }
 
 static inline bool
