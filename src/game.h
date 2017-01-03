@@ -8,6 +8,7 @@ struct Game
 
 	void Update();
 	void Render();
+	void RenderImGui();
 
 	Unit* GetUnit(UnitID id);
 	UnitID GetUnitID(Unit* unit);

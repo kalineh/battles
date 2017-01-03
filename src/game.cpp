@@ -79,16 +79,73 @@ void Game::Render()
 	}
 
 	nvgEndFrame(context);
+	
+	RenderImGui();
+}
 
-	ImGui::Begin("Game", &guiOpen);
-	ImGui::Text("Units: %d", stb_arr_len(units));
-	for (int i = 0; i < stb_arr_len(units); ++i)
+void Game::RenderImGui()
+{
+	static bool openMetricsWindow = false;
+	static bool openGameWindow = false;
+	static bool openUnitsWindow = false;
+
+	ImGui::Begin("Game", &openGameWindow);
+	ImGui::End();
+
+	//ImGui::ShowMetricsWindow(&openMetricsWindow);
+
+	if (ImGui::Begin("Units", &openUnitsWindow))
 	{
-		Unit* unit = &units[i];
-		UnitID unitID = GetUnitID(unit);
-		ImGui::Text("%d: %d: pos: %.2f,%.2f; ftg: %.2f", i, unitID, unit->pos.x, unit->pos.y, unit->fatigue);
-	}
+		if (ImGui::TreeNode(units, "All Units (%d)", stb_arr_len(units)))
+		{
+			for (int i = 0; i < stb_arr_len(units); ++i)
+			{
+				Unit* unit = &units[i];
+				UnitID unitID = GetUnitID(unit);
 
+				if (ImGui::TreeNode(unit, "%s(%d)", unit->data->type, unitID))
+				{
+					ImGui::LabelText("Type", unit->data->type);
+
+					if (ImGui::TreeNode("Config"))
+					{
+						ImGui::LabelText("Radius", "%.2f", unit->data->radius);
+						ImGui::LabelText("Mass", "%.2f", unit->data->mass);
+						ImGui::LabelText("Accel", "%.2f", unit->data->accel);
+						ImGui::LabelText("Armor", "%.2f", unit->data->armor);
+						ImGui::LabelText("Health", "%.2f", unit->data->health);
+						ImGui::LabelText("Fatigue", "%.2f", unit->data->fatigue);
+						ImGui::LabelText("Resolve", "%.2f", unit->data->resolve);
+						ImGui::LabelText("Flyer", "%s", unit->data->flyer ? "true" : "false");
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("Visual"))
+					{
+						ImGui::LabelText("Color", "%.2f,%.2f,%.2f,%.2f",
+							unit->visual->color.x,
+							unit->visual->color.y,
+							unit->visual->color.z,
+							unit->visual->color.w
+						);
+						ImGui::TreePop();
+					}
+
+					ImGui::SliderFloat3("pos", &unit->pos.x, 0.0f, stb_max(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()));
+					ImGui::SliderFloat2("dir", &unit->dir.x, 0.0f, (float)M_PI * 2.0f);
+					ImGui::SliderFloat3("vel", &unit->vel.x, 0.0f, 100.0f);
+
+					ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
+					ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
+					ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
+
+					ImGui::TreePop();
+				}
+			}
+			
+			ImGui::TreePop();
+		}
+	}
 	ImGui::End();
 }
 
