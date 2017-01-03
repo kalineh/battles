@@ -12,7 +12,7 @@
 
 void Game::Init(void* awindow)
 {
-	const int UnitCount = 128;
+	const int UnitCount = 1;
 
 	window = awindow;
 
@@ -32,6 +32,8 @@ void Game::Init(void* awindow)
 		);
 		units[i].target = units[i].pos;
 	}
+
+	units[0].pos = v2new(250, 250);
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
 	grid->Init(this, v2inew(8, 8), v2zero(), v2new(8.0f, 8.0f));

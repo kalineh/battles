@@ -41,7 +41,12 @@ Unit Unit::CreateTestUnit()
 
 void Unit::AI()
 {
-	if ((stb_rand() % 5000) == 0)		
+	//target = v2new(100,100);
+	target = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+	IMGUI_DEBUG(target);
+	return;
+
+	if ((stb_rand() % 50) == 0)		
 	{
 		target = v2new(
 			pos.x + (float)(stb_frand() * (float)100.0f),
@@ -52,31 +57,41 @@ void Unit::AI()
 
 void Unit::Update()
 {
+	// face to
+	// move to
+	// face to
+
 	const float dt = 1.0f / 60.0f;
+	const float rotationRate = 0.5f;
 	const float friction = 0.25f;
-	const float brake = 15.0f;
-	const float snap = 1.5f;
+	const float brake = 0.25f;
 
 	v2 targetOfs = target - pos;
 	v2 targetDir = v2unitsafe(targetOfs);
 
 	float targetAngle = v2toangle(targetDir);
-	float targetAngleLen = anglediff(angle, targetAngle);
-	float targetAngleApproach = fminf(targetAngleLen, 0.5f) / 0.5f;
+	float targetAngleDiff = anglediff(angle, targetAngle);
+	float targetAngleApproach = fminf(fabsf(targetAngleDiff), 0.5f) / 0.5f;
 
-	angle = angleto(angle, targetAngle, PI * dt * targetAngleApproach);
+	targetAngleApproach = fmaxf(targetAngleApproach, 0.25f);
+
+	angle = angleto(angle, targetAngle, PI * dt * rotationRate * targetAngleApproach);
 
 	float targetLen = v2lensafe(targetOfs);
-	float targetApproach = fminf(targetLen, 2.5f) / 2.5f;
+	float targetApproach = fminf(targetLen, 10.0f) / 10.0f;
+	float targetApproachBrake = 1.0f - targetApproach;
+	float velLen = v2lensafe(vel);
+
+	targetApproach = fmaxf(targetApproach, 0.25f);
 
 	v2 approachDir = v2fromangle(angle) * targetApproach;
 	v2 brakeDir = approachDir * -1.0f;
 
-	if (targetLen < snap)
-		approachDir = v2zero();
-
-	vel += approachDir * data->accel / data->mass * dt * targetApproach;
-	vel += brakeDir * data->accel / data->mass * dt * (1.0f - targetApproach) * brake;
-	vel -= vel * friction * data->mass * dt;
-	pos += vel * dt;
+	if (ImGui::IsMouseDown(0))
+	{
+		vel += approachDir * data->accel / data->mass * dt * targetApproach;
+		vel += brakeDir * data->accel / data->mass * dt * targetApproachBrake * brake * velLen;
+		vel -= vel * friction * data->mass * dt;
+		pos += vel * dt;
+	}
 }

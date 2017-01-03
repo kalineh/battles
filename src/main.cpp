@@ -61,9 +61,9 @@ int xmain(int, char**)
                 done = true;
         }
 
-		game->Update();
-
         ImGui_ImplSdlGL3_NewFrame(window);
+
+		game->Update();
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

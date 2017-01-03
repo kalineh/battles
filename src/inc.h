@@ -7,6 +7,7 @@
 #include "linalg.h"
 #include "linalgop.h"
 #include "linalgex.h"
+#include "imgui_debug.h"
 
 #define OWNER
 #define ARRAY
