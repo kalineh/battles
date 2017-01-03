@@ -15,7 +15,7 @@ int main(int, char**)
 #define STB_DEFINE
 #include "stb.h"
 
-#include "game.h"
+#include "inc.h"
 
 // TODO: something putting this in a namespace
 int xmain(int, char**)
@@ -46,9 +46,9 @@ int xmain(int, char**)
 
     ImVec4 clear_color = ImColor(30, 30, 30);
 
-	Game game;
+	Game* game = (Game*)stb_malloc_global(sizeof(Game));
 
-	game.Init();
+	game->Init();
 
     bool done = false;
     while (!done)
@@ -61,7 +61,7 @@ int xmain(int, char**)
                 done = true;
         }
 
-		game.Update();
+		game->Update();
 
         ImGui_ImplSdlGL3_NewFrame(window);
 
@@ -70,12 +70,13 @@ int xmain(int, char**)
         glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
-		game.Render();
+		game->Render();
         ImGui::Render();
         SDL_GL_SwapWindow(window);
     }
 
-	game.Release();
+	game->Release();
+	stb_free(game);
 
     ImGui_ImplSdlGL3_Shutdown();
     SDL_GL_DeleteContext(glcontext);

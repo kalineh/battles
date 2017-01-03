@@ -1,48 +1,19 @@
 
-#include <imgui.h>
-
-#include "linalg.h"
-#include "stb.h"
-
-using namespace linalg;
-
-struct UnitData
-{
-	float radius;
-	float mass;
-	float accel;
-	float armor;
-	float health;
-	float fatigue;
-	float resolve;
-	bool flyer;
-};
-
-struct UnitVisual
-{
-	v4 color;
-};
-
-struct Unit
-{
-	const UnitData* data;
-
-	v3 pos;
-	v2 dir;
-	v2 vel;
-
-	float health;
-	float fatigue;
-	float resolve;
-};
+#include "inc.h"
 
 struct Game
 {
 	void Init();
 	void Release();
 
-	void Render();
 	void Update();
+	void Render();
 
-	Unit* units;
+	Unit* GetUnit(UnitID id);
+	UnitID GetUnitID(Unit* unit);
+
+	Grid* GetGrid();
+
+	Unit* OWNER units;
+	Grid* OWNER grid;
 };

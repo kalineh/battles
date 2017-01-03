@@ -32,6 +32,14 @@ typedef float real;
 #endif /* LINALG_DOUBLE_PRECISION */
 
 typedef struct {
+	int x, y;
+} v2i;
+
+typedef struct {
+	int x, y, z;
+} v3i;
+
+typedef struct {
 	real x, y;
 } v2;
 
@@ -62,6 +70,49 @@ static inline int
 realeq(real a, real b, real eps)
 {
 	return (fabs((double)(a - b)) < (double)eps);
+}
+
+static inline v2i
+v2inew(int x, int y)
+{
+	v2i v = { x, y };
+	return (v);
+}
+
+static inline v2i
+v2izero(void)
+{
+	return v2inew(0, 0);
+}
+
+static inline int
+v2iidx(v2i v, unsigned i)
+{
+	return ((int *)&v)[i];
+}
+
+static inline v2i
+v2iadd(v2i a, v2i b)
+{
+	return v2inew(a.x + b.x, a.y + b.y);
+}
+
+static inline v2i
+v2isub(v2i a, v2i b)
+{
+	return v2inew(a.x - b.x, a.y - b.y);
+}
+
+static inline v2i
+v2ineg(v2i v)
+{
+	return v2inew(-v.x, -v.y);
+}
+
+static inline v2i
+v2imul(v2i v, real s)
+{
+	return v2inew((int)(v.x * s), (int)(v.y * s));
 }
 
 static inline v2
@@ -105,6 +156,12 @@ static inline v2
 v2mul(v2 v, real s)
 {
 	return v2new(v.x * s, v.y * s);
+}
+
+static inline v2
+v2mulv(v2 v, v2 s)
+{
+	return v2new(v.x * s.x, v.y * s.y);
 }
 
 static inline v2
@@ -307,6 +364,17 @@ v4div(v4 v, real s)
 {
 	return v4new(v.x / s, v.y / s, v.z / s, v.w / s);
 }
+
+static inline v2 v3xx(v3 v) { return v2new(v.x, v.x); } 
+static inline v2 v3xy(v3 v) { return v2new(v.x, v.y); } 
+static inline v2 v3yy(v3 v) { return v2new(v.y, v.y); } 
+
+static inline v3 v2xy0(v2 v) { return v3new(v.x, v.y, 0); } 
+static inline v4 v2xy00(v2 v) { return v4new(v.x, v.y, 0, 0); } 
+
+static inline v2 v4xy(v4 v) { return v2new(v.x, v.y); } 
+static inline v3 v4xyz(v4 v) { return v3new(v.x, v.y, v.z); } 
+
 
 static inline m22
 m22new(real xx, real xy, real yx, real yy)
