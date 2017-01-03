@@ -79,6 +79,7 @@ solution "battles"
 		configuration "Debug"
 			defines { "DEBUG" }
                         symbols "On"
+                        editAndContinue "On"
 			flags { "ExtraWarnings"}
 
 		configuration "Release"
