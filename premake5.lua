@@ -20,7 +20,10 @@ solution "battles"
                     "lib/glfw-3.2.1.bin.WIN64/lib-vc2015",
                     "lib/glew-2.0.0/lib/Release/x64",
                 }
-		files { "lib/nanovg/src/*.c" }
+		files {
+                    "lib/nanovg/src/*.c",
+                    "lib/nanovg/src/*.h"
+                }
 		defines { "_CRT_SECURE_NO_WARNINGS" } --,"FONS_USE_FREETYPE" } Uncomment to compile with FreeType support
 		
 		configuration "Debug"
@@ -43,6 +46,8 @@ solution "battles"
                     "src/*.cpp",
                     "src/*.h",
                     "imgui/*.cpp",
+                    "lib/glew-2.0.0/include/GL/*.h",
+                    "lib/SDL2-2.0.5/include/*.h",
                 }
 		includedirs {
                     "src",
