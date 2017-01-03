@@ -3,7 +3,7 @@
 
 struct Game
 {
-	void Init();
+	void Init(void* awindow);
 	void Release();
 
 	void Update();
@@ -13,6 +13,8 @@ struct Game
 	UnitID GetUnitID(Unit* unit);
 
 	Grid* GetGrid();
+
+	void* window;
 
 	Unit* OWNER units;
 	Grid* OWNER grid;

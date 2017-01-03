@@ -4,20 +4,26 @@
 Unit Unit::CreateTestUnit()
 {
 	static UnitData data = {
-		"TestType",
-		1.0f,
-		5.0f,
-		2.0f,
-		10.0f,
-		100.0f,
-		100.0f,
-		100.0f,
-		false,
+		"TestType", // type
+		10.0f, // radius
+		5.0f, // mass
+		2.0f, // accel
+		10.0f, // armor
+		100.0f, // health
+		100.0f, // fatigue
+		100.0f, // resolve
+		false, // flyer
+	};
+
+	static UnitVisual visual = {
+		v4rgb1(1,1,1),
 	};
 
 	Unit unit;
 	
 	unit.data = &data;
+	unit.visual = &visual;
+
 	unit.pos = v3zero();
 	unit.dir = v2zero();
 	unit.vel = v3zero();

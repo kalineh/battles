@@ -48,7 +48,7 @@ int xmain(int, char**)
 
 	Game* game = (Game*)stb_malloc_global(sizeof(Game));
 
-	game->Init();
+	game->Init((void*)window);
 
     bool done = false;
     while (!done)

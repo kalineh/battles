@@ -26,6 +26,7 @@ struct Unit
 	static Unit CreateTestUnit();
 
 	const UnitData* data;
+	const UnitVisual* visual;
 
 	v3 pos;
 	v2 dir;
