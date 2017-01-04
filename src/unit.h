@@ -42,5 +42,6 @@ struct Unit
 	float fatigue;
 	float resolve;
 
-	v2 target;
+	v2 targetPos;
+	float targetAngle;
 };

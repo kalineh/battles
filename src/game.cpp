@@ -12,7 +12,7 @@
 
 void Game::Init(void* awindow)
 {
-	const int UnitCount = 1;
+	const int UnitCount = 32;
 
 	window = awindow;
 
@@ -30,7 +30,8 @@ void Game::Init(void* awindow)
 			(float)(stb_frand() * (float)width),
 			(float)(stb_frand() * (float)height)
 		);
-		units[i].target = units[i].pos;
+		units[i].targetPos = units[i].pos;
+		units[i].targetAngle = (float)stb_frand() * TWOPI;
 	}
 
 	units[0].pos = v2new(250, 250);
@@ -93,7 +94,7 @@ void Game::Render()
 
 		nvgBeginPath(context);
 		nvgMoveTo(context, unit->pos.x, unit->pos.y);
-		nvgLineTo(context, unit->target.x, unit->target.y);
+		nvgLineTo(context, unit->targetPos.x, unit->targetPos.y);
 		nvgStrokeColor(context, nvgRGBAf(color.x, color.y, color.z, color.w * 0.5f));
 		nvgStroke(context);
 		nvgClosePath(context);
