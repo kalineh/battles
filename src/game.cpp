@@ -37,7 +37,7 @@ void Game::Init(void* awindow)
 	units[0].pos = v2new(250, 250);
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(this, v2inew(8, 8), v2zero(), v2new(8.0f, 8.0f));
+	grid->Init(this, v2inew(8, 8), v2zero(), v2new(width, height));
 }
 
 void Game::Release()
@@ -48,6 +48,8 @@ void Game::Release()
 
 void Game::Update()
 {
+	grid->Fill(units);
+
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
@@ -113,6 +115,8 @@ void Game::RenderImGui()
 
 	ImGui::Begin("Game", &openGameWindow);
 	ImGui::End();
+
+	grid->RenderImGui();
 
 	//ImGui::ShowMetricsWindow(&openMetricsWindow);
 

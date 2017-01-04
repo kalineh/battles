@@ -4,12 +4,23 @@
 void Cell::Init()
 {
 	unitIDs = NULL;
-	stb_arr_setsize(unitIDs, 16);
+	stb_arr_setsize(unitIDs, 32);
+	stb_arr_setlen(unitIDs, 0);
 }
 
 void Cell::Release()
 {
 	stb_arr_free(unitIDs);
+}
+
+void Cell::Clear()
+{
+	stb_arr_setlen(unitIDs, 0);
+}
+
+void Cell::Add(UnitID id)
+{
+	stb_arr_push(unitIDs, id);
 }
 
 void Grid::Init(Game* agame, v2i adim, v2 abl, v2 atr)
@@ -28,6 +39,81 @@ void Grid::Init(Game* agame, v2i adim, v2 abl, v2 atr)
 void Grid::Release()
 {
 	stb_arr_free(cells);
+}
+
+void Grid::Fill(Unit* ARRAY units)
+{
+	for (int i = 0; i < stb_arr_len(cells); ++i)
+	{
+		Cell* cell = cells + i;
+		cell->Clear();
+	}
+
+	v2 span = tr - bl;
+	v2 cellSize = v2new(span.x / dim.x, span.y / dim.y);
+
+	for (int i = 0; i < stb_arr_len(units); ++i)
+	{
+		Unit* unit = units + i;
+		if (unit->health <= 0.0f)
+			continue;
+
+		UnitID id = (UnitID)i;
+		v2 pos = unit->pos;
+		v2i coord = GetGridCoord(pos);
+		Cell* cell = GetCell(coord);
+
+		cell->Add(id);
+	}
+}
+
+void Grid::RenderImGui()
+{
+	static bool openGridWindow = false;
+	static bool sparse = true;
+
+	ImGui::Begin("Grid", &openGridWindow);
+
+	ImGui::Checkbox("Sparse", &sparse);
+
+	ImGui::PushID(this);
+	if (ImGui::TreeNode(this, "cells"))
+	{
+		for (int y = 0; y < dim.y; ++y)
+		{
+			ImGui::PushID(y);
+			if (ImGui::TreeNode(this, "row %d", y))
+			{
+				for (int x = 0; x < dim.x; ++x)
+				{
+					int index = x + y * dim.x;
+					Cell* cell = GetCellIndexed(index);
+					if (sparse && stb_arr_len(cell->unitIDs) == 0)
+						continue;
+
+					if (ImGui::TreeNode(cell, "col %d (%d)", x, stb_arr_len(cell->unitIDs)))
+					{
+						for (int i = 0; i < stb_arr_len(cell->unitIDs); ++i)
+						{
+							UnitID id = cell->unitIDs[i];
+							Unit* unit = game->GetUnit(id);
+
+							ImGui::LabelText("unit", "%d (%s)", id, unit->data->type);
+						}
+
+						ImGui::TreePop();
+					}
+				}
+
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+		}
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+
+	ImGui::End();
 }
 
 int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
@@ -71,9 +157,9 @@ int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
 	return found;
 }
 
-Cell* Grid::GetCell(v2i loc)
+Cell* Grid::GetCell(v2i coord)
 {
-	return GetCellIndexed(loc.x + loc.y * dim.x);
+	return GetCellIndexed(coord.x + coord.y * dim.x);
 }
 
 Cell* Grid::GetCellIndexed(int index)
@@ -88,8 +174,10 @@ v2i Grid::GetGridCoord(v2 pos)
 
 	v2 span = tr - bl;
 	v2 cell = v2new(span.x / dim.x, span.y / dim.y);
+	v2i coord = v2inew(pos.x / cell.x, pos.y / cell.y);
 
-	v2i coord = v2inew((int)cell.x, (int)cell.y);
+	coord.x = stb_clamp(coord.x, 0, dim.x - 1);
+	coord.y = stb_clamp(coord.y, 0, dim.y - 1);
 
 	return coord;
 }

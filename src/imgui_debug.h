@@ -8,10 +8,11 @@
 	_ImGuiDebug(#x, x, &x); \
 	ImGui::PopID()
 
-void _ImGuiDebug(const char* label, int x, int* p);
-void _ImGuiDebug(const char* label, float x, float* p);
-void _ImGuiDebug(const char* label, const char* x, const char** p);
+void _ImGuiDebug(const char* label, int infer, int* p);
+void _ImGuiDebug(const char* label, float infer, float* p);
+void _ImGuiDebug(const char* label, const char* infer, const char** p);
 
-void _ImGuiDebug(const char* label, linalg::v2 x, linalg::v2* p);
-void _ImGuiDebug(const char* label, linalg::v3 x, linalg::v3* p);
-void _ImGuiDebug(const char* label, linalg::v4 x, linalg::v4* p);
+void _ImGuiDebug(const char* label, linalg::v2i infer, linalg::v2i* p);
+void _ImGuiDebug(const char* label, linalg::v2 infer, linalg::v2* p);
+void _ImGuiDebug(const char* label, linalg::v3 infer, linalg::v3* p);
+void _ImGuiDebug(const char* label, linalg::v4 infer, linalg::v4* p);
