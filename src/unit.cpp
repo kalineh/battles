@@ -1,6 +1,26 @@
 
 #include "inc.h"
 
+Unit Unit::CreateNullUnit()
+{
+	static UnitData data;
+	static UnitVisual visual;
+
+	memset(&data, 0, sizeof(data));
+	memset(&visual, 0, sizeof(visual));
+
+	data.type = "NullType";
+
+	Unit unit;
+
+	memset(&unit, 0, sizeof(unit));
+
+	unit.data = &data;
+	unit.visual = &visual;
+
+	return unit;
+}
+
 Unit Unit::CreateTestUnit()
 {
 	static UnitData data = {
@@ -15,14 +35,15 @@ Unit Unit::CreateTestUnit()
 		false, // flyer
 	};
 
-	static UnitVisual visuals[2] = {
+	static UnitVisual visuals[3] = {
+		{ v4rgb1(0,0,0), },
 		{ v4rgb1(1,0,0), },
 		{ v4rgb1(0,0,1), },
 	};
 
 	Unit unit;
 
-	unit.team = stb_rand() % 2;
+	unit.team = stb_rand() % 2 + 1;
 
 	unit.data = &data;
 	unit.visual = &visuals[unit.team];
@@ -100,4 +121,17 @@ void Unit::Update()
 	vel += brakeDir * data->accel / data->mass * dt * targetApproachBrake * brake * velLen;
 	vel -= vel * friction * data->mass * dt;
 	pos += vel * dt;
+}
+
+bool Unit::IsValid()
+{
+	return team > 0;
+}
+
+bool Unit::IsAlive()
+{
+	if (health <= 0.0f)
+		return false;
+
+	return true;
 }

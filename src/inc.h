@@ -21,9 +21,12 @@ using namespace linalg;
 struct Game;
 struct Grid;
 struct Unit;
+struct Cell;
+struct Touch;
 
 #include "unit.h"
 #include "game.h"
 #include "grid.h"
 #include "group.h"
+#include "touch.h"
 

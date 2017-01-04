@@ -13,28 +13,36 @@
 void Game::Init(void* awindow)
 {
 	const int UnitCount = 32;
+	const int SpawnCount = 16;
 
 	window = awindow;
 
 	units = NULL;
 	stb_arr_setlen(units, UnitCount);
+
 	for (int i = 0; i < UnitCount; ++i)
-		units[i] = Unit::CreateTestUnit();
+		units[i] = Unit::CreateNullUnit();
+
+	for (int i = 0; i < SpawnCount; ++i)
+		units[stb_rand() % UnitCount] = Unit::CreateTestUnit();
 
 	int width, height;
 	SDL_GetWindowSize((SDL_Window*)window, &width, &height);
 
 	for (int i = 0; i < UnitCount; ++i)
 	{
-		units[i].pos = v2new(
+		Unit* unit = GetUnit((UnitID)i);
+
+		if (!unit->IsValid())
+			continue;
+
+		unit->pos = v2new(
 			(float)(stb_frand() * (float)width),
 			(float)(stb_frand() * (float)height)
 		);
-		units[i].targetPos = units[i].pos;
-		units[i].targetAngle = (float)stb_frand() * TWOPI;
+		unit->targetPos = unit->pos;
+		unit->targetAngle = (float)stb_frand() * TWOPI;
 	}
-
-	units[0].pos = v2new(250, 250);
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
 	grid->Init(this, v2inew(16, 16), v2zero(), v2new(width, height));

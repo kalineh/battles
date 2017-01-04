@@ -1,47 +1,21 @@
+/*
 
-#include "inc.h"
+Unit
+- unit vs unit physical collisions
+- unit touching tracker
 
-struct UnitData
-{
-	const char* type;
-	float radius;
-	float mass;
-	float accel;
-	float armor;
-	float health;
-	float fatigue;
-	float resolve;
-	bool flyer;
-};
+Group
+- formation local placement
+- formation types
+- group-wise stat summaries
 
-struct UnitVisual
-{
-	v4 color;
-};
+Combat
+- basic hit in/out
+- death handling
 
-typedef int UnitID;
+Render
+- optimized quad renderer
+- camera / zoom
+- voxel render mode
 
-struct Unit
-{
-	static Unit CreateTestUnit();
-
-	void AI();
-	void Update();
-
-	const UnitData* data;
-	const UnitVisual* visual;
-
-	int team;
-
-	v2 pos;
-	float height;
-	float angle;
-	v2 vel;
-
-	float health;
-	float fatigue;
-	float resolve;
-
-	v2 targetPos;
-	float targetAngle;
-};
+*/

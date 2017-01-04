@@ -23,10 +23,14 @@ typedef int UnitID;
 
 struct Unit
 {
+	static Unit CreateNullUnit();
 	static Unit CreateTestUnit();
 
 	void AI();
 	void Update();
+
+	bool IsValid();
+	bool IsAlive();
 
 	const UnitData* data;
 	const UnitVisual* visual;
