@@ -45,18 +45,26 @@ void Game::Init(void* awindow)
 	}
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(this, v2inew(16, 16), v2zero(), v2new(width, height));
+	grid->Init(units, v2inew(16, 16), v2zero(), v2new((float)width, (float)height));
+
+	touch = (Touch*)stb_malloc(this, sizeof(Touch));
+	touch->Init(units);
 }
 
 void Game::Release()
 {
 	stb_arr_free(units);
+
+	grid->Release();
 	grid = NULL;
+
+	touch->Release();
+	touch = NULL;
 }
 
 void Game::Update()
 {
-	grid->Fill(units);
+	grid->Rebuild();
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
@@ -83,7 +91,7 @@ void Game::Render()
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
-		UnitID unitID = GetUnitID(unit);
+
 		v4 color = unit->visual->color;
 
 		nvgBeginPath(context);

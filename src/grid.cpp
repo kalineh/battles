@@ -23,9 +23,9 @@ void Cell::Add(UnitID id)
 	stb_arr_push(unitIDs, id);
 }
 
-void Grid::Init(Game* agame, v2i adim, v2 abl, v2 atr)
+void Grid::Init(Unit* ARRAY aunits, v2i adim, v2 abl, v2 atr)
 {
-	game = agame;
+	units = aunits;
 	dim = adim;
 	bl = abl;
 	tr = atr;
@@ -41,7 +41,7 @@ void Grid::Release()
 	stb_arr_free(cells);
 }
 
-void Grid::Fill(Unit* ARRAY units)
+void Grid::Rebuild()
 {
 	for (int i = 0; i < stb_arr_len(cells); ++i)
 	{
@@ -126,7 +126,7 @@ void Grid::RenderImGui()
 						for (int i = 0; i < stb_arr_len(cell->unitIDs); ++i)
 						{
 							UnitID id = cell->unitIDs[i];
-							Unit* unit = game->GetUnit(id);
+							Unit* unit = units + id;
 
 							ImGui::LabelText("unit", "%d (%s)", id, unit->data->type);
 						}
@@ -170,7 +170,7 @@ int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
 		for (int j = 0; j < stb_arr_len(cellUnitIDs); ++j)
 		{
 			UnitID unitID = cellUnitIDs[j];
-			Unit* unit = game->GetUnit(unitID);
+			Unit* unit = units + unitID;
 			v2 pos = unit->pos;
 			float rad = unit->data->radius;
 			v2 unitbl = v2sub(pos, v2new(rad, rad));

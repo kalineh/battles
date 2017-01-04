@@ -4,6 +4,7 @@
 void Touch::Init(Unit* aunits)
 {
 	units = aunits;
+	entries = NULL;
 	stb_arr_setlen(entries, stb_arr_len(units));
 }
 

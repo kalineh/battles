@@ -19,4 +19,5 @@ struct Game
 
 	Unit* OWNER units;
 	Grid* OWNER grid;
+	Touch* OWNER touch;
 };
