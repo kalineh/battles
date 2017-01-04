@@ -56,10 +56,6 @@ void Unit::AI()
 
 void Unit::Update()
 {
-	// face to
-	// move to
-	// face to
-
 	const float dt = 1.0f / 60.0f;
 	const float rotationRate = 1.5f;
 	const float friction = 0.25f;

@@ -37,7 +37,7 @@ void Game::Init(void* awindow)
 	units[0].pos = v2new(250, 250);
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(this, v2inew(8, 8), v2zero(), v2new(width, height));
+	grid->Init(this, v2inew(16, 16), v2zero(), v2new(width, height));
 }
 
 void Game::Release()

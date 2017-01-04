@@ -80,11 +80,17 @@ void Grid::RenderImGui()
 
 	if (minimap)
 	{
+		ImGui::Separator();
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+
 		for (int y = 0; y < dim.y; ++y)
 		{
 			for (int x = 0; x < dim.x; ++x)
 			{
-
 				int index = x + y * dim.x;
 				Cell* cell = GetCellIndexed(index);
 				int count = stb_arr_len(cell->unitIDs);
@@ -95,6 +101,9 @@ void Grid::RenderImGui()
 					ImGui::SameLine();
 			}
 		}
+
+		ImGui::PopStyleVar(4);
+		ImGui::Separator();
 	}
 
 	ImGui::PushID(this);
