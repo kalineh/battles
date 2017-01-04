@@ -43,6 +43,7 @@ solution "battles"
                 flags { "NoNativeWChar" }
                 exceptionhandling "Off"
 		files {
+                    "todo.txt",
                     "src/*.cpp",
                     "src/*.h",
                     "imgui/*.cpp",
