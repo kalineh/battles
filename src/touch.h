@@ -14,6 +14,8 @@ struct Touch
 		UnitID ids[4];
 	};
 
+	Entry* GetEntry(UnitID id);
+
 	Unit* ARRAY units;
 	Entry* OWNER ARRAY entries;
 };

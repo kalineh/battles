@@ -146,7 +146,7 @@ void Grid::RenderImGui()
 	ImGui::End();
 }
 
-int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
+int Grid::Query(UnitID** ARRAY results, v2 qbl, v2 qtr)
 {
 	int found = 0;
 
@@ -179,7 +179,7 @@ int Grid::Query(UnitID* ARRAY OWNER results, v2 qbl, v2 qtr)
 			if (!rectoverlap(qbl, qtr, unitbl, unittr))
 				continue;
 
-			stb_arr_push(results, unitID);
+			stb_arr_push(*results, unitID);
 			found++;
 		}
 	}
@@ -204,7 +204,7 @@ v2i Grid::GetGridCoord(v2 pos)
 
 	v2 span = tr - bl;
 	v2 cell = v2new(span.x / dim.x, span.y / dim.y);
-	v2i coord = v2inew(pos.x / cell.x, pos.y / cell.y);
+	v2i coord = v2inew((int)(pos.x / cell.x), (int)(pos.y / cell.y));
 
 	coord.x = stb_clamp(coord.x, 0, dim.x - 1);
 	coord.y = stb_clamp(coord.y, 0, dim.y - 1);

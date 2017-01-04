@@ -66,13 +66,23 @@ void Game::Update()
 {
 	grid->Rebuild();
 
+	touch->Clear();
+
+	UnitID* query = NULL;
+	stb_arr_setsize(query, 16);
+
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
 
+		grid->Query(&query, unit->pos, unit->pos);
+		touch->Collect(unit, query);
+
 		unit->AI();
 		unit->Update();
 	}
+
+	stb_arr_free(query);
 }
 
 void Game::Render()
@@ -93,6 +103,10 @@ void Game::Render()
 		Unit* unit = GetUnit(i);
 
 		v4 color = unit->visual->color;
+
+		Touch::Entry* entry = touch->GetEntry(i);
+		if (entry->ids[0] != 0)
+			color = v4rgb1(1,1,1);
 
 		nvgBeginPath(context);
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);
@@ -170,6 +184,15 @@ void Game::RenderImGui()
 							unit->visual->color.z,
 							unit->visual->color.w
 						);
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("Touching"))
+					{
+						Touch::Entry* entry = touch->GetEntry(i);
+						for (int j = 0; j < stb_arrcount(Touch::Entry::ids); ++j)
+							ImGui::Text("%d: %d", j, entry->ids[j]);
+
 						ImGui::TreePop();
 					}
 

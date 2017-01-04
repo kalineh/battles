@@ -29,7 +29,7 @@ void Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
 
 	for (int i = 0; i < stb_arr_len(candidates); ++i)
 	{
-		Entry* entry = entry + i;
+		Entry* entry = entries + i;
 		UnitID* candidateID = candidates + i;
 		Unit* candidate = units + *candidateID;
 
@@ -40,7 +40,7 @@ void Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
 
 		if (lensq < rangesq)
 		{
-			for (int j = 0; j < stb_arrcount(entry->ids); ++i)
+			for (int j = 0; j < stb_arrcount(entry->ids); ++j)
 			{
 				if (entry->ids[j] == 0)
 				{
@@ -50,4 +50,10 @@ void Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
 			}
 		}
 	}
+}
+
+Touch::Entry* Touch::GetEntry(UnitID id)
+{
+	Entry* entry = entries + id;
+	return entry;
 }
