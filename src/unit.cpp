@@ -61,22 +61,36 @@ void Unit::Update()
 	// face to
 
 	const float dt = 1.0f / 60.0f;
-	const float rotationRate = 0.5f;
+	const float rotationRate = 1.5f;
 	const float friction = 0.25f;
 	const float brake = 0.25f;
+	const float arrive = 0.05f;
 
 	v2 targetOfs = targetPos - pos;
 	v2 targetDir = v2unitsafe(targetOfs);
 
-	float targetPosAngle = v2toangle(targetDir);
-	float targetPosAngleDiff = anglediff(angle, targetPosAngle);
-	float targetPosAngleApproach = fminf(fabsf(targetPosAngleDiff), 0.5f) / 0.5f;
-
-	targetPosAngleApproach = fmaxf(targetPosAngleApproach, 0.25f);
-
-	angle = angleto(angle, targetPosAngle, PI * dt * rotationRate * targetPosAngleApproach);
-
 	float targetLen = v2lensafe(targetOfs);
+
+	if (targetLen > arrive)
+	{
+		float targetPosAngle = v2toangle(targetDir);
+		float targetPosAngleDiff = anglediff(angle, targetPosAngle);
+		float targetPosAngleApproach = fminf(fabsf(targetPosAngleDiff), 0.5f) / 0.5f;
+
+		targetPosAngleApproach = fmaxf(targetPosAngleApproach, 0.25f);
+
+		angle = angleto(angle, targetPosAngle, PI * dt * rotationRate * targetPosAngleApproach);
+	}
+	else
+	{
+		float targetAngleDiff = anglediff(angle, targetAngle);
+		float targetAngleApproach = fminf(fabsf(targetAngleDiff), 0.5f) / 0.5f;
+
+		targetAngleApproach = fmaxf(targetAngleApproach, 0.25f);
+
+		angle = angleto(angle, targetAngle, PI * dt * rotationRate * targetAngleApproach);
+	}
+
 	float targetApproach = fminf(targetLen, 10.0f) / 10.0f;
 	float targetApproachBrake = 1.0f - targetApproach;
 	float velLen = v2lensafe(vel);
