@@ -71,10 +71,31 @@ void Grid::RenderImGui()
 {
 	static bool openGridWindow = false;
 	static bool sparse = true;
+	static bool minimap = true;
 
 	ImGui::Begin("Grid", &openGridWindow);
 
 	ImGui::Checkbox("Sparse", &sparse);
+	ImGui::Checkbox("Minimap", &minimap);
+
+	if (minimap)
+	{
+		for (int y = 0; y < dim.y; ++y)
+		{
+			for (int x = 0; x < dim.x; ++x)
+			{
+
+				int index = x + y * dim.x;
+				Cell* cell = GetCellIndexed(index);
+				int count = stb_arr_len(cell->unitIDs);
+
+				ImGui::Text("%3d", count);
+
+				if (x != dim.x - 1)
+					ImGui::SameLine();
+			}
+		}
+	}
 
 	ImGui::PushID(this);
 	if (ImGui::TreeNode(this, "cells"))
