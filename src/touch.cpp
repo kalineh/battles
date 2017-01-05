@@ -40,7 +40,7 @@ int Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
 		v2 dstp = candidate->pos;
 		float dstr = candidate->data->radius;
 		float lensq = v2lensq(dstp - srcp);
-		float rangesq = srcr * srcr + dstr * dstr;
+		float rangesq = (srcr + dstr) * (srcr + dstr);
 
 		if (lensq < rangesq)
 		{

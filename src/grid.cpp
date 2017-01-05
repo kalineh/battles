@@ -149,7 +149,7 @@ void Grid::RenderImGui()
 	ImGui::End();
 }
 
-int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper)
+int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 {
 	int found = 0;
 
@@ -178,6 +178,9 @@ int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper)
 			{
 				UnitID unitID = cellUnitIDs[j];
 				Unit* unit = units + unitID;
+				if (unit == ignore)
+					continue;
+
 				v2 pos = unit->pos;
 				float rad = unit->data->radius;
 				v2 unitbl = v2sub(pos, v2new(rad, rad));

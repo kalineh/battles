@@ -24,10 +24,90 @@ Unit Unit::CreateNullUnit()
 Unit Unit::CreateTestUnit()
 {
 	static UnitData data = {
-		"TestType", // type
-		10.0f, // radius
+		"Test", // type
+		10.0, // radius
 		5.0f, // mass
 		250.0f, // accel
+		10.0f, // armor
+		100.0f, // health
+		100.0f, // fatigue
+		100.0f, // resolve
+		false, // flyer
+	};
+
+	static UnitVisual visuals[3] = {
+		{ v4rgb1(0,0,0), },
+		{ v4rgb1(1,0,0), },
+		{ v4rgb1(0,0,1), },
+	};
+
+	Unit unit;
+
+	unit.team = stb_rand() % 2 + 1;
+
+	unit.data = &data;
+	unit.visual = &visuals[unit.team];
+
+	unit.pos = v2zero();
+	unit.height = 0.0f;
+	unit.angle = 0.0f;
+	unit.vel = v2zero();
+	unit.health = data.health;
+	unit.fatigue = 0.0f;
+	unit.resolve = data.resolve;
+	unit.targetPos = v2zero();
+	unit.targetAngle = 0.0f;
+
+	return unit;
+}
+
+Unit Unit::CreateTestLightUnit()
+{
+	static UnitData data = {
+		"Light", // type
+		10.0f, // radius
+		2.5f, // mass
+		250.0f, // accel
+		10.0f, // armor
+		100.0f, // health
+		100.0f, // fatigue
+		100.0f, // resolve
+		false, // flyer
+	};
+
+	static UnitVisual visuals[3] = {
+		{ v4rgb1(0,0,0), },
+		{ v4rgb1(1,0,0), },
+		{ v4rgb1(0,0,1), },
+	};
+
+	Unit unit;
+
+	unit.team = stb_rand() % 2 + 1;
+
+	unit.data = &data;
+	unit.visual = &visuals[unit.team];
+
+	unit.pos = v2zero();
+	unit.height = 0.0f;
+	unit.angle = 0.0f;
+	unit.vel = v2zero();
+	unit.health = data.health;
+	unit.fatigue = 0.0f;
+	unit.resolve = data.resolve;
+	unit.targetPos = v2zero();
+	unit.targetAngle = 0.0f;
+
+	return unit;
+}
+
+Unit Unit::CreateTestHeavyUnit()
+{
+	static UnitData data = {
+		"Heavy", // type
+		15.0f, // radius
+		20.0f, // mass
+		200.0f, // accel
 		10.0f, // armor
 		100.0f, // health
 		100.0f, // fatigue
@@ -117,8 +197,8 @@ void Unit::Update()
 	v2 approachDir = v2fromangle(angle) * targetApproach;
 	v2 brakeDir = approachDir * -1.0f;
 
-	vel += approachDir * data->accel / data->mass * dt * targetApproach;
-	vel += brakeDir * data->accel / data->mass * dt * targetApproachBrake * brake * velLen;
+	vel += approachDir * data->accel * dt * targetApproach;
+	vel += brakeDir * data->accel * dt * targetApproachBrake * brake * velLen;
 	vel -= vel * friction * data->mass * dt;
 	pos += vel * dt;
 }
@@ -134,4 +214,32 @@ bool Unit::IsAlive()
 		return false;
 
 	return true;
+}
+
+void Unit::ResolveTouch(Unit* unit)
+{
+	const float dt = 1.0f / 60.0f;
+	const float ejectRate = 125.0f;
+	const float ejectFriction = 5.0f;
+
+	v2 ofs = unit->pos - pos;
+	v2 dir = v2unitsafe(ofs);
+
+	float massTotal = data->mass + unit->data->mass;
+	float massRatio = data->mass / massTotal;
+	float massRatioInv = data->mass / massTotal;
+
+	v2 push = dir * ejectRate;
+
+	unit->vel += push * massRatio * dt;
+	unit->vel -= unit->vel * ejectFriction * massRatio * dt;
+
+	vel -= push * massRatioInv * dt;
+	vel -= vel * ejectFriction * massRatioInv * dt;
+
+	const float transferRate = 10.0f;
+
+	unit->vel += vel * transferRate * dt * massRatioInv;
+	vel -= vel * transferRate * dt * massRatio;
+
 }

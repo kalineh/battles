@@ -24,7 +24,7 @@ void Game::Init(void* awindow)
 		units[i] = Unit::CreateNullUnit();
 
 	for (int i = 0; i < SpawnCount; ++i)
-		units[stb_rand() % UnitCount] = Unit::CreateTestUnit();
+		units[stb_rand() % UnitCount] = (i % 2 == 0) ? Unit::CreateTestLightUnit() : Unit::CreateTestHeavyUnit();
 
 	int width, height;
 	SDL_GetWindowSize((SDL_Window*)window, &width, &height);
@@ -40,12 +40,15 @@ void Game::Init(void* awindow)
 			(float)(stb_frand() * (float)width),
 			(float)(stb_frand() * (float)height)
 		);
+
+		unit->pos = v2new(450 + (unit->team == 1 ? 100 : 0), 300);
+
 		unit->targetPos = unit->pos;
 		unit->targetAngle = (float)stb_frand() * TWOPI;
 	}
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(units, v2inew(16, 16), v2zero(), v2new((float)width, (float)height));
+	grid->Init(units, v2inew(4, 4), v2zero(), v2new((float)width, (float)height));
 
 	touch = (Touch*)stb_malloc(this, sizeof(Touch));
 	touch->Init(units);
@@ -80,9 +83,16 @@ void Game::Update()
 		if (!unit->IsAlive())
 			continue;
 
-		int gridFound = grid->Query(&query, unit->pos, unit->pos);
-		int touchTouch = touch->Collect(unit, query);
+		int gridCount = grid->Query(&query, unit->pos, unit->pos, unit);
+		int touchCount = touch->Collect(unit, query);
+
 		Touch::Entry* entry = touch->GetEntry(i);
+		for (int j = 0; j < stb_arrcount(entry->ids); ++j)
+		{
+			UnitID touchID = entry->ids[j];
+			if (touchID != 0)
+				unit->ResolveTouch(GetUnit(touchID));
+		}
 
 		unit->AI();
 		unit->Update();

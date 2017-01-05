@@ -21,7 +21,7 @@ struct Grid
 
 	void RenderImGui();
 
-	int Query(UnitID** ARRAY results, v2 alower, v2 aupper);
+	int Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore = NULL);
 
 	Cell* GetCell(v2i coord);
 	Cell* GetCellIndexed(int index);

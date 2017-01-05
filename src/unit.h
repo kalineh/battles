@@ -25,12 +25,16 @@ struct Unit
 {
 	static Unit CreateNullUnit();
 	static Unit CreateTestUnit();
+	static Unit CreateTestLightUnit();
+	static Unit CreateTestHeavyUnit();
 
 	void AI();
 	void Update();
 
 	bool IsValid();
 	bool IsAlive();
+
+	void ResolveTouch(Unit* unit);
 
 	const UnitData* data;
 	const UnitVisual* visual;
