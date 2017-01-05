@@ -22,16 +22,20 @@ void Touch::Clear()
 	}
 }
 
-void Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
+int Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
 {
+	int found = 0;
 	v2 srcp = unit->pos;
 	float srcr = unit->data->radius;
+	UnitID unitID = (int)(unit - units);
 
 	for (int i = 0; i < stb_arr_len(candidates); ++i)
 	{
-		Entry* entry = entries + i;
 		UnitID* candidateID = candidates + i;
 		Unit* candidate = units + *candidateID;
+
+		if (unit == candidate)
+			continue;
 
 		v2 dstp = candidate->pos;
 		float dstr = candidate->data->radius;
@@ -40,16 +44,20 @@ void Touch::Collect(Unit* unit, UnitID* ARRAY candidates)
 
 		if (lensq < rangesq)
 		{
+			Entry* entry = entries + unitID;
 			for (int j = 0; j < stb_arrcount(entry->ids); ++j)
 			{
 				if (entry->ids[j] == 0)
 				{
-					entries->ids[j] = *candidateID;
+					entry->ids[j] = *candidateID;
+					found++;
 					break;
 				}
 			}
 		}
 	}
+
+	return found;
 }
 
 Touch::Entry* Touch::GetEntry(UnitID id)

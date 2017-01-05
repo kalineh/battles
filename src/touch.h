@@ -7,7 +7,8 @@ struct Touch
 	void Release();
 
 	void Clear();
-	void Collect(Unit* unit, UnitID* ARRAY candidates);
+
+	int Collect(Unit* unit, UnitID* ARRAY candidates);
 
 	struct Entry
 	{

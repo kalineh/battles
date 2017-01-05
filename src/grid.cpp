@@ -23,12 +23,12 @@ void Cell::Add(UnitID id)
 	stb_arr_push(unitIDs, id);
 }
 
-void Grid::Init(Unit* ARRAY aunits, v2i adim, v2 abl, v2 atr)
+void Grid::Init(Unit* ARRAY aunits, v2i adim, v2 alower, v2 aupper)
 {
 	units = aunits;
 	dim = adim;
-	bl = abl;
-	tr = atr;
+	lower = alower;
+	upper = aupper;
 
 	cells = NULL;
 	stb_arr_setlen(cells, dim.x * dim.y);
@@ -49,13 +49,16 @@ void Grid::Rebuild()
 		cell->Clear();
 	}
 
-	v2 span = tr - bl;
+	v2 span = upper - lower;
 	v2 cellSize = v2new(span.x / dim.x, span.y / dim.y);
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = units + i;
-		if (unit->health <= 0.0f)
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
 			continue;
 
 		UnitID id = (UnitID)i;
@@ -146,41 +149,43 @@ void Grid::RenderImGui()
 	ImGui::End();
 }
 
-int Grid::Query(UnitID** ARRAY results, v2 qbl, v2 qtr)
+int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper)
 {
 	int found = 0;
 
-	v2 span = tr - bl;
+	v2 span = upper - lower;
 	v2 cellSize = v2new(span.x / dim.x, span.y / dim.y);
 
-	for (int i = 0; i < stb_arr_len(cells); ++i)
+	v2i lowerCoord = GetGridCoord(alower);
+	v2i upperCoord = GetGridCoord(aupper);
+
+	for (int y = lowerCoord.y; y <= upperCoord.y; ++y)
 	{
-		Cell* cell = &cells[i];
-		UnitID* ARRAY cellUnitIDs = cell->unitIDs;
-
-		float row = (float)(i / dim.x);
-		float col = (float)(i % dim.x);
-		
-		v2 cellbl = bl + v2mulv(cellSize, v2new(row, col));
-		v2 celltr = tr + v2mulv(cellSize, v2new(row, col));
-
-		if (!rectoverlap(qbl, qtr, cellbl, celltr))
-			continue;
-
-		for (int j = 0; j < stb_arr_len(cellUnitIDs); ++j)
+		for (int x = lowerCoord.x; x <= upperCoord.x; ++x)
 		{
-			UnitID unitID = cellUnitIDs[j];
-			Unit* unit = units + unitID;
-			v2 pos = unit->pos;
-			float rad = unit->data->radius;
-			v2 unitbl = v2sub(pos, v2new(rad, rad));
-			v2 unittr = v2add(pos, v2new(rad, rad));
+			int cellIndex = x + y * dim.x;
+			Cell* cell = GetCellIndexed(cellIndex);
 
-			if (!rectoverlap(qbl, qtr, unitbl, unittr))
+			v2 cellLower = lower + v2mulv(cellSize, v2new((float)(x + 0), (float)(y + 0)));
+			v2 cellUpper = lower + v2mulv(cellSize, v2new((float)(x + 1), (float)(y + 1)));
+
+			if (!rectoverlap(alower, aupper, cellLower, cellUpper))
 				continue;
 
-			stb_arr_push(*results, unitID);
-			found++;
+			UnitID* ARRAY cellUnitIDs = cell->unitIDs;
+
+			for (int j = 0; j < stb_arr_len(cellUnitIDs); ++j)
+			{
+				UnitID unitID = cellUnitIDs[j];
+				Unit* unit = units + unitID;
+				v2 pos = unit->pos;
+				float rad = unit->data->radius;
+				v2 unitbl = v2sub(pos, v2new(rad, rad));
+				v2 unittr = v2add(pos, v2new(rad, rad));
+
+				stb_arr_push(*results, unitID);
+				found++;
+			}
 		}
 	}
 
@@ -200,9 +205,9 @@ Cell* Grid::GetCellIndexed(int index)
 
 v2i Grid::GetGridCoord(v2 pos)
 {
-	pos = pos - bl;
+	pos = pos - lower;
 
-	v2 span = tr - bl;
+	v2 span = upper - lower;
 	v2 cell = v2new(span.x / dim.x, span.y / dim.y);
 	v2i coord = v2inew((int)(pos.x / cell.x), (int)(pos.y / cell.y));
 

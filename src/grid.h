@@ -14,14 +14,14 @@ struct Cell
 
 struct Grid
 {
-	void Init(Unit* aunits, v2i adim, v2 abl, v2 atr);
+	void Init(Unit* aunits, v2i adim, v2 alower, v2 aupper);
 	void Release();
 
 	void Rebuild();
 
 	void RenderImGui();
 
-	int Query(UnitID** ARRAY results, v2 bl, v2 tr);
+	int Query(UnitID** ARRAY results, v2 alower, v2 aupper);
 
 	Cell* GetCell(v2i coord);
 	Cell* GetCellIndexed(int index);
@@ -31,6 +31,6 @@ struct Grid
 	Cell* OWNER ARRAY cells;
 
 	v2i dim;
-	v2 bl;
-	v2 tr;
+	v2 lower;
+	v2 upper;
 };

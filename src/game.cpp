@@ -13,7 +13,7 @@
 void Game::Init(void* awindow)
 {
 	const int UnitCount = 32;
-	const int SpawnCount = 16;
+	const int SpawnCount = 2;
 
 	window = awindow;
 
@@ -75,8 +75,14 @@ void Game::Update()
 	{
 		Unit* unit = GetUnit(i);
 
-		grid->Query(&query, unit->pos, unit->pos);
-		touch->Collect(unit, query);
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		int gridFound = grid->Query(&query, unit->pos, unit->pos);
+		int touchTouch = touch->Collect(unit, query);
+		Touch::Entry* entry = touch->GetEntry(i);
 
 		unit->AI();
 		unit->Update();
@@ -101,12 +107,16 @@ void Game::Render()
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
+		if (!unit->IsValid())
+			continue;
 
 		v4 color = unit->visual->color;
 
 		Touch::Entry* entry = touch->GetEntry(i);
 		if (entry->ids[0] != 0)
-			color = v4rgb1(1,1,1);
+			color = v4rgb1(0,1,1);
+
+		//color = v4rgb1(0,1,1);
 
 		nvgBeginPath(context);
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);
