@@ -71,6 +71,9 @@ void Game::Init(void* awindow)
 		Group* g = GetGroup(stb_rand() % stb_arr_len(groups));
 		g->AddUnit((UnitID)i);
 	}
+
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+		GetGroup(i)->CommandStop();
 }
 
 void Game::Release()

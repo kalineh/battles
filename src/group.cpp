@@ -91,6 +91,29 @@ void Group::RemoveUnit(UnitID id)
 	stb_arr_fastdelete(members, id);
 }
 
+void Group::CommandStop()
+{
+	v2 centroid = v2zero();
+	float count = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitID unitID = members[i];
+		Unit* unit = units + unitID;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		centroid += unit->pos;
+		count += 1.0f;
+	}
+
+	if (count > 0.0f)
+		commandPos = centroid / count;
+}
+
 void Group::CommandMoveTo(v2 pos, float angle)
 {
 	commandPos = pos;

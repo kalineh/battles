@@ -18,6 +18,7 @@ struct Group
 	void AddUnit(UnitID id);
 	void RemoveUnit(UnitID id);
 
+	void CommandStop();
 	void CommandMoveTo(v2 pos, float angle);
 
 	void CommandFormationNone();
