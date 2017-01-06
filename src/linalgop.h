@@ -24,6 +24,10 @@ namespace linalg {
 #endif
 
 #ifdef __cplusplus
+	static inline v2i operator+ (v2i lhs, v2i rhs) { return v2iadd(lhs, rhs); }
+	static inline v2i operator- (v2i lhs, v2i rhs) { return v2isub(lhs, rhs); }
+	static inline v2i operator* (v2i lhs, float rhs) { return v2imul(lhs, rhs); }
+
 	static inline v2 operator+ (v2 lhs, v2 rhs) { return v2add(lhs, rhs); }
 	static inline v2 operator- (v2 lhs, v2 rhs) { return v2sub(lhs, rhs); }
 	static inline v2 operator* (v2 lhs, float rhs) { return v2mul(lhs, rhs); }

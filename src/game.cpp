@@ -50,7 +50,7 @@ void Game::Init(void* awindow)
 	}
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(units, v2inew(1, 1), v2zero(), v2new((float)width, (float)height));
+	grid->Init(units, v2inew(16, 16), v2zero(), v2new((float)width, (float)height));
 
 	touch = (Touch*)stb_malloc(this, sizeof(Touch));
 	touch->Init(units);

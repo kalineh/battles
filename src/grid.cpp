@@ -159,6 +159,14 @@ int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 	v2i lowerCoord = GetGridCoord(alower);
 	v2i upperCoord = GetGridCoord(aupper);
 
+	lowerCoord = lowerCoord - v2inew(1, 1);
+	upperCoord = upperCoord + v2inew(1, 1);
+
+	lowerCoord.x = stb_max(lowerCoord.x, 0);
+	lowerCoord.y = stb_max(lowerCoord.y, 0);
+	upperCoord.x = stb_min(upperCoord.x, dim.x - 1);
+	upperCoord.y = stb_min(upperCoord.y, dim.y - 1);
+
 	for (int y = lowerCoord.y; y <= upperCoord.y; ++y)
 	{
 		for (int x = lowerCoord.x; x <= upperCoord.x; ++x)
