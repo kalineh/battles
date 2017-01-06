@@ -12,9 +12,14 @@
 
 void Game::Init(void* awindow)
 {
-	const int UnitCount = 128;
-	const int SpawnCount = 64;
-	const int GroupCount = 3;
+	const int UnitCount = 256;
+	const int TeamCount = 2;
+	const int GroupCountMin = 1;
+	const int GroupCountMax = 3;
+	const int GroupUnitCountMin = 4;
+	const int GroupUnitCountMax = 16;
+
+	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
 	window = awindow;
 
@@ -22,32 +27,10 @@ void Game::Init(void* awindow)
 	stb_arr_setlen(units, UnitCount);
 
 	for (int i = 0; i < UnitCount; ++i)
-		units[i] = Unit::CreateNullUnit();
-
-	for (int i = 0; i < SpawnCount; ++i)
-		units[stb_rand() % UnitCount] = (i % 2 == 0) ? Unit::CreateTestLightUnit() : Unit::CreateTestHeavyUnit();
-		//units[stb_rand() % UnitCount] = Unit::CreateTestUnit();
+		units[i] = Unit::CreateUnit(NULL);
 
 	int width, height;
 	SDL_GetWindowSize((SDL_Window*)window, &width, &height);
-
-	for (int i = 0; i < UnitCount; ++i)
-	{
-		Unit* unit = GetUnit((UnitID)i);
-
-		if (!unit->IsValid())
-			continue;
-
-		unit->pos = v2new(
-			(float)(stb_frand() * (float)width),
-			(float)(stb_frand() * (float)height)
-		);
-
-		unit->pos = v2new(450 + (unit->team == 1 ? 100 : 0), 300);
-
-		unit->targetPos = unit->pos;
-		unit->targetAngle = (float)stb_frand() * TWOPI;
-	}
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
 	grid->Init(units, v2inew(16, 16), v2zero(), v2new((float)width, (float)height));
@@ -57,23 +40,47 @@ void Game::Init(void* awindow)
 
 	selectedGroup = 0;
 	groups = NULL;
-	stb_arr_setlen(groups, GroupCount);
+	stb_arr_setlen(groups, stb_rand() % (GroupCountMax - GroupCountMin) + GroupCountMin);
 
-	for (int i = 0; i < stb_arr_len(groups); ++i)
-		GetGroup(i)->Init(units);
+	const char* groupTypes[] = {
+		"Test",
+		"Light",
+		"Heavy",
+	};
 
-	for (int i = 0; i < stb_arr_len(units); ++i)
+	int unitWriteCursor = 0;
+
+	for (int t = 0; t < TeamCount; ++t)
 	{
-		Unit* unit = units + i;
-		if (!unit->IsValid())
-			continue;
+		for (int i = 0; i < stb_arr_len(groups); ++i)
+		{
+			Group* group = GetGroup(i);
+			group->Init(units);
 
-		Group* g = GetGroup(stb_rand() % stb_arr_len(groups));
-		g->AddUnit((UnitID)i);
+			const char* unitType = groupTypes[stb_rand() % stb_arrcount(groupTypes)];
+			int unitCount = stb_rand() % (GroupUnitCountMax - GroupUnitCountMin) + GroupUnitCountMin;
+
+			for (int j = 0; j < unitCount; ++j)
+			{
+				Unit* unit = GetUnit(unitWriteCursor);
+				*unit = Unit::CreateUnit(unitType);
+				unit->team = t + 1;
+				group->AddUnit(unitWriteCursor);
+				unitWriteCursor++;
+			}
+		}
 	}
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
+	{
+		v2 pos = v2new(
+			((float)stb_frand()) * width,
+			((float)stb_frand()) * height
+		);
+
+		GetGroup(i)->CommandTeleportTo(pos, 0.0f);
 		GetGroup(i)->CommandStop();
+	}
 }
 
 void Game::Release()

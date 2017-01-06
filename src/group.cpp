@@ -20,6 +20,11 @@ void Group::Release()
 
 void Group::Update()
 {
+	UpdateFormation();
+}
+
+void Group::UpdateFormation()
+{
 	float largestUnitRadius = 0.0f;
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
@@ -117,7 +122,27 @@ void Group::CommandStop()
 void Group::CommandMoveTo(v2 pos, float angle)
 {
 	commandPos = pos;
-	commandAngle = 0.0f;
+	commandAngle = angle;
+}
+
+void Group::CommandTeleportTo(v2 pos, float angle)
+{
+	commandPos = pos;
+	commandAngle = angle;
+
+	UpdateFormation();
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitID unitID = members[i];
+		Unit* unit = units + unitID;
+
+		if (unit->IsValid() && unit->IsAlive())
+		{
+			unit->pos = unit->targetPos;
+			unit->angle = unit->targetAngle;
+		}
+	}
 }
 
 void Group::CommandFormationNone()

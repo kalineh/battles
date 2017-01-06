@@ -12,9 +12,6 @@ int main(int, char**)
 #include <imgui.h>
 #include <imgui_impl_sdl_gl3.h>
 
-#define STB_DEFINE
-#include "stb.h"
-
 #include "inc.h"
 
 // TODO: something putting this in a namespace

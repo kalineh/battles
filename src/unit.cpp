@@ -1,144 +1,90 @@
 
 #include "inc.h"
 
-Unit Unit::CreateNullUnit()
+static UnitData unitDataNull = {
+	"Null",
+};
+
+static UnitData unitDataTest = {
+	"Test", // type
+	5.0, // radius
+	5.0f, // mass
+	250.0f, // accel
+	10.0f, // armor
+	100.0f, // health
+	100.0f, // fatigue
+	100.0f, // resolve
+	false, // flyer
+};
+
+static UnitData unitDataLight = {
+	"Light", // type
+	5.0f, // radius
+	5.0f, // mass
+	100.0f, // accel
+	10.0f, // armor
+	100.0f, // health
+	100.0f, // fatigue
+	100.0f, // resolve
+	false, // flyer
+};
+
+static UnitData unitDataHeavy = {
+	"Heavy", // type
+	10.0f, // radius
+	20.0f, // mass
+	200.0f, // accel
+	10.0f, // armor
+	100.0f, // health
+	100.0f, // fatigue
+	100.0f, // resolve
+	false, // flyer
+};
+
+static UnitVisual unitVisualNull = {
+	v4rgb1(0,0,0),
+};
+
+static UnitVisual unitVisualTest = {
+	v4rgb1(1,1,1),
+};
+
+static UnitVisual unitVisualLight = {
+	v4rgb1(0,1,0),
+};
+
+static UnitVisual unitVisualHeavy = {
+	v4rgb1(0,0,1),
+};
+
+Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual)
 {
-	static UnitData data;
-	static UnitVisual visual;
-
-	memset(&data, 0, sizeof(data));
-	memset(&visual, 0, sizeof(visual));
-
-	data.type = "NullType";
-
 	Unit unit;
 
 	memset(&unit, 0, sizeof(unit));
 
-	unit.data = &data;
-	unit.visual = &visual;
+	unit.data = data;
+	unit.visual = visual;
+
+	unit.health = data->health;
+	unit.resolve = data->resolve;
 
 	return unit;
 }
 
-Unit Unit::CreateTestUnit()
+Unit Unit::CreateUnit(const char* type)
 {
-	static UnitData data = {
-		"Test", // type
-		5.0, // radius
-		5.0f, // mass
-		250.0f, // accel
-		10.0f, // armor
-		100.0f, // health
-		100.0f, // fatigue
-		100.0f, // resolve
-		false, // flyer
-	};
+	if (type == NULL)
+		return CreateUnit(&unitDataNull, &unitVisualNull);
 
-	static UnitVisual visuals[3] = {
-		{ v4rgb1(0,0,0), },
-		{ v4rgb1(1,0,0), },
-		{ v4rgb1(0,0,1), },
-	};
+	if (strcmp(type, "Test"))
+		return CreateUnit(&unitDataTest, &unitVisualTest);
+	else if (strcmp(type, "Light"))
+		return CreateUnit(&unitDataLight, &unitVisualLight);
+	else if (strcmp(type, "Heavy"))
+		return CreateUnit(&unitDataHeavy, &unitVisualHeavy);
 
-	Unit unit;
-
-	unit.team = stb_rand() % 2 + 1;
-
-	unit.data = &data;
-	unit.visual = &visuals[unit.team];
-
-	unit.pos = v2zero();
-	unit.height = 0.0f;
-	unit.angle = 0.0f;
-	unit.vel = v2zero();
-	unit.health = data.health;
-	unit.fatigue = 0.0f;
-	unit.resolve = data.resolve;
-	unit.targetPos = v2zero();
-	unit.targetAngle = 0.0f;
-
-	return unit;
-}
-
-Unit Unit::CreateTestLightUnit()
-{
-	static UnitData data = {
-		"Light", // type
-		5.0f, // radius
-		2.5f, // mass
-		250.0f, // accel
-		10.0f, // armor
-		100.0f, // health
-		100.0f, // fatigue
-		100.0f, // resolve
-		false, // flyer
-	};
-
-	static UnitVisual visuals[3] = {
-		{ v4rgb1(0,0,0), },
-		{ v4rgb1(1,0,0), },
-		{ v4rgb1(0,0,1), },
-	};
-
-	Unit unit;
-
-	unit.team = stb_rand() % 2 + 1;
-
-	unit.data = &data;
-	unit.visual = &visuals[unit.team];
-
-	unit.pos = v2zero();
-	unit.height = 0.0f;
-	unit.angle = 0.0f;
-	unit.vel = v2zero();
-	unit.health = data.health;
-	unit.fatigue = 0.0f;
-	unit.resolve = data.resolve;
-	unit.targetPos = v2zero();
-	unit.targetAngle = 0.0f;
-
-	return unit;
-}
-
-Unit Unit::CreateTestHeavyUnit()
-{
-	static UnitData data = {
-		"Heavy", // type
-		10.0f, // radius
-		20.0f, // mass
-		200.0f, // accel
-		10.0f, // armor
-		100.0f, // health
-		100.0f, // fatigue
-		100.0f, // resolve
-		false, // flyer
-	};
-
-	static UnitVisual visuals[3] = {
-		{ v4rgb1(0,0,0), },
-		{ v4rgb1(1,0,0), },
-		{ v4rgb1(0,0,1), },
-	};
-
-	Unit unit;
-
-	unit.team = stb_rand() % 2 + 1;
-
-	unit.data = &data;
-	unit.visual = &visuals[unit.team];
-
-	unit.pos = v2zero();
-	unit.height = 0.0f;
-	unit.angle = 0.0f;
-	unit.vel = v2zero();
-	unit.health = data.health;
-	unit.fatigue = 0.0f;
-	unit.resolve = data.resolve;
-	unit.targetPos = v2zero();
-	unit.targetAngle = 0.0f;
-
-	return unit;
+	return CreateUnit(&unitDataNull, &unitVisualNull);
 }
 
 void Unit::AI()

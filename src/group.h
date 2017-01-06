@@ -14,12 +14,14 @@ struct Group
 	void Release();
 
 	void Update();
+	void UpdateFormation();
 
 	void AddUnit(UnitID id);
 	void RemoveUnit(UnitID id);
 
 	void CommandStop();
 	void CommandMoveTo(v2 pos, float angle);
+	void CommandTeleportTo(v2 pos, float angle);
 
 	void CommandFormationNone();
 	void CommandFormationBox(float ratio, float loose);

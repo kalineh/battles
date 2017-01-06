@@ -23,10 +23,8 @@ typedef int UnitID;
 
 struct Unit
 {
-	static Unit CreateNullUnit();
-	static Unit CreateTestUnit();
-	static Unit CreateTestLightUnit();
-	static Unit CreateTestHeavyUnit();
+	static Unit CreateUnit(UnitData* data, UnitVisual* visual);
+	static Unit CreateUnit(const char* type);
 
 	void AI();
 	void Update();

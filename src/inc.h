@@ -11,6 +11,7 @@
 
 #define OWNER
 #define ARRAY
+#define HASHTABLE
 
 #define PI 3.1415926535897932384f
 #define TWOPI 6.28318530717958647692f
@@ -21,6 +22,8 @@ using namespace linalg;
 struct Game;
 struct Grid;
 struct Unit;
+struct UnitData;
+struct UnitVisual;
 struct Cell;
 struct Touch;
 struct Group;
