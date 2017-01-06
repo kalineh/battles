@@ -1,8 +1,9 @@
 /*
 
+Game
+- battle layout configs
+
 Unit
-- unit vs unit physical collisions
-- unit touching tracker
 
 Group
 - formation local placement

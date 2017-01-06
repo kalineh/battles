@@ -23,6 +23,7 @@ struct Grid;
 struct Unit;
 struct Cell;
 struct Touch;
+struct Group;
 
 #include "unit.h"
 #include "game.h"

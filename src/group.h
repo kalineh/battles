@@ -3,7 +3,7 @@
 
 struct Group
 {
-	void Init();
+	void Init(Unit* ARRAY aunits);
 	void Release();
 
 	void AddUnit(UnitID id);
@@ -12,6 +12,7 @@ struct Group
 	void CommandTo(v2 pos);
 	void FormationBox(float ratio, float loose);
 
+	Unit* ARRAY units;
 	UnitID* OWNER ARRAY members;
 
 	v2 command;

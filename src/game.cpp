@@ -53,6 +53,23 @@ void Game::Init(void* awindow)
 
 	touch = (Touch*)stb_malloc(this, sizeof(Touch));
 	touch->Init(units);
+
+	selectedGroup = 0;
+	groups = NULL;
+	stb_arr_setlen(groups, 4);
+
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+		GetGroup(i)->Init(units);
+
+	for (int i = 0; i < stb_arr_len(units); ++i)
+	{
+		Unit* unit = units + i;
+		if (!unit->IsValid())
+			continue;
+
+		Group* g = GetGroup(stb_rand() % stb_arr_len(groups));
+		g->AddUnit((UnitID)i);
+	}
 }
 
 void Game::Release()
@@ -64,6 +81,11 @@ void Game::Release()
 
 	touch->Release();
 	touch = NULL;
+
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+		GetGroup(i)->Release();
+
+	stb_arr_free(groups);
 }
 
 void Game::Update()
@@ -74,6 +96,13 @@ void Game::Update()
 
 	UnitID* query = NULL;
 	stb_arr_setsize(query, 16);
+
+	if (ImGui::IsMouseDown(1))
+	{
+		v2 click = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+		Group* group = GetGroup(selectedGroup);
+		group->CommandTo(click);
+	}
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
@@ -163,6 +192,14 @@ void Game::RenderImGui()
 	static bool openUnitsWindow = false;
 
 	ImGui::Begin("Game", &openGameWindow);
+
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+	{
+		if (ImGui::RadioButton("group", &selectedGroup, i))
+			selectedGroup = i;
+		//ImGui::SameLine();
+	}
+	//ImGui::NewLine();
 	ImGui::End();
 
 	grid->RenderImGui();
@@ -254,5 +291,13 @@ UnitID Game::GetUnitID(Unit* unit)
 Grid* Game::GetGrid()
 {
 	return grid;
+}
+
+Group* Game::GetGroup(int index)
+{
+	assert(index >= 0);
+	assert(index < stb_arr_len(groups));
+
+	return groups + index;
 }
 

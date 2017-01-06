@@ -143,9 +143,6 @@ Unit Unit::CreateTestHeavyUnit()
 
 void Unit::AI()
 {
-	if (ImGui::IsMouseDown(1))
-		targetPos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-
 	if ((stb_rand() % 5000) == 0)		
 	{
 		targetPos = v2new(

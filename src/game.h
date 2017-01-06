@@ -15,9 +15,14 @@ struct Game
 
 	Grid* GetGrid();
 
+	Group* GetGroup(int index);
+
 	void* window;
 
-	Unit* OWNER units;
+	Unit* OWNER ARRAY units;
 	Grid* OWNER grid;
 	Touch* OWNER touch;
+	Group* OWNER ARRAY groups;
+
+	int selectedGroup;
 };
