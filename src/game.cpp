@@ -13,7 +13,7 @@
 void Game::Init(void* awindow)
 {
 	const int UnitCount = 32;
-	const int SpawnCount = 2;
+	const int SpawnCount = 20;
 
 	window = awindow;
 
@@ -25,6 +25,7 @@ void Game::Init(void* awindow)
 
 	for (int i = 0; i < SpawnCount; ++i)
 		units[stb_rand() % UnitCount] = (i % 2 == 0) ? Unit::CreateTestLightUnit() : Unit::CreateTestHeavyUnit();
+		//units[stb_rand() % UnitCount] = Unit::CreateTestUnit();
 
 	int width, height;
 	SDL_GetWindowSize((SDL_Window*)window, &width, &height);
@@ -48,7 +49,7 @@ void Game::Init(void* awindow)
 	}
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(units, v2inew(4, 4), v2zero(), v2new((float)width, (float)height));
+	grid->Init(units, v2inew(1, 1), v2zero(), v2new((float)width, (float)height));
 
 	touch = (Touch*)stb_malloc(this, sizeof(Touch));
 	touch->Init(units);
@@ -125,8 +126,6 @@ void Game::Render()
 		Touch::Entry* entry = touch->GetEntry(i);
 		if (entry->ids[0] != 0)
 			color = v4rgb1(0,1,1);
-
-		//color = v4rgb1(0,1,1);
 
 		nvgBeginPath(context);
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);

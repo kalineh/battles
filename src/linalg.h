@@ -193,6 +193,22 @@ v2dot(v2 a, v2 b)
 	return (a.x * b.x + a.y * b.y);
 }
 
+static inline v2
+v2proj(v2 a, v2 b)
+{
+	return v2mul(b, v2dot(a, b) / v2dot(b, b));
+}
+
+static inline v2
+v2projsafe(v2 a, v2 b)
+{
+	const real dotab = v2dot(a, b);
+	const real dotbb = v2dot(b, b);
+	if (realeq(dotbb, 0, LINALG_SAFE_EPSILON))
+		return v2zero();
+	return v2mul(b, dotab / dotbb);
+}
+
 static inline real
 v2lensq(v2 v)
 {
@@ -229,6 +245,22 @@ v2unitsafe(v2 v)
 	real len = LINALG_SQRT(lensq);
 	v2 result = v2div(v, len);
 	return result;
+}
+
+static inline void
+v2unitlensafe(v2 v, v2* ounit, real* olen)
+{
+	real lensq = v2lensq(v);
+	if (realeq(lensq, 0.0f, LINALG_SAFE_EPSILON))
+	{
+		*ounit = v2zero();
+		*olen = 0;
+		return;
+	}		
+
+	real len = LINALG_SQRT(lensq);
+	*ounit = v2div(v, len);
+	*olen = len;
 }
 
 static inline real

@@ -25,7 +25,7 @@ Unit Unit::CreateTestUnit()
 {
 	static UnitData data = {
 		"Test", // type
-		10.0, // radius
+		30.0, // radius
 		5.0f, // mass
 		250.0f, // accel
 		10.0f, // armor
@@ -157,6 +157,9 @@ void Unit::AI()
 
 void Unit::Update()
 {
+	//if (team == 1)
+		//targetPos = pos;
+
 	const float dt = 1.0f / 60.0f;
 	const float rotationRate = 1.5f;
 	const float friction = 0.25f;
@@ -197,9 +200,15 @@ void Unit::Update()
 	v2 approachDir = v2fromangle(angle) * targetApproach;
 	v2 brakeDir = approachDir * -1.0f;
 
+	if (team == 1)
+	{
+		//approachDir = v2zero();
+		//brakeDir = v2zero();
+	}
+
 	vel += approachDir * data->accel * dt * targetApproach;
 	vel += brakeDir * data->accel * dt * targetApproachBrake * brake * velLen;
-	vel -= vel * friction * data->mass * dt;
+	vel -= vel * stb_min(friction * data->mass * dt, 1.0f);
 	pos += vel * dt;
 }
 
@@ -220,26 +229,23 @@ void Unit::ResolveTouch(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
 	const float ejectRate = 125.0f;
-	const float ejectFriction = 5.0f;
+	const float pushRate = 15.0f;
 
-	v2 ofs = unit->pos - pos;
-	v2 dir = v2unitsafe(ofs);
+	v2 dir;
+	float len;
 
-	float massTotal = data->mass + unit->data->mass;
-	float massRatio = data->mass / massTotal;
-	float massRatioInv = data->mass / massTotal;
+	const v2 ofs = unit->pos - pos;
+	v2unitlensafe(ofs, &dir, &len);
 
-	v2 push = dir * ejectRate;
+	const float rads = unit->data->radius + data->radius;
+	const float intersect = -(len - rads);
+	const float ratio = data->mass / (data->mass + unit->data->mass);
 
-	unit->vel += push * massRatio * dt;
-	unit->vel -= unit->vel * ejectFriction * massRatio * dt;
+	unit->vel += dir * intersect * dt * ejectRate * ratio;
 
-	vel -= push * massRatioInv * dt;
-	vel -= vel * ejectFriction * massRatioInv * dt;
+	const v2 transfer = vel * dt * pushRate * ratio;
+	const v2 transferAligned = v2projsafe(transfer, dir);
 
-	const float transferRate = 10.0f;
-
-	unit->vel += vel * transferRate * dt * massRatioInv;
-	vel -= vel * transferRate * dt * massRatio;
-
+	unit->vel += transferAligned;
+	vel -= transferAligned;
 }

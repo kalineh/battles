@@ -10,7 +10,7 @@
 
 void _ImGuiDebug(const char* label, int infer, int* p);
 void _ImGuiDebug(const char* label, float infer, float* p);
-void _ImGuiDebug(const char* label, const char* infer, const char** p);
+void _ImGuiDebug(const char* label, const char* infer, const char* const* p);
 
 void _ImGuiDebug(const char* label, linalg::v2i infer, linalg::v2i* p);
 void _ImGuiDebug(const char* label, linalg::v2 infer, linalg::v2* p);
