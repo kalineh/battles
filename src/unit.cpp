@@ -25,7 +25,7 @@ Unit Unit::CreateTestUnit()
 {
 	static UnitData data = {
 		"Test", // type
-		30.0, // radius
+		5.0, // radius
 		5.0f, // mass
 		250.0f, // accel
 		10.0f, // armor
@@ -65,7 +65,7 @@ Unit Unit::CreateTestLightUnit()
 {
 	static UnitData data = {
 		"Light", // type
-		10.0f, // radius
+		5.0f, // radius
 		2.5f, // mass
 		250.0f, // accel
 		10.0f, // armor
@@ -105,7 +105,7 @@ Unit Unit::CreateTestHeavyUnit()
 {
 	static UnitData data = {
 		"Heavy", // type
-		15.0f, // radius
+		10.0f, // radius
 		20.0f, // mass
 		200.0f, // accel
 		10.0f, // armor

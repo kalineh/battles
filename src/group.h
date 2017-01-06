@@ -3,19 +3,30 @@
 
 struct Group
 {
+	enum FormationType
+	{
+		FormationType_None,
+		FormationType_Box,
+		FormationType_Wedge,
+	};
+
 	void Init(Unit* ARRAY aunits);
 	void Release();
+
+	void Update();
 
 	void AddUnit(UnitID id);
 	void RemoveUnit(UnitID id);
 
-	void CommandTo(v2 pos);
-	void FormationBox(float ratio, float loose);
+	void CommandMoveTo(v2 pos, float angle);
+	void CommandFormationBox(float ratio, float loose);
 
 	Unit* ARRAY units;
 	UnitID* OWNER ARRAY members;
 
-	v2 command;
+	FormationType formationType;
+	v2 commandPos;
+	float commandAngle;
 	float boxRatio;
 	float boxLoose;
 };

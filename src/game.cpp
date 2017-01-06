@@ -12,8 +12,9 @@
 
 void Game::Init(void* awindow)
 {
-	const int UnitCount = 32;
-	const int SpawnCount = 20;
+	const int UnitCount = 128;
+	const int SpawnCount = 64;
+	const int GroupCount = 3;
 
 	window = awindow;
 
@@ -56,7 +57,7 @@ void Game::Init(void* awindow)
 
 	selectedGroup = 0;
 	groups = NULL;
-	stb_arr_setlen(groups, 4);
+	stb_arr_setlen(groups, GroupCount);
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 		GetGroup(i)->Init(units);
@@ -94,6 +95,9 @@ void Game::Update()
 
 	touch->Clear();
 
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+		GetGroup(i)->Update();
+
 	UnitID* query = NULL;
 	stb_arr_setsize(query, 16);
 
@@ -101,7 +105,8 @@ void Game::Update()
 	{
 		v2 click = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		Group* group = GetGroup(selectedGroup);
-		group->CommandTo(click);
+		group->CommandMoveTo(click, 0.0f);
+		group->CommandFormationBox(0.5f, 1.0f);
 	}
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
