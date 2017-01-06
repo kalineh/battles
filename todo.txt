@@ -1,20 +1,13 @@
 /*
 
-Game
-- battle layout configs
-
-Unit
-
-Group
-- formation local placement
-- formation types
-- group-wise stat summaries
-
-Combat
-- basic hit in/out
-- death handling
-
-Render
+- improve formation positioning
+- improve unit movement
+- movement preview
+- drag select formation size
+- fix spinning units
+- group stat summary
+- basic combat handling
+- optimize quad render
 - optimized quad renderer
 - camera / zoom
 - voxel render mode

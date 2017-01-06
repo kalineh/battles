@@ -77,11 +77,11 @@ Unit Unit::CreateUnit(const char* type)
 	if (type == NULL)
 		return CreateUnit(&unitDataNull, &unitVisualNull);
 
-	if (strcmp(type, "Test"))
+	if (strcmp(type, "Test") == 0)
 		return CreateUnit(&unitDataTest, &unitVisualTest);
-	else if (strcmp(type, "Light"))
+	else if (strcmp(type, "Light") == 0)
 		return CreateUnit(&unitDataLight, &unitVisualLight);
-	else if (strcmp(type, "Heavy"))
+	else if (strcmp(type, "Heavy") == 0)
 		return CreateUnit(&unitDataHeavy, &unitVisualHeavy);
 
 	return CreateUnit(&unitDataNull, &unitVisualNull);
