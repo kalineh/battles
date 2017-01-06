@@ -195,11 +195,11 @@ void Game::RenderImGui()
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 	{
-		if (ImGui::RadioButton("group", &selectedGroup, i))
+		char name[32] = { 0 };
+		stb_snprintf(name, 31, "group%d", i);
+		if (ImGui::RadioButton(name, &selectedGroup, i))
 			selectedGroup = i;
-		//ImGui::SameLine();
 	}
-	//ImGui::NewLine();
 	ImGui::End();
 
 	grid->RenderImGui();
