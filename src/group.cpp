@@ -48,10 +48,15 @@ void Group::Update()
 
 		switch (formationType)
 		{
+			case FormationType_None:
+				unit->targetPos = commandPos;
+				unit->targetAngle = commandAngle;
+				break;
+
 			case FormationType_Box:
 			{
 				int count = stb_arr_len(members);
-				int cellsX = (int)((float)count * boxRatio);
+				int cellsX = stb_max((int)((float)count * boxRatio), 1);
 				int cellsY = count / cellsX;
 				int remainder = count - (cellsX * cellsY);
 				int cellX = i % cellsX;
@@ -66,6 +71,12 @@ void Group::Update()
 
 				break;
 			}
+
+			case FormationType_Wedge:
+				// TODO
+				unit->targetPos = commandPos;
+				unit->targetAngle = commandAngle;
+				break;
 		}
 	}
 }
@@ -86,9 +97,19 @@ void Group::CommandMoveTo(v2 pos, float angle)
 	commandAngle = 0.0f;
 }
 
+void Group::CommandFormationNone()
+{
+	formationType = FormationType_None;
+}
+
 void Group::CommandFormationBox(float ratio, float loose)
 {
 	formationType = FormationType_Box;
 	boxRatio = ratio;
 	boxLoose = loose;
+}
+
+void Group::CommandFormationWedge()
+{
+	formationType = FormationType_Wedge;
 }

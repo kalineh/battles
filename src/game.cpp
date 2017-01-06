@@ -98,16 +98,21 @@ void Game::Update()
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 		GetGroup(i)->Update();
 
-	UnitID* query = NULL;
-	stb_arr_setsize(query, 16);
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+	{
+		if (ImGui::IsKeyPressed(SDLK_1 + i))
+			selectedGroup = i;
+	}
 
-	if (ImGui::IsMouseDown(1))
+	if (ImGui::IsMouseDown(1) || ImGui::IsKeyPressed(SDLK_SPACE))
 	{
 		v2 click = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		Group* group = GetGroup(selectedGroup);
 		group->CommandMoveTo(click, 0.0f);
-		group->CommandFormationBox(0.5f, 1.0f);
 	}
+
+	UnitID* query = NULL;
+	stb_arr_setsize(query, 16);
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
@@ -205,6 +210,41 @@ void Game::RenderImGui()
 		if (ImGui::RadioButton(name, &selectedGroup, i))
 			selectedGroup = i;
 	}
+
+	ImGui::Separator();
+	Group* group = GetGroup(selectedGroup);
+	int formation = (int)group->formationType;
+	bool changed = false;
+	changed = changed || ImGui::RadioButton("Formation None", &formation, 0);
+	changed = changed || ImGui::RadioButton("Formation Box", &formation, 1);
+	changed = changed || ImGui::RadioButton("Formation Wedge", &formation, 2);
+
+	switch (formation)
+	{
+		case Group::FormationType_Box:
+			ImGui::SliderFloat("Box Ratio", &group->boxRatio, 0.0f, 1.0f);			
+			ImGui::SliderFloat("Box Loose", &group->boxLoose, -1.0f, 4.0f);			
+			break;
+	}
+	
+	if (changed)
+	{
+		switch (formation)
+		{
+			case Group::FormationType_None:
+				group->CommandFormationNone();
+				break;
+
+			case Group::FormationType_Box:
+				group->CommandFormationBox(0.5f, 1.0f);
+				break;
+
+			case Group::FormationType_Wedge:
+				group->CommandFormationWedge();
+				break;
+		}
+	}
+
 	ImGui::End();
 
 	grid->RenderImGui();

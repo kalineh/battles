@@ -19,7 +19,10 @@ struct Group
 	void RemoveUnit(UnitID id);
 
 	void CommandMoveTo(v2 pos, float angle);
+
+	void CommandFormationNone();
 	void CommandFormationBox(float ratio, float loose);
+	void CommandFormationWedge();
 
 	Unit* ARRAY units;
 	UnitID* OWNER ARRAY members;
