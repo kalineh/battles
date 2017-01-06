@@ -12,12 +12,14 @@
 
 void Game::Init(void* awindow)
 {
+	printf("game: init start\n");
+
 	const int UnitCount = 256;
 	const int TeamCount = 2;
 	const int GroupCountMin = 1;
 	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 4;
-	const int GroupUnitCountMax = 16;
+	const int GroupUnitCountMin = 8;
+	const int GroupUnitCountMax = 24;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -39,8 +41,10 @@ void Game::Init(void* awindow)
 	touch->Init(units);
 
 	selectedGroup = 0;
+
+	int groupCountPerTeam = stb_rand() % (GroupCountMax - GroupCountMin) + GroupCountMin;
 	groups = NULL;
-	stb_arr_setlen(groups, stb_rand() % (GroupCountMax - GroupCountMin) + GroupCountMin);
+	stb_arr_setlen(groups, groupCountPerTeam * TeamCount);
 
 	const char* groupTypes[] = {
 		"Test",
@@ -52,13 +56,17 @@ void Game::Init(void* awindow)
 
 	for (int t = 0; t < TeamCount; ++t)
 	{
-		for (int i = 0; i < stb_arr_len(groups); ++i)
-		{
-			Group* group = GetGroup(i);
-			group->Init(units);
+		printf("game: spawn team %d\n", t);
 
+		for (int i = groupCountPerTeam * t; i < groupCountPerTeam * (t + 1); ++i)
+		{
 			const char* unitType = groupTypes[stb_rand() % stb_arrcount(groupTypes)];
 			int unitCount = stb_rand() % (GroupUnitCountMax - GroupUnitCountMin) + GroupUnitCountMin;
+
+			printf("game: * group %d (%s x%d)\n", i, unitType, unitCount);
+
+			Group* group = GetGroup(i);
+			group->Init(units);
 
 			for (int j = 0; j < unitCount; ++j)
 			{
@@ -81,6 +89,8 @@ void Game::Init(void* awindow)
 		GetGroup(i)->CommandTeleportTo(pos, 0.0f);
 		GetGroup(i)->CommandStop();
 	}
+
+	printf("game: init complete\n");
 }
 
 void Game::Release()
