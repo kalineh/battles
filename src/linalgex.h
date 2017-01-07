@@ -106,6 +106,14 @@ rectoverlap(v2 abl, v2 atr, v2 bbl, v2 btr)
 	return true;
 }
 
+static inline bool
+circleoverlap(v2 ap, float ar, v2 bp, float br)
+{
+	real radsq = (ar + br) * (ar + br);
+	real lensq = v2lensq(bp - ap);
+	return lensq < radsq;
+}
+
 #ifdef __cplusplus
 } /* namespace linalg */
 #endif

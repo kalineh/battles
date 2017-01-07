@@ -131,6 +131,21 @@ void Game::Update()
 		group->CommandMoveTo(click, 0.0f);
 	}
 
+	if (ImGui::IsKeyDown(SDLK_x))
+	{
+		UnitID* killQuery = NULL;
+		stb_arr_setsize(killQuery, 4);
+		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+		grid->Query(&killQuery, mousePos, mousePos, NULL);
+		for (int i = 0; i < stb_arr_len(killQuery); ++i)
+		{
+			UnitID id = killQuery[i];
+			Unit* unit = GetUnit(id);
+			if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius))
+				unit->health = 0.0f;
+		}
+	}
+
 	UnitID* query = NULL;
 	stb_arr_setsize(query, 16);
 
@@ -186,6 +201,9 @@ void Game::Render()
 		if (entry->ids[0] != 0)
 			color = v4rgb1(0,1,1);
 
+		if (!unit->IsAlive())
+			color.w = 0.1f;
+
 		nvgBeginPath(context);
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);
 		nvgFillColor(context, nvgRGBAf(color.x, color.y, color.z, color.w));
@@ -198,7 +216,7 @@ void Game::Render()
 		nvgBeginPath(context);
 		nvgMoveTo(context, unit->pos.x, unit->pos.y);
 		nvgLineTo(context, tip.x, tip.y);
-		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f));
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, color.w));
 		nvgStroke(context);
 		nvgClosePath(context);
 
@@ -242,8 +260,8 @@ void Game::RenderImGui()
 	switch (formation)
 	{
 		case Group::FormationType_Box:
-			ImGui::SliderFloat("Box Ratio", &group->boxRatio, 0.0f, 1.0f);			
-			ImGui::SliderFloat("Box Loose", &group->boxLoose, -1.0f, 4.0f);			
+			ImGui::SliderFloat("Box Ratio", &group->formationRatio, 0.0f, 1.0f);			
+			ImGui::SliderFloat("Box Loose", &group->formationLoose, -1.0f, 4.0f);			
 			break;
 	}
 	

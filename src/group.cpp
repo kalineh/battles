@@ -77,6 +77,12 @@ void Group::UpdateFormation()
 			{
 				v2 unitTargetPos = IndexToPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 
+				int idealIndex = PositionToIndexBox(unit->pos, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				if (idealIndex != i)
+				{
+					// 
+				}
+
 				unit->targetPos = unitTargetPos;
 				unit->targetAngle = commandAngle;
 
