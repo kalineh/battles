@@ -1,8 +1,6 @@
 /*
 
 - formation dynamic adjustment
-- improve unit movement
-- fix spinning units
 - movement preview
 - extra formation
 - drag select formation size
