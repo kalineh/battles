@@ -25,36 +25,8 @@ void Group::Update()
 
 void Group::UpdateFormation()
 {
-	float largestUnitRadius = 0.0f;
-
-	for (int i = 0; i < stb_arr_len(members); ++i)
-	{
-		UnitIndex unitIndex = members[i];
-		Unit* unit = units + unitIndex;
-
-		if (!unit->IsValid())
-			continue;
-		if (!unit->IsAlive())
-			continue;
-
-		if (unit->data->radius > largestUnitRadius)
-			largestUnitRadius = unit->data->radius;
-	}
-
-	int aliveUnitCount = 0;
-
-	for (int i = 0; i < stb_arr_len(members); ++i)
-	{
-		UnitIndex unitIndex = members[i];
-		Unit* unit = units + unitIndex;
-
-		if (!unit->IsValid())
-			continue;
-		if (!unit->IsAlive())
-			continue;
-
-		aliveUnitCount++;
-	}
+	float largestUnitRadius = CalcUnitLargestRadius();
+	int aliveUnitCount = CalcUnitAliveCount();
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
@@ -87,9 +59,9 @@ void Group::UpdateFormation()
 					if (!unitFront->IsValid() || !unitFront->IsAlive())
 					{
 						//stb_swap((void*)(units + i), (void*)(units + unitIndexFront), sizeof(Unit));
-						Unit tmp = *unit;
-						*unit = *unitFront;
-						*unitFront = tmp;
+						//Unit tmp = *unit;
+						//*unit = *unitFront;
+						//*unitFront = tmp;
 					}
 				}
 
@@ -163,6 +135,7 @@ void Group::CommandTeleportTo(v2 pos, float angle)
 		{
 			unit->pos = unit->targetPos;
 			unit->angle = unit->targetAngle;
+			unit->vel = v2zero();
 		}
 	}
 }
@@ -269,4 +242,45 @@ v2 Group::MemberIDToPositionWedge(MemberID memberID, v2 groupCenter, int unitCou
 	);
 
 	return pos;
+}
+
+float Group::CalcUnitLargestRadius()
+{
+	float radius = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		if (unit->data->radius > radius)
+			radius = unit->data->radius;
+	}
+
+	return radius;
+}
+
+int Group::CalcUnitAliveCount()
+{
+	int count = 0;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		count++;
+	}
+
+	return count;
 }

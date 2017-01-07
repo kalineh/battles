@@ -29,6 +29,9 @@ struct Group
 	void CommandFormationBox(float ratio, float loose);
 	void CommandFormationWedge();
 
+	float CalcUnitLargestRadius();
+	int CalcUnitAliveCount();
+
 	MemberID PositionToMemberIDBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	MemberID PositionToMemberIDWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 

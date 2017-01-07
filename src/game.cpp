@@ -14,12 +14,12 @@ void Game::Init(void* awindow)
 {
 	printf("game: init start\n");
 
-	const int UnitCount = 256;
+	const int UnitCount = 512;
 	const int TeamCount = 2;
 	const int GroupCountMin = 1;
-	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 8;
-	const int GroupUnitCountMax = 24;
+	const int GroupCountMax = 2;
+	const int GroupUnitCountMin = 24;
+	const int GroupUnitCountMax = 25;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -274,7 +274,7 @@ void Game::RenderImGui()
 				break;
 
 			case Group::FormationType_Box:
-				group->CommandFormationBox(0.5f, 1.0f);
+				group->CommandFormationBox(0.5f, 1.25f);
 				break;
 
 			case Group::FormationType_Wedge:
@@ -282,6 +282,12 @@ void Game::RenderImGui()
 				break;
 		}
 	}
+
+	ImGui::LabelText("Alive", "%d/%d", group->CalcUnitAliveCount(), stb_arr_len(group->members));
+	ImGui::LabelText("Radius", "%.2f", group->CalcUnitLargestRadius());
+
+	if (ImGui::Button("Teleport"))
+		group->CommandTeleportTo(group->commandPos, group->commandAngle);
 
 	ImGui::End();
 
