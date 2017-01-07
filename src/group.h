@@ -10,7 +10,7 @@ struct Group
 		FormationType_Wedge,
 	};
 
-	typedef int MemberID;
+	typedef int MemberIndex;
 
 	void Init(Unit* ARRAY aunits);
 	void Release();
@@ -18,8 +18,8 @@ struct Group
 	void Update();
 	void UpdateFormation();
 
-	void AddUnit(UnitIndex id);
-	void RemoveUnit(UnitIndex id);
+	void AddUnit(UnitIndex index);
+	void RemoveUnit(UnitIndex index);
 
 	void CommandStop();
 	void CommandMoveTo(v2 pos, float angle);
@@ -32,11 +32,13 @@ struct Group
 	float CalcUnitLargestRadius();
 	int CalcUnitAliveCount();
 
-	MemberID PositionToMemberIDBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	MemberID PositionToMemberIDWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	MemberIndex PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	MemberIndex PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 
-	v2 MemberIDToPositionBox(MemberID memberID, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	v2 MemberIDToPositionWedge(MemberID memberID, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 MemberIndexToPositionBox(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 MemberIndexToPositionWedge(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+
+	MemberIndex FindNearestUnoccupied(MemberIndex index);
 
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;

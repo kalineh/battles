@@ -48,24 +48,7 @@ void Group::UpdateFormation()
 
 			case FormationType_Box:
 			{
-				v2 unitTargetPos = MemberIDToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				MemberID memberID = PositionToMemberIDBox(unit->pos, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				MemberID memberIDFront = PositionToMemberIDBox(unit->pos + v2new(0.0f, 1.0f * largestUnitRadius * (2.0f + formationLoose)), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				MemberID memberIDLeft = PositionToMemberIDBox(unit->pos + v2new(-1.0f * largestUnitRadius * (2.0f + formationLoose), 9.0f), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-
-				if (i != memberID && i != memberIDFront)
-				{
-					UnitIndex unitIndexFront = members[memberIDFront];
-					Unit* unitFront = units + unitIndexFront;
-					if (!unitFront->IsValid() || !unitFront->IsAlive())
-					{
-						//stb_swap((void*)(units + i), (void*)(units + unitIndexFront), sizeof(Unit));
-						//printf("swapped %d and %d\n", aliveMemberCounter, unitIndexFront);
-						//Unit tmp = *unit;
-						//*unit = *unitFront;
-						//*unitFront = tmp;
-					}
-				}
+				v2 unitTargetPos = MemberIndexToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 
 				unit->targetPos = unitTargetPos;
 				unit->targetAngle = commandAngle;
@@ -84,14 +67,14 @@ void Group::UpdateFormation()
 	}
 }
 
-void Group::AddUnit(UnitIndex id)
+void Group::AddUnit(UnitIndex index)
 {
-	stb_arr_push(members, id);
+	stb_arr_push(members, index);
 }
 
-void Group::RemoveUnit(UnitIndex id)
+void Group::RemoveUnit(UnitIndex index)
 {
-	stb_arr_fastdelete(members, id);
+	stb_arr_fastdelete(members, index);
 }
 
 void Group::CommandStop()
@@ -161,7 +144,7 @@ void Group::CommandFormationWedge()
 	formationType = FormationType_Wedge;
 }
 
-int Group::PositionToMemberIDBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+Group::MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -171,6 +154,7 @@ int Group::PositionToMemberIDBox(v2 pos, v2 groupCenter, int unitCount, float un
 		cellsX * unitRadius * (1.0f + loose),
 		cellsY * unitRadius * (1.0f + loose)
 	);
+
 
 	int cellX = localPos.x / cellsX;
 	int cellY = localPos.y / cellsX;
@@ -186,27 +170,12 @@ int Group::PositionToMemberIDBox(v2 pos, v2 groupCenter, int unitCount, float un
 	return index;
 }
 
-int Group::PositionToMemberIDWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+Group::MemberIndex Group::PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
-	// TODO: wedge/triangle calc
-	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
-	int cellsY = unitCount / cellsX;
-
-	v2 localPos = pos - groupCenter;
-	v2 totalSize = v2new(
-		cellsX * unitRadius * (1.0f + loose),
-		cellsY * unitRadius * (1.0f + loose)
-	);
-
-	int cellX = localPos.x / cellX;
-	int cellY = localPos.y / cellY;
-
-	int index = cellX + cellY * cellsX;
-
-	return index;
+	return 0;
 }
 
-v2 Group::MemberIDToPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::MemberIndexToPositionBox(MemberIndex index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -227,13 +196,13 @@ v2 Group::MemberIDToPositionBox(int index, v2 groupCenter, int unitCount, float 
 	return pos;
 }
 
-v2 Group::MemberIDToPositionWedge(MemberID memberID, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::MemberIndexToPositionWedge(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
 
-	int cellX = memberID % cellsX;
-	int cellY = memberID / cellsX;
+	int cellX = memberIndex % cellsX;
+	int cellY = memberIndex / cellsX;
 
 	v2 totalSize = v2new(
 		cellsX * unitRadius * (1.0f + loose),
@@ -287,4 +256,9 @@ int Group::CalcUnitAliveCount()
 	}
 
 	return count;
+}
+
+Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex index)
+{
+	return index;
 }

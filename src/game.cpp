@@ -15,11 +15,11 @@ void Game::Init(void* awindow)
 	printf("game: init start\n");
 
 	const int UnitCount = 512;
-	const int TeamCount = 2;
+	const int TeamCount = 1;
 	const int GroupCountMin = 1;
 	const int GroupCountMax = 2;
-	const int GroupUnitCountMin = 24;
-	const int GroupUnitCountMax = 25;
+	const int GroupUnitCountMin = 2;
+	const int GroupUnitCountMax = 3;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
