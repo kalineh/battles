@@ -2,9 +2,10 @@
 
 - improve formation positioning
 - improve unit movement
-- movement preview
-- drag select formation size
 - fix spinning units
+- movement preview
+- extra formation
+- drag select formation size
 - group stat summary
 - basic combat handling
 - optimize quad render

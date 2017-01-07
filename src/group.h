@@ -27,12 +27,18 @@ struct Group
 	void CommandFormationBox(float ratio, float loose);
 	void CommandFormationWedge();
 
+	int PositionToIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	int PositionToIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+
+	v2 IndexToPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 IndexToPositionWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+
 	Unit* ARRAY units;
 	UnitID* OWNER ARRAY members;
 
 	FormationType formationType;
 	v2 commandPos;
 	float commandAngle;
-	float boxRatio;
-	float boxLoose;
+	float formationRatio;
+	float formationLoose;
 };
