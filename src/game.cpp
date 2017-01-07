@@ -133,20 +133,20 @@ void Game::Update()
 
 	if (ImGui::IsKeyDown(SDLK_x))
 	{
-		UnitID* killQuery = NULL;
+		UnitIndex* killQuery = NULL;
 		stb_arr_setsize(killQuery, 4);
 		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		grid->Query(&killQuery, mousePos, mousePos, NULL);
 		for (int i = 0; i < stb_arr_len(killQuery); ++i)
 		{
-			UnitID id = killQuery[i];
+			UnitIndex id = killQuery[i];
 			Unit* unit = GetUnit(id);
 			if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius))
 				unit->health = 0.0f;
 		}
 	}
 
-	UnitID* query = NULL;
+	UnitIndex* query = NULL;
 	stb_arr_setsize(query, 16);
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
@@ -162,9 +162,9 @@ void Game::Update()
 		int touchCount = touch->Collect(unit, query);
 
 		Touch::Entry* entry = touch->GetEntry(i);
-		for (int j = 0; j < stb_arrcount(entry->ids); ++j)
+		for (int j = 0; j < stb_arrcount(entry->indexes); ++j)
 		{
-			UnitID touchID = entry->ids[j];
+			UnitIndex touchID = entry->indexes[j];
 			if (touchID != 0)
 				unit->ResolveTouch(GetUnit(touchID));
 		}
@@ -198,7 +198,7 @@ void Game::Render()
 		v4 color = unit->visual->color;
 
 		Touch::Entry* entry = touch->GetEntry(i);
-		if (entry->ids[0] != 0)
+		if (entry->indexes[0] != 0)
 			color = v4rgb1(0,1,1);
 
 		if (!unit->IsAlive())
@@ -296,9 +296,9 @@ void Game::RenderImGui()
 			for (int i = 0; i < stb_arr_len(units); ++i)
 			{
 				Unit* unit = &units[i];
-				UnitID unitID = GetUnitID(unit);
+				UnitIndex unitIndex = GetUnitIndex(unit);
 
-				if (ImGui::TreeNode(unit, "%s(%d)", unit->data->type, unitID))
+				if (ImGui::TreeNode(unit, "%s(%d)", unit->data->type, unitIndex))
 				{
 					ImGui::LabelText("Type", unit->data->type);
 
@@ -329,8 +329,8 @@ void Game::RenderImGui()
 					if (ImGui::TreeNode("Touching"))
 					{
 						Touch::Entry* entry = touch->GetEntry(i);
-						for (int j = 0; j < stb_arrcount(Touch::Entry::ids); ++j)
-							ImGui::Text("%d: %d", j, entry->ids[j]);
+						for (int j = 0; j < stb_arrcount(Touch::Entry::indexes); ++j)
+							ImGui::Text("%d: %d", j, entry->indexes[j]);
 
 						ImGui::TreePop();
 					}
@@ -353,14 +353,14 @@ void Game::RenderImGui()
 	ImGui::End();
 }
 
-Unit* Game::GetUnit(UnitID id)
+Unit* Game::GetUnit(UnitIndex unitIndex)
 {
-	assert(id >= 0);
-	assert(id < stb_arr_len(units));
-	return units + id;
+	assert(unitIndex >= 0);
+	assert(unitIndex < stb_arr_len(units));
+	return units + unitIndex;
 }
 
-UnitID Game::GetUnitID(Unit* unit)
+UnitIndex Game::GetUnitIndex(Unit* unit)
 {
 	int offset = (int)(unit - units);
 	int index = offset;

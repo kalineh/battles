@@ -7,9 +7,9 @@ struct Cell
 	void Release();
 
 	void Clear();
-	void Add(UnitID id);
+	void Add(UnitIndex id);
 
-	UnitID* OWNER ARRAY unitIDs;
+	UnitIndex* OWNER ARRAY unitIndexes;
 };
 
 struct Grid
@@ -21,7 +21,7 @@ struct Grid
 
 	void RenderImGui();
 
-	int Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore = NULL);
+	int Query(UnitIndex** ARRAY results, v2 alower, v2 aupper, Unit* ignore = NULL);
 
 	Cell* GetCell(v2i coord);
 	Cell* GetCellIndexed(int index);

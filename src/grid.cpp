@@ -3,24 +3,24 @@
 
 void Cell::Init()
 {
-	unitIDs = NULL;
-	stb_arr_setsize(unitIDs, 32);
-	stb_arr_setlen(unitIDs, 0);
+	unitIndexes = NULL;
+	stb_arr_setsize(unitIndexes, 32);
+	stb_arr_setlen(unitIndexes, 0);
 }
 
 void Cell::Release()
 {
-	stb_arr_free(unitIDs);
+	stb_arr_free(unitIndexes);
 }
 
 void Cell::Clear()
 {
-	stb_arr_setlen(unitIDs, 0);
+	stb_arr_setlen(unitIndexes, 0);
 }
 
-void Cell::Add(UnitID id)
+void Cell::Add(UnitIndex id)
 {
-	stb_arr_push(unitIDs, id);
+	stb_arr_push(unitIndexes, id);
 }
 
 void Grid::Init(Unit* ARRAY aunits, v2i adim, v2 alower, v2 aupper)
@@ -61,7 +61,7 @@ void Grid::Rebuild()
 		if (!unit->IsAlive())
 			continue;
 
-		UnitID id = (UnitID)i;
+		UnitIndex id = (UnitIndex)i;
 		v2 pos = unit->pos;
 		v2i coord = GetGridCoord(pos);
 		Cell* cell = GetCell(coord);
@@ -96,7 +96,7 @@ void Grid::RenderImGui()
 			{
 				int index = x + y * dim.x;
 				Cell* cell = GetCellIndexed(index);
-				int count = stb_arr_len(cell->unitIDs);
+				int count = stb_arr_len(cell->unitIndexes);
 
 				ImGui::Text("%3d", count);
 
@@ -121,14 +121,14 @@ void Grid::RenderImGui()
 				{
 					int index = x + y * dim.x;
 					Cell* cell = GetCellIndexed(index);
-					if (sparse && stb_arr_len(cell->unitIDs) == 0)
+					if (sparse && stb_arr_len(cell->unitIndexes) == 0)
 						continue;
 
-					if (ImGui::TreeNode(cell, "col %d (%d)", x, stb_arr_len(cell->unitIDs)))
+					if (ImGui::TreeNode(cell, "col %d (%d)", x, stb_arr_len(cell->unitIndexes)))
 					{
-						for (int i = 0; i < stb_arr_len(cell->unitIDs); ++i)
+						for (int i = 0; i < stb_arr_len(cell->unitIndexes); ++i)
 						{
-							UnitID id = cell->unitIDs[i];
+							UnitIndex id = cell->unitIndexes[i];
 							Unit* unit = units + id;
 
 							ImGui::LabelText("unit", "%d (%s)", id, unit->data->type);
@@ -149,7 +149,7 @@ void Grid::RenderImGui()
 	ImGui::End();
 }
 
-int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
+int Grid::Query(UnitIndex** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 {
 	int found = 0;
 
@@ -180,12 +180,12 @@ int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 			if (!rectoverlap(alower, aupper, cellLower, cellUpper))
 				continue;
 
-			UnitID* ARRAY cellUnitIDs = cell->unitIDs;
+			UnitIndex* ARRAY cellUnitIndexes = cell->unitIndexes;
 
-			for (int j = 0; j < stb_arr_len(cellUnitIDs); ++j)
+			for (int j = 0; j < stb_arr_len(cellUnitIndexes); ++j)
 			{
-				UnitID unitID = cellUnitIDs[j];
-				Unit* unit = units + unitID;
+				UnitIndex unitIndex = cellUnitIndexes[j];
+				Unit* unit = units + unitIndex;
 				if (unit == ignore)
 					continue;
 
@@ -194,7 +194,7 @@ int Grid::Query(UnitID** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 				v2 unitbl = v2sub(pos, v2new(rad, rad));
 				v2 unittr = v2add(pos, v2new(rad, rad));
 
-				stb_arr_push(*results, unitID);
+				stb_arr_push(*results, unitIndex);
 				found++;
 			}
 		}

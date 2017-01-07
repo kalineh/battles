@@ -19,7 +19,7 @@ struct UnitVisual
 	v4 color;
 };
 
-typedef int UnitID;
+typedef int UnitIndex;
 
 struct Unit
 {

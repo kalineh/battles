@@ -10,8 +10,8 @@ struct Game
 	void Render();
 	void RenderImGui();
 
-	Unit* GetUnit(UnitID id);
-	UnitID GetUnitID(Unit* unit);
+	Unit* GetUnit(UnitIndex id);
+	UnitIndex GetUnitIndex(Unit* unit);
 
 	Grid* GetGrid();
 

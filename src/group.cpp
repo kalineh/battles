@@ -29,8 +29,8 @@ void Group::UpdateFormation()
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitID unitID = members[i];
-		Unit* unit = units + unitID;
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
 			continue;
@@ -45,8 +45,8 @@ void Group::UpdateFormation()
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitID unitID = members[i];
-		Unit* unit = units + unitID;
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
 			continue;
@@ -58,8 +58,8 @@ void Group::UpdateFormation()
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitID unitID = members[i];
-		Unit* unit = units + unitID;
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
 			continue;
@@ -82,8 +82,8 @@ void Group::UpdateFormation()
 
 				if (i != memberID && i != memberIDFront)
 				{
-					UnitID unitIDFront = members[memberIDFront];
-					Unit* unitFront = units + unitIDFront;
+					UnitIndex unitIndexFront = members[memberIDFront];
+					Unit* unitFront = units + unitIndexFront;
 					if (!unitFront->IsValid() || !unitFront->IsAlive())
 					{
 						//stb_swap((void*)(units + i), (void*)(units + unitIndexFront), sizeof(Unit));
@@ -108,12 +108,12 @@ void Group::UpdateFormation()
 	}
 }
 
-void Group::AddUnit(UnitID id)
+void Group::AddUnit(UnitIndex id)
 {
 	stb_arr_push(members, id);
 }
 
-void Group::RemoveUnit(UnitID id)
+void Group::RemoveUnit(UnitIndex id)
 {
 	stb_arr_fastdelete(members, id);
 }
@@ -125,8 +125,8 @@ void Group::CommandStop()
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitID unitID = members[i];
-		Unit* unit = units + unitID;
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
 			continue;
@@ -156,8 +156,8 @@ void Group::CommandTeleportTo(v2 pos, float angle)
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitID unitID = members[i];
-		Unit* unit = units + unitID;
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
 
 		if (unit->IsValid() && unit->IsAlive())
 		{

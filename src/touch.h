@@ -8,14 +8,14 @@ struct Touch
 
 	void Clear();
 
-	int Collect(Unit* unit, UnitID* ARRAY candidates);
+	int Collect(Unit* unit, UnitIndex* ARRAY candidates);
 
 	struct Entry
 	{
-		UnitID ids[4];
+		UnitIndex indexes[4];
 	};
 
-	Entry* GetEntry(UnitID id);
+	Entry* GetEntry(UnitIndex id);
 
 	Unit* ARRAY units;
 	Entry* OWNER ARRAY entries;
