@@ -169,7 +169,7 @@ void Unit::ResolveTouch(Unit* unit)
 
 	const float rads = unit->data->radius + data->radius;
 	const float intersect = -(len - rads);
-	const float ratio = data->mass / (data->mass + unit->data->mass);
+	const float ratio = powf(data->mass / (data->mass + unit->data->mass), 2.0f);
 
 	unit->vel += dir * intersect * dt * ejectRate * ratio;
 
