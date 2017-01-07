@@ -21,7 +21,7 @@ static UnitData unitDataLight = {
 	"Light", // type
 	5.0f, // radius
 	5.0f, // mass
-	100.0f, // accel
+	125.0f, // accel
 	10.0f, // armor
 	100.0f, // health
 	100.0f, // fatigue
@@ -102,9 +102,10 @@ void Unit::Update()
 {
 	const float dt = 1.0f / 60.0f;
 	const float rotationRate = 2.0f;
-	const float friction = 0.25f;
-	const float brake = 0.75f;
-	const float arrive = 7.5f;
+	const float frictionForce = 0.25f;
+	const float brakeForce = 2.5f;
+	const float arriveRange = 7.5f;
+	const float overshootForce = 0.1f;
 
 	v2 targetOfs = targetPos - pos;
 	v2 targetDir = v2unitsafe(targetOfs);
@@ -112,7 +113,9 @@ void Unit::Update()
 	v2 movingDir = v2unitsafe(vel);
 
 	float targetLen = v2lensafe(targetOfs);
-	float arriveFactor = 1.0f - fminf(targetLen / arrive, 1.0f);
+	float movingLen = v2lensafe(vel);
+
+	float arriveFactor = 1.0f - fminf(targetLen / arriveRange, 1.0f);
 	float travelFactor = 1.0f - arriveFactor;
 
 	float targetPosAngle = v2toangle(targetDir);
@@ -130,15 +133,22 @@ void Unit::Update()
 
 	angle = angleto(angle, targetAngle, PI * dt * rotationRate * targetAngleApproach * arriveFactor);
 
-	float targetApproach = fminf(targetLen, 15.0f) / 15.0f;
+	float velAngle = v2toangle(movingDir);
+	float targetAngleVelAdjust = anglediff(velAngle, targetPosAngle);
+	float targetAngleVelAdjustFixed = fminf(fabs(targetAngleVelAdjust), PI * 0.25f) * (targetAngleVelAdjust < 0.0f ? -1.0f : 1.0f);
+
+	angle = angleto(angle, targetPosAngle + targetAngleVelAdjustFixed, overshootForce * movingLen * dt);
+
+	float targetApproachRange = 15.0f + movingLen;
+	float targetApproach = fminf(targetLen, targetApproachRange) / targetApproachRange;
 	float targetApproachBrake = 1.0f - targetApproach;
 
 	targetApproach = fminf(targetApproach, 1.0f);
 
 	vel += targetDir * data->accel * dt * arriveFactor;
 	vel += facingDir * data->accel * dt * targetApproach * travelFactor;
-	vel -= movingDir * data->accel * dt * targetApproachBrake * brake * arriveFactor;
-	vel -= vel * stb_min(friction * data->mass * dt, 1.0f);
+	vel -= movingDir * data->accel * dt * targetApproachBrake * brakeForce * arriveFactor;
+	vel -= vel * stb_min(frictionForce * data->mass * dt, 1.0f);
 	pos += vel * dt;
 }
 

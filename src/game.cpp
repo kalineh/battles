@@ -67,6 +67,7 @@ void Game::Init(void* awindow)
 
 			Group* group = GetGroup(i);
 			group->Init(units);
+			group->CommandFormationBox(0.5f, 1.25f);
 
 			for (int j = 0; j < unitCount; ++j)
 			{
