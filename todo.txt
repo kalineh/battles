@@ -1,8 +1,10 @@
 /*
 
+- fix dead units in formation
 - formation dynamic adjustment
 - movement preview
-- extra formation
+- unit group rotation
+- extra formations
 - drag select formation size
 - group stat summary
 - basic combat handling

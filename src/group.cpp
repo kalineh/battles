@@ -27,6 +27,7 @@ void Group::UpdateFormation()
 {
 	float largestUnitRadius = CalcUnitLargestRadius();
 	int aliveUnitCount = CalcUnitAliveCount();
+	int aliveMemberCounter = 0;
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
@@ -47,10 +48,10 @@ void Group::UpdateFormation()
 
 			case FormationType_Box:
 			{
-				v2 unitTargetPos = MemberIDToPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 unitTargetPos = MemberIDToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 				MemberID memberID = PositionToMemberIDBox(unit->pos, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				MemberID memberIDFront = PositionToMemberIDBox(unit->pos + v2new(0.0f, 1.0f * largestUnitRadius * (1.0f + formationLoose)), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				MemberID memberIDLeft = PositionToMemberIDBox(unit->pos + v2new(-1.0f * largestUnitRadius * (1.0f + formationLoose), 9.0f), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				MemberID memberIDFront = PositionToMemberIDBox(unit->pos + v2new(0.0f, 1.0f * largestUnitRadius * (2.0f + formationLoose)), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				MemberID memberIDLeft = PositionToMemberIDBox(unit->pos + v2new(-1.0f * largestUnitRadius * (2.0f + formationLoose), 9.0f), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 
 				if (i != memberID && i != memberIDFront)
 				{
@@ -59,6 +60,7 @@ void Group::UpdateFormation()
 					if (!unitFront->IsValid() || !unitFront->IsAlive())
 					{
 						//stb_swap((void*)(units + i), (void*)(units + unitIndexFront), sizeof(Unit));
+						//printf("swapped %d and %d\n", aliveMemberCounter, unitIndexFront);
 						//Unit tmp = *unit;
 						//*unit = *unitFront;
 						//*unitFront = tmp;
@@ -77,6 +79,8 @@ void Group::UpdateFormation()
 				unit->targetAngle = commandAngle;
 				break;
 		}
+
+		aliveMemberCounter++;
 	}
 }
 
