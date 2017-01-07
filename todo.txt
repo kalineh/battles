@@ -1,6 +1,6 @@
 /*
 
-- improve formation positioning
+- formation dynamic adjustment
 - improve unit movement
 - fix spinning units
 - movement preview

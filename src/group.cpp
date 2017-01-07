@@ -75,12 +75,22 @@ void Group::UpdateFormation()
 
 			case FormationType_Box:
 			{
-				v2 unitTargetPos = IndexToPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 unitTargetPos = MemberIDToPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				MemberID memberID = PositionToMemberIDBox(unit->pos, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				MemberID memberIDFront = PositionToMemberIDBox(unit->pos + v2new(0.0f, 1.0f * largestUnitRadius * (1.0f + formationLoose)), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				MemberID memberIDLeft = PositionToMemberIDBox(unit->pos + v2new(-1.0f * largestUnitRadius * (1.0f + formationLoose), 9.0f), commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 
-				int idealIndex = PositionToIndexBox(unit->pos, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				if (idealIndex != i)
+				if (i != memberID && i != memberIDFront)
 				{
-					// 
+					UnitID unitIDFront = members[memberIDFront];
+					Unit* unitFront = units + unitIDFront;
+					if (!unitFront->IsValid() || !unitFront->IsAlive())
+					{
+						//stb_swap((void*)(units + i), (void*)(units + unitIndexFront), sizeof(Unit));
+						Unit tmp = *unit;
+						*unit = *unitFront;
+						*unitFront = tmp;
+					}
 				}
 
 				unit->targetPos = unitTargetPos;
@@ -174,7 +184,7 @@ void Group::CommandFormationWedge()
 	formationType = FormationType_Wedge;
 }
 
-int Group::PositionToIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+int Group::PositionToMemberIDBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -185,15 +195,21 @@ int Group::PositionToIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitR
 		cellsY * unitRadius * (1.0f + loose)
 	);
 
-	int cellX = localPos.x / cellX;
-	int cellY = localPos.y / cellY;
+	int cellX = localPos.x / cellsX;
+	int cellY = localPos.y / cellsX;
+
+	cellX = stb_max(cellX, 0);
+	cellY = stb_max(cellY, 0);
+
+	cellX = stb_min(cellX, cellsX - 1);
+	cellY = stb_min(cellY, cellsY - 1);
 
 	int index = cellX + cellY * cellsX;
 
 	return index;
 }
 
-int Group::PositionToIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+int Group::PositionToMemberIDWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	// TODO: wedge/triangle calc
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
@@ -213,7 +229,7 @@ int Group::PositionToIndexWedge(v2 pos, v2 groupCenter, int unitCount, float uni
 	return index;
 }
 
-v2 Group::IndexToPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::MemberIDToPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -234,13 +250,13 @@ v2 Group::IndexToPositionBox(int index, v2 groupCenter, int unitCount, float uni
 	return pos;
 }
 
-v2 Group::IndexToPositionWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::MemberIDToPositionWedge(MemberID memberID, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
 
-	int cellX = index % cellsX;
-	int cellY = index / cellsX;
+	int cellX = memberID % cellsX;
+	int cellY = memberID / cellsX;
 
 	v2 totalSize = v2new(
 		cellsX * unitRadius * (1.0f + loose),
