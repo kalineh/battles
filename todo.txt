@@ -1,6 +1,5 @@
 /*
 
-- fix dead units in formation
 - formation dynamic adjustment
 - movement preview
 - unit group rotation
