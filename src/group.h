@@ -38,7 +38,7 @@ struct Group
 	v2 MemberIndexToPositionBox(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	v2 MemberIndexToPositionWedge(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 
-	MemberIndex FindNearestUnoccupied(MemberIndex index);
+	MemberIndex FindNearestUnoccupied(MemberIndex queryMemberIndex);
 
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;

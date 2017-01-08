@@ -49,6 +49,14 @@ void Group::UpdateFormation()
 			case FormationType_Box:
 			{
 				v2 unitTargetPos = MemberIndexToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				//MemberIndex bestIndex = FindNearestUnoccupied(i);
+				//if (bestIndex != i)
+				//{
+					//UnitIndex a = members[i];
+					//UnitIndex b = members[bestIndex];
+					//members[bestIndex] = a;
+					//members[i] = b;
+				//}
 
 				unit->targetPos = unitTargetPos;
 				unit->targetAngle = commandAngle;
@@ -258,7 +266,50 @@ int Group::CalcUnitAliveCount()
 	return count;
 }
 
-Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex index)
+Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 {
-	return index;
+	float bestDistance = FLT_MAX;
+	MemberIndex bestIndex  = queryMemberIndex;
+	int aliveUnitCount = CalcUnitAliveCount();
+	int aliveMemberCounter = 0;
+	float largestUnitRadius = CalcUnitLargestRadius();
+
+	UnitIndex queryUnitIndex = members[queryMemberIndex];
+	Unit* queryUnit = units + queryUnitIndex;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (i != queryMemberIndex)
+			if (unit->IsValid() && unit->IsAlive())
+				continue;
+
+		switch (formationType)
+		{
+			case FormationType_None:
+				break;
+
+			case FormationType_Box:
+			{
+				v2 pos = MemberIndexToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 ofs = queryUnit->pos - pos;
+				float lensq = v2lensq(ofs);
+				if (lensq < bestDistance)
+				{
+					bestDistance = lensq;
+					bestIndex = i;
+				}
+				break;
+			}
+
+			case FormationType_Wedge:
+				break;
+		}
+
+		aliveMemberCounter++;
+	}
+
+	return bestIndex;
 }
