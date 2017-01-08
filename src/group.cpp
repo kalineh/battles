@@ -266,6 +266,56 @@ int Group::CalcUnitAliveCount()
 	return count;
 }
 
+float Group::CalcUnitAverageResolve()
+{
+	float resolveMax = 0.0f;
+	float resolveCurrent = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		resolveMax += unit->data->resolve;
+		resolveCurrent += unit->resolve;
+	}
+
+	if (resolveMax <= 0.0f)
+		return 0.0f;
+
+	return resolveCurrent / resolveMax;
+}
+
+float Group::CalcUnitAverageHealth()
+{
+	float healthMax = 0.0f;
+	float healthCurrent = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		healthMax += unit->data->health;
+		healthCurrent += unit->health;
+	}
+
+	if (healthMax <= 0.0f)
+		return 0.0f;
+
+	return healthCurrent / healthMax;
+}
+
 Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 {
 	float bestDistance = FLT_MAX;

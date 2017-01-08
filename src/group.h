@@ -31,6 +31,8 @@ struct Group
 
 	float CalcUnitLargestRadius();
 	int CalcUnitAliveCount();
+	float CalcUnitAverageResolve();
+	float CalcUnitAverageHealth();
 
 	MemberIndex PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	MemberIndex PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
