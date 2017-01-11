@@ -218,8 +218,8 @@ Group::MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int u
 	);
 
 
-	int cellX = localPos.x / cellsX;
-	int cellY = localPos.y / cellsX;
+	int cellX = (int)(localPos.x / cellsX);
+	int cellY = (int)(localPos.y / cellsX);
 
 	cellX = stb_max(cellX, 0);
 	cellY = stb_max(cellY, 0);

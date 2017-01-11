@@ -135,7 +135,7 @@ void Unit::Update()
 
 	float velAngle = v2toangle(movingDir);
 	float targetAngleVelAdjust = anglediff(velAngle, targetPosAngle);
-	float targetAngleVelAdjustFixed = fminf(fabs(targetAngleVelAdjust), PI * 0.25f) * (targetAngleVelAdjust < 0.0f ? -1.0f : 1.0f);
+	float targetAngleVelAdjustFixed = fminf(fabsf(targetAngleVelAdjust), PI * 0.25f) * (targetAngleVelAdjust < 0.0f ? -1.0f : 1.0f);
 
 	angle = angleto(angle, targetPosAngle + targetAngleVelAdjustFixed, overshootForce * movingLen * dt);
 

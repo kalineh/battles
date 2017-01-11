@@ -162,6 +162,9 @@ void Game::Update()
 		int gridCount = grid->Query(&query, unit->pos, unit->pos, unit);
 		int touchCount = touch->Collect(unit, query);
 
+		(void)gridCount;
+		(void)touchCount;
+
 		Touch::Entry* entry = touch->GetEntry(i);
 		for (int j = 0; j < stb_arrcount(entry->indexes); ++j)
 		{
