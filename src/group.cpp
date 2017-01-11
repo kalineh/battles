@@ -54,6 +54,10 @@ void Group::UpdateFormation()
 		searchPoolCursor++;
 	}
 
+	// instead of finding best unit for each position
+	// we want to minimize total movement
+	// or iterate from outside in?
+
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
 		v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);

@@ -18,8 +18,8 @@ void Game::Init(void* awindow)
 	const int TeamCount = 1;
 	const int GroupCountMin = 1;
 	const int GroupCountMax = 2;
-	const int GroupUnitCountMin = 16;
-	const int GroupUnitCountMax = 17;
+	const int GroupUnitCountMin = 38;
+	const int GroupUnitCountMax = 39;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
