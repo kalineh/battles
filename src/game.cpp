@@ -193,6 +193,33 @@ void Game::Render()
 
 	nvgBeginFrame(context, width, height, 1.0f);
 
+	v2 gridLower = grid->lower;
+	v2 gridUpper = grid->upper;
+	v2 gridSize = grid->upper - gridLower; 
+	v2 cellSize = v2new(gridSize.x / (float)grid->dim.x, gridSize.y / (float)grid->dim.y);
+
+	nvgBeginPath(context);
+	nvgRect(context, gridLower.x, gridLower.y, gridUpper.x - gridLower.x, gridUpper.y - gridLower.y);
+	nvgStrokeColor(context, nvgRGBf(1.0f, 1.0f, 1.0f));
+	nvgStrokeWidth(context, 2.0f);
+	nvgStroke(context);
+	nvgClosePath(context);
+
+	for (int y = 0; y < grid->dim.y; ++y)
+	{
+		for (int x = 0; x < grid->dim.x; ++x)
+		{
+			v2 cellLower = gridLower + v2new(cellSize.x * (float)(x + 0), cellSize.y * (float)(y + 0));
+
+			nvgBeginPath(context);
+			nvgStrokeColor(context, nvgRGBAf(0.25f, 0.25f, 0.25f, 0.25f));
+			nvgStrokeWidth(context, 1.0f);
+			nvgRect(context, cellLower.x, cellLower.y, cellSize.x, cellSize.y);
+			nvgStroke(context);
+			nvgClosePath(context);
+		}
+	}
+
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
