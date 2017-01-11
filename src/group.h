@@ -37,13 +37,15 @@ struct Group
 	MemberIndex PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	MemberIndex PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 
-	v2 MemberIndexToPositionBox(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	v2 MemberIndexToPositionWedge(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 FormationPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 FormationPositionWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 
 	MemberIndex FindNearestUnoccupied(MemberIndex queryMemberIndex);
+	UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
 
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;
+	UnitIndex* OWNER ARRAY slots;
 
 	FormationType formationType;
 	v2 commandPos;
