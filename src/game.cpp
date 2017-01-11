@@ -52,7 +52,7 @@ void Game::Init(void* awindow)
 		"Heavy",
 	};
 
-	int unitWriteCursor = 0;
+	int unitWriteCursor = 1;
 
 	for (int t = 0; t < TeamCount; ++t)
 	{

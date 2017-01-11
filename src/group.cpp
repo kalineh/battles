@@ -36,18 +36,13 @@ void Group::UpdateFormation()
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 		slots[i] = InvalidUnitIndex;
 
-	// for each slot, find pos, then find nearest unit
-	// assign member index to that unit
-	// members is full unchanging list of added units
-	// is sparse in that 0hp units still exist
-
 	UnitIndex* ARRAY searchPool = NULL;
 	stb_arr_setlen(searchPool, aliveUnitCount);
 	int searchPoolCursor = 0;
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitIndex unitIndex = slots[i];
+		UnitIndex unitIndex = members[i];
 		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
@@ -131,11 +126,15 @@ void Group::UpdateFormation()
 
 void Group::AddUnit(UnitIndex index)
 {
+	assert(index != InvalidUnitIndex);
+	assert(index > 0);
 	stb_arr_push(members, index);
 }
 
 void Group::RemoveUnit(UnitIndex index)
 {
+	assert(index != InvalidUnitIndex);
+	assert(index > 0);
 	stb_arr_fastdelete(members, index);
 }
 
