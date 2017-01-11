@@ -317,8 +317,10 @@ void Game::RenderImGui()
 	ImGui::LabelText("Alive", "%d/%d", group->CalcUnitAliveCount(), stb_arr_len(group->members));
 	ImGui::LabelText("Radius", "%.2f", group->CalcUnitLargestRadius());
 
-	if (ImGui::Button("Teleport"))
+	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandTeleportTo(group->commandPos, group->commandAngle);
+	if (ImGui::Button("Teleport Debug") || ImGui::IsKeyPressed(SDLK_y))
+		group->CommandTeleportTo(v2new(450.0f, 400.0f), 0.0f);
 
 	ImGui::End();
 

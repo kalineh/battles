@@ -20,6 +20,7 @@ struct UnitVisual
 };
 
 typedef int UnitIndex;
+static const int InvalidUnitIndex = 0;
 
 struct Unit
 {

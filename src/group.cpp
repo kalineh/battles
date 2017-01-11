@@ -11,6 +11,8 @@ void Group::Init(Unit* ARRAY aunits)
 	units = aunits;
 	members = NULL;
 	stb_arr_setsize(members, 8);
+	slots = NULL;
+	stb_arr_setsize(slots, 8);
 }
 
 void Group::Release()
@@ -29,9 +31,69 @@ void Group::UpdateFormation()
 	int aliveUnitCount = CalcUnitAliveCount();
 	int aliveMemberCounter = 0;
 
+	stb_arr_setlen(slots, aliveUnitCount);
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+		slots[i] = InvalidUnitIndex;
+
+	// for each slot, find pos, then find nearest unit
+	// assign member index to that unit
+	// members is full unchanging list of added units
+	// is sparse in that 0hp units still exist
+
+	UnitIndex* ARRAY searchPool = NULL;
+	stb_arr_setlen(searchPool, aliveUnitCount);
+	int searchPoolCursor = 0;
+
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
-		UnitIndex unitIndex = members[i];
+		UnitIndex unitIndex = slots[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		searchPool[searchPoolCursor] = unitIndex;
+		searchPoolCursor++;
+	}
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+
+		float bestDistance = FLT_MAX;
+		UnitIndex bestIndex = InvalidUnitIndex;
+		int bestIndexPoolIndex = -1;
+
+		for (int j = 0; j < stb_arr_len(searchPool); ++j)
+		{
+			UnitIndex poolUnitIndex = searchPool[j];
+			Unit* unit = units + poolUnitIndex;
+
+			if (!unit->IsValid())
+				continue;
+			if (!unit->IsAlive())
+				continue;
+
+			v2 ofs = unit->pos - slotTargetPos;
+			float lensq = v2lensq(ofs);
+			if (lensq < bestDistance)
+			{
+				bestDistance = lensq;
+				bestIndex = poolUnitIndex;
+				bestIndexPoolIndex = j;
+			}
+		}
+
+		slots[i] = bestIndex;
+		searchPool[bestIndexPoolIndex] = InvalidUnitIndex;
+	}
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex unitIndex = slots[i];
 		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
@@ -48,15 +110,7 @@ void Group::UpdateFormation()
 
 			case FormationType_Box:
 			{
-				v2 unitTargetPos = MemberIndexToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-				//MemberIndex bestIndex = FindNearestUnoccupied(i);
-				//if (bestIndex != i)
-				//{
-					//UnitIndex a = members[i];
-					//UnitIndex b = members[bestIndex];
-					//members[bestIndex] = a;
-					//members[i] = b;
-				//}
+				v2 unitTargetPos = FormationPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 
 				unit->targetPos = unitTargetPos;
 				unit->targetAngle = commandAngle;
@@ -183,7 +237,7 @@ Group::MemberIndex Group::PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int
 	return 0;
 }
 
-v2 Group::MemberIndexToPositionBox(MemberIndex index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::FormationPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -204,7 +258,7 @@ v2 Group::MemberIndexToPositionBox(MemberIndex index, v2 groupCenter, int unitCo
 	return pos;
 }
 
-v2 Group::MemberIndexToPositionWedge(MemberIndex memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::FormationPositionWedge(int memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -266,6 +320,56 @@ int Group::CalcUnitAliveCount()
 	return count;
 }
 
+float Group::CalcUnitAverageResolve()
+{
+	float resolveMax = 0.0f;
+	float resolveCurrent = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		resolveMax += unit->data->resolve;
+		resolveCurrent += unit->resolve;
+	}
+
+	if (resolveMax <= 0.0f)
+		return 0.0f;
+
+	return resolveCurrent / resolveMax;
+}
+
+float Group::CalcUnitAverageHealth()
+{
+	float healthMax = 0.0f;
+	float healthCurrent = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		healthMax += unit->data->health;
+		healthCurrent += unit->health;
+	}
+
+	if (healthMax <= 0.0f)
+		return 0.0f;
+
+	return healthCurrent / healthMax;
+}
+
 Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 {
 	float bestDistance = FLT_MAX;
@@ -293,7 +397,7 @@ Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 
 			case FormationType_Box:
 			{
-				v2 pos = MemberIndexToPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 pos = FormationPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 				v2 ofs = queryUnit->pos - pos;
 				float lensq = v2lensq(ofs);
 				if (lensq < bestDistance)
@@ -309,6 +413,28 @@ Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 		}
 
 		aliveMemberCounter++;
+	}
+
+	return bestIndex;
+}
+
+UnitIndex Group::FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex)
+{
+	float bestDistance = FLT_MAX;
+	UnitIndex bestIndex = failureIndex;
+
+	for (int i = 0; i < stb_arr_len(source); ++i)
+	{
+		UnitIndex unitIndex = source[i];
+		Unit* unit = units + unitIndex;
+
+		v2 ofs = unit->pos - pos;
+		float lensq = v2lensq(ofs);
+		if (lensq < bestDistance)
+		{
+			bestDistance = lensq;
+			bestIndex = unitIndex;
+		}
 	}
 
 	return bestIndex;
