@@ -14277,4 +14277,4 @@ void stua_run_script(char *s)
 #undef STB_EXTERN
 #endif // STB_INCLUDE_STB_H
 
-#pragma warning(pop, 0)
+#pragma warning(pop)
