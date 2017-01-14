@@ -29,6 +29,7 @@ struct Group
 	void CommandFormationBox(float ratio, float loose);
 	void CommandFormationWedge();
 
+	v2 CalcCentroid();
 	float CalcUnitLargestRadius();
 	int CalcUnitAliveCount();
 	float CalcUnitAverageResolve();

@@ -1,6 +1,25 @@
 
 #include "inc.h"
 
+int SortFurthestV2FromCentroidCompare(void* context, const void* lhs, const void* rhs)
+{
+	Group* group = (Group*)context;
+	v2* lhsPos = (v2*)lhs;
+	v2* rhsPos = (v2*)rhs;
+	v2 centroid = group->commandPos;
+	v2 lhsOfs = *lhsPos - centroid;
+	v2 rhsOfs = *rhsPos - centroid;
+	float lhsDistSq = v2lensq(lhsOfs);
+	float rhsDistSq = v2lensq(rhsOfs);
+
+	if (lhsDistSq < rhsDistSq)
+		return -1;
+	if (lhsDistSq > rhsDistSq)
+		return +1;
+
+	return 0;
+}
+
 void Group::Init(Unit* ARRAY aunits)
 {
 	formationType = FormationType_None;
@@ -40,6 +59,7 @@ void Group::UpdateFormation()
 	stb_arr_setlen(searchPool, aliveUnitCount);
 	int searchPoolCursor = 0;
 
+	// collect valid members for slots
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
 		UnitIndex unitIndex = members[i];
@@ -54,14 +74,17 @@ void Group::UpdateFormation()
 		searchPoolCursor++;
 	}
 
-	// units can request to other units that are closer? and request them to move?
-	// objective is minimizing total movement
-	// ie. ask unit, are you closer? can you move
-	// ie. if we swap, is less overall distance?
+	v2* slotTargetPositions = NULL;
+	stb_arr_setsize(slotTargetPositions, stb_arr_len(slots));
+	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
+		slotTargetPositions[i] = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
 
+	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
-		v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+		//v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+		v2 slotTargetPos = slotTargetPositions[i];
 
 		float bestDistance = FLT_MAX;
 		UnitIndex bestIndex = InvalidUnitIndex;
@@ -89,6 +112,36 @@ void Group::UpdateFormation()
 
 		slots[i] = bestIndex;
 		searchPool[bestIndexPoolIndex] = InvalidUnitIndex;
+	}
+
+	// test: swap slots with furthest (NG)
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex currentBestUnitIndex = slots[i];
+		Unit* currentBestUnit = units + currentBestUnitIndex;
+
+		v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+		v2 slotOfs = currentBestUnit->pos - slotTargetPos;
+		float slotLenSq = v2lensq(slotOfs);
+
+		for (int j = 0; j < stb_arr_len(slots); ++j)
+		{
+			if (i == j)
+				continue;
+
+			UnitIndex otherUnitIndex = slots[j];
+			Unit* otherUnit = units + otherUnitIndex;
+
+			v2 otherOfs = otherUnit->pos - slotTargetPos;
+			float otherLenSq = v2lensq(otherOfs);
+			if (otherLenSq > slotLenSq)
+			{
+				//UnitIndex tmp = slots[i];
+				//slots[i] = slots[j];
+				//slots[j] = tmp;
+				break;
+			}
+		}
 	}
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
@@ -281,6 +334,32 @@ v2 Group::FormationPositionWedge(int memberIndex, v2 groupCenter, int unitCount,
 	);
 
 	return pos;
+}
+
+v2 Group::CalcCentroid()
+{
+	v2 sum = v2zero();
+	float count = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		sum += unit->pos;
+		count += 1.0f;
+	}
+
+	v2 centroid = v2zero();
+	if (count > 0.0f)
+		centroid = sum / count;
+
+	return centroid;
 }
 
 float Group::CalcUnitLargestRadius()
