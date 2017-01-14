@@ -54,9 +54,10 @@ void Group::UpdateFormation()
 		searchPoolCursor++;
 	}
 
-	// instead of finding best unit for each position
-	// we want to minimize total movement
-	// or iterate from outside in?
+	// units can request to other units that are closer? and request them to move?
+	// objective is minimizing total movement
+	// ie. ask unit, are you closer? can you move
+	// ie. if we swap, is less overall distance?
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{

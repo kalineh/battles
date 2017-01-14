@@ -25,6 +25,8 @@ void Game::Init(void* awindow)
 
 	window = awindow;
 
+	paused = false;
+
 	units = NULL;
 	stb_arr_setlen(units, UnitCount);
 
@@ -132,6 +134,11 @@ void Game::Update()
 		group->CommandMoveTo(click, 0.0f);
 	}
 
+	if (ImGui::IsKeyPressed(SDLK_p))
+	{
+		paused = !paused;
+	}
+
 	if (ImGui::IsKeyDown(SDLK_x))
 	{
 		UnitIndex* killQuery = NULL;
@@ -146,6 +153,9 @@ void Game::Update()
 				unit->health = 0.0f;
 		}
 	}
+
+	if (paused)
+		return;
 
 	UnitIndex* query = NULL;
 	stb_arr_setsize(query, 16);

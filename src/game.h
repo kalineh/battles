@@ -19,6 +19,8 @@ struct Game
 
 	void* window;
 
+	bool paused;
+
 	Unit* OWNER ARRAY units;
 	Grid* OWNER grid;
 	Touch* OWNER touch;
