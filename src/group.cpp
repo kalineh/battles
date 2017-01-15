@@ -125,6 +125,14 @@ void Group::UpdateFormation()
 	for (int i = 0; i < stb_arr_len(slotDatas); ++i)
 		slotTargetPositions[i] = slotDatas[i].pos;
 
+	v2* slotReverse = NULL;
+	stb_arr_setlen(slotReverse, stb_arr_len(slots));
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+		slotReverse[i] = slotTargetPositions[stb_arr_len(slots) - 1 - i];
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+		slotTargetPositions[i] = slotReverse[i];
+	stb_arr_free(slotReverse);
+
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
@@ -527,6 +535,11 @@ UnitIndex Group::FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex fail
 	{
 		UnitIndex unitIndex = source[i];
 		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
 
 		v2 ofs = unit->pos - pos;
 		float lensq = v2lensq(ofs);
