@@ -6,7 +6,7 @@ int SortFurthestV2FromCentroidCompare(void* context, const void* lhs, const void
 	Group* group = (Group*)context;
 	v2* lhsPos = (v2*)lhs;
 	v2* rhsPos = (v2*)rhs;
-	v2 centroid = group->commandPos;
+	v2 centroid = group->CalcCentroid();
 	v2 lhsOfs = *lhsPos - centroid;
 	v2 rhsOfs = *rhsPos - centroid;
 	float lhsDistSq = v2lensq(lhsOfs);
@@ -75,15 +75,14 @@ void Group::UpdateFormation()
 	}
 
 	v2* slotTargetPositions = NULL;
-	stb_arr_setsize(slotTargetPositions, stb_arr_len(slots));
+	stb_arr_setlen(slotTargetPositions, stb_arr_len(slots));
 	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
 		slotTargetPositions[i] = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
+	//qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
 
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
-		//v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 		v2 slotTargetPos = slotTargetPositions[i];
 
 		float bestDistance = FLT_MAX;
@@ -114,36 +113,6 @@ void Group::UpdateFormation()
 		searchPool[bestIndexPoolIndex] = InvalidUnitIndex;
 	}
 
-	// test: swap slots with furthest (NG)
-	for (int i = 0; i < stb_arr_len(slots); ++i)
-	{
-		UnitIndex currentBestUnitIndex = slots[i];
-		Unit* currentBestUnit = units + currentBestUnitIndex;
-
-		v2 slotTargetPos = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-		v2 slotOfs = currentBestUnit->pos - slotTargetPos;
-		float slotLenSq = v2lensq(slotOfs);
-
-		for (int j = 0; j < stb_arr_len(slots); ++j)
-		{
-			if (i == j)
-				continue;
-
-			UnitIndex otherUnitIndex = slots[j];
-			Unit* otherUnit = units + otherUnitIndex;
-
-			v2 otherOfs = otherUnit->pos - slotTargetPos;
-			float otherLenSq = v2lensq(otherOfs);
-			if (otherLenSq > slotLenSq)
-			{
-				//UnitIndex tmp = slots[i];
-				//slots[i] = slots[j];
-				//slots[j] = tmp;
-				break;
-			}
-		}
-	}
-
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
 		UnitIndex unitIndex = slots[i];
@@ -163,7 +132,7 @@ void Group::UpdateFormation()
 
 			case FormationType_Box:
 			{
-				v2 unitTargetPos = FormationPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 unitTargetPos = slotTargetPositions[aliveMemberCounter];
 
 				unit->targetPos = unitTargetPos;
 				unit->targetAngle = commandAngle;
@@ -180,6 +149,8 @@ void Group::UpdateFormation()
 
 		aliveMemberCounter++;
 	}
+
+	stb_arr_free(slotTargetPositions);
 }
 
 void Group::AddUnit(UnitIndex index)
