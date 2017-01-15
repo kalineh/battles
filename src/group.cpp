@@ -20,6 +20,25 @@ int SortFurthestV2FromCentroidCompare(void* context, const void* lhs, const void
 	return 0;
 }
 
+struct SlotData
+{
+	v2 pos;
+	float dist;
+};
+
+int SortSlotDataByDistance(void* context, const void* lhs, const void* rhs)
+{
+	Group* group = (Group*)context;
+	SlotData* lhsSlotData = (SlotData*)lhs;
+	SlotData* rhsSlotData = (SlotData*)rhs;
+	if (lhsSlotData->dist < rhsSlotData->dist)
+		return -1;
+	if (lhsSlotData->dist > rhsSlotData->dist)
+		return +1;
+
+	return 0;
+}
+
 void Group::Init(Unit* ARRAY aunits)
 {
 	formationType = FormationType_None;
@@ -79,6 +98,32 @@ void Group::UpdateFormation()
 	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
 		slotTargetPositions[i] = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 	//qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
+
+	// each slot should have emptiness value
+	// sort by emptiness so gaps are filled
+
+	float* slotDistances = NULL;
+	stb_arr_setlen(slotDistances, stb_arr_len(slots));
+	for (int i = 0; i < stb_arr_len(slotDistances); ++i)
+	{
+		//UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
+		UnitIndex nearestUnitIndex = FindNearestUnit(slotTargetPositions[i], members, InvalidUnitIndex);
+		Unit* nearestUnit = units + nearestUnitIndex;
+		v2 ofs = nearestUnit->pos - slotTargetPositions[i];
+		float len = v2lensafe(ofs);
+		slotDistances[i] = len;
+	}
+
+	SlotData* slotDatas = NULL;
+	stb_arr_setlen(slotDatas, stb_arr_len(slots));
+	for (int i = 0; i < stb_arr_len(slotDatas); ++i)
+	{
+		slotDatas[i].pos = slotTargetPositions[i];
+		slotDatas[i].dist = slotDistances[i];
+	}
+	qsort_s(slotDatas, stb_arr_len(slotDatas), sizeof(slotDatas[0]), &SortSlotDataByDistance, (void*)this);
+	for (int i = 0; i < stb_arr_len(slotDatas); ++i)
+		slotTargetPositions[i] = slotDatas[i].pos;
 
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
@@ -150,6 +195,7 @@ void Group::UpdateFormation()
 		aliveMemberCounter++;
 	}
 
+	stb_arr_free(slotDatas);
 	stb_arr_free(slotTargetPositions);
 }
 
