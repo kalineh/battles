@@ -16,8 +16,8 @@ void Game::Init(void* awindow)
 
 	const int UnitCount = 512;
 	const int TeamCount = 1;
-	const int GroupCountMin = 2;
-	const int GroupCountMax = 3;
+	const int GroupCountMin = 1;
+	const int GroupCountMax = 2;
 	const int GroupUnitCountMin = 38;
 	const int GroupUnitCountMax = 39;
 

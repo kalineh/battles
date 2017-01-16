@@ -53,11 +53,15 @@ void Group::Init(Unit* ARRAY aunits)
 	stb_arr_setsize(members, 8);
 	slots = NULL;
 	stb_arr_setsize(slots, 8);
+	slotsOccupy = NULL;
+	stb_arr_setsize(slotsOccupy, 8);
 }
 
 void Group::Release()
 {
 	stb_arr_free(members);
+	stb_arr_free(slots);
+	stb_arr_free(slotsOccupy);
 }
 
 void Group::Update()
@@ -86,9 +90,13 @@ void Group::UpdateFormation()
 	int aliveMemberCounter = 0;
 	
 	stb_arr_setlen(slots, aliveUnitCount);
+	stb_arr_setlen(slotsOccupy, aliveUnitCount);
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 		slots[i] = InvalidUnitIndex;
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+		slotsOccupy[i] = fmaxf(slotsOccupy[i] - 1.0f, 0.0f);
 
 	UnitIndex* ARRAY searchPool = NULL;
 	stb_arr_setlen(searchPool, aliveUnitCount);
@@ -115,10 +123,37 @@ void Group::UpdateFormation()
 		slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
 
+	// find occupied amount
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		v2 slotTargetPos = slotTargetPositions[i];
+
+		float occupiedRange = largestUnitRadius;
+		UnitIndex bestIndex = InvalidUnitIndex;
+		int bestIndexPoolIndex = -1;
+
+		for (int j = 0; j < stb_arr_len(searchPool); ++j)
+		{
+			UnitIndex poolUnitIndex = searchPool[j];
+			Unit* unit = units + poolUnitIndex;
+
+			if (!unit->IsValid())
+				continue;
+			if (!unit->IsAlive())
+				continue;
+
+			v2 ofs = unit->pos - slotTargetPos;
+			float lensq = v2lensq(ofs);
+			if (lensq < largestUnitRadius * largestUnitRadius)
+				slotsOccupy[i] += 1.0f;
+		}
+	}
+
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
 		v2 slotTargetPos = slotTargetPositions[i];
+		float slotOccupy = slotsOccupy[i];
 
 		float bestDistance = FLT_MAX;
 		UnitIndex bestIndex = InvalidUnitIndex;
