@@ -154,6 +154,35 @@ void Game::Update()
 		}
 	}
 
+	static UnitIndex moveIndex = InvalidUnitIndex;
+	if (ImGui::IsKeyDown(SDLK_z))
+	{
+		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+
+		if (moveIndex == InvalidUnitIndex)
+		{
+			UnitIndex* moveQuery = NULL;
+			stb_arr_setsize(moveQuery, 4);
+			grid->Query(&moveQuery, mousePos, mousePos, NULL);
+			for (int i = 0; i < stb_arr_len(moveQuery); ++i)
+			{
+				UnitIndex id = moveQuery[i];
+				Unit* unit = GetUnit(id);
+				if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius))
+				{
+					moveIndex = id;
+					break;
+				}
+			}
+		}
+
+		Unit* unit = GetUnit(moveIndex);
+		if (unit->IsValid())
+			unit->pos = mousePos;
+	}
+	else
+		moveIndex = InvalidUnitIndex;
+
 	if (paused)
 		return;
 
