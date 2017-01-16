@@ -48,7 +48,6 @@ struct Group
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;
 	UnitIndex* OWNER ARRAY slots;
-	float* OWNER ARRAY slotsOccupy;
 
 	FormationType formationType;
 	v2 groupPos;
