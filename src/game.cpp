@@ -374,6 +374,7 @@ void Game::RenderImGui()
 
 	ImGui::LabelText("Alive", "%d/%d", group->CalcUnitAliveCount(), stb_arr_len(group->members));
 	ImGui::LabelText("Radius", "%.2f", group->CalcUnitLargestRadius());
+	ImGui::LabelText("Disarray", "%.2f", group->disarrayRatio);
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandTeleportTo(group->commandPos, group->commandAngle);

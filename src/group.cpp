@@ -45,6 +45,7 @@ void Group::Init(Unit* ARRAY aunits)
 	groupPos = v2zero();
 	commandPos = v2zero();
 	commandAngle = 0.0f;
+	disarrayRatio = 0.0f;
 	formationRatio = 0.5f;
 	formationLoose = 0.0f;
 	units = aunits;
@@ -69,10 +70,11 @@ void Group::Update()
 	v2 toCommandDir = v2unitsafe(toCommand);
 
 	float movementSpeed = CalcUnitSlowestMovement();
+	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 
 	// pull group toward centroid
-	groupPos += toCentroid * dt * 0.05f;
-	groupPos += toCommandDir * dt * movementSpeed;
+	groupPos += toCentroid * dt * 0.05f * disarrayFactor;
+	groupPos += toCommandDir * dt * movementSpeed * disarrayFactor;
 
 	UpdateFormation();
 }
@@ -82,7 +84,7 @@ void Group::UpdateFormation()
 	float largestUnitRadius = CalcUnitLargestRadius();
 	int aliveUnitCount = CalcUnitAliveCount();
 	int aliveMemberCounter = 0;
-
+	
 	stb_arr_setlen(slots, aliveUnitCount);
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
@@ -182,6 +184,26 @@ void Group::UpdateFormation()
 
 		aliveMemberCounter++;
 	}
+
+	float disarray = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex unitIndex = slots[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		v2 unitTargetPos = slotTargetPositions[i];
+		v2 unitTargetOfs = unit->pos - unitTargetPos;
+		float unitTargetDisarray = v2lensafe(unitTargetOfs) / unit->data->radius;
+		disarray += unitTargetDisarray;
+	}
+
+	disarrayRatio = disarray / (float)stb_arr_len(slots);
 
 	stb_arr_free(slotTargetPositions);
 }
