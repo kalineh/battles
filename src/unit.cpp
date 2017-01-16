@@ -101,10 +101,12 @@ void Unit::AI()
 void Unit::Update()
 {
 	const float dt = 1.0f / 60.0f;
+	const float radius = data->radius;
+
 	const float rotationRate = 2.0f;
 	const float frictionForce = 0.25f;
 	const float brakeForce = 2.5f;
-	const float arriveRange = 7.5f;
+	const float arriveRange = 0.5f * radius;
 	const float overshootForce = 0.1f;
 
 	v2 targetOfs = targetPos - pos;

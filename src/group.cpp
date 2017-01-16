@@ -68,9 +68,11 @@ void Group::Update()
 	v2 toCommand = commandPos - groupPos;
 	v2 toCommandDir = v2unitsafe(toCommand);
 
+	float movementSpeed = CalcUnitSlowestMovement();
+
 	// pull group toward centroid
 	groupPos += toCentroid * dt * 0.05f;
-	groupPos += toCommandDir * dt * 15.0f;
+	groupPos += toCommandDir * dt * movementSpeed;
 
 	UpdateFormation();
 }
@@ -365,6 +367,31 @@ v2 Group::CalcCentroid()
 		centroid = sum / count;
 
 	return centroid;
+}
+
+float Group::CalcUnitSlowestMovement()
+{
+	float slowestSpeed = -1.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		const float unitSpeed = unit->data->accel / unit->data->mass;
+		if (unitSpeed < slowestSpeed || slowestSpeed < 0.0f)
+			slowestSpeed = unitSpeed;
+	}
+
+	if (slowestSpeed < 0.0f)
+		slowestSpeed = 0.0f;
+
+	return slowestSpeed;
 }
 
 float Group::CalcUnitLargestRadius()

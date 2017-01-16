@@ -30,6 +30,7 @@ struct Group
 	void CommandFormationWedge();
 
 	v2 CalcCentroid();
+	float CalcUnitSlowestMovement();
 	float CalcUnitLargestRadius();
 	int CalcUnitAliveCount();
 	float CalcUnitAverageResolve();
