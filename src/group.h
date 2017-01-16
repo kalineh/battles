@@ -49,6 +49,7 @@ struct Group
 	UnitIndex* OWNER ARRAY slots;
 
 	FormationType formationType;
+	v2 groupPos;
 	v2 commandPos;
 	float commandAngle;
 	float formationRatio;

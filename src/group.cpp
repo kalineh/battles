@@ -42,6 +42,7 @@ int SortSlotDataByDistance(void* context, const void* lhs, const void* rhs)
 void Group::Init(Unit* ARRAY aunits)
 {
 	formationType = FormationType_None;
+	groupPos = v2zero();
 	commandPos = v2zero();
 	commandAngle = 0.0f;
 	formationRatio = 0.5f;
@@ -60,6 +61,17 @@ void Group::Release()
 
 void Group::Update()
 {
+	const float dt = 1.0f / 60.0f;
+
+	v2 centroid = CalcCentroid();
+	v2 toCentroid = centroid - groupPos;
+	v2 toCommand = commandPos - groupPos;
+	v2 toCommandDir = v2unitsafe(toCommand);
+
+	// pull group toward centroid
+	groupPos += toCentroid * dt * 0.05f;
+	groupPos += toCommandDir * dt * 15.0f;
+
 	UpdateFormation();
 }
 
@@ -96,42 +108,8 @@ void Group::UpdateFormation()
 	v2* slotTargetPositions = NULL;
 	stb_arr_setlen(slotTargetPositions, stb_arr_len(slots));
 	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
-		slotTargetPositions[i] = FormationPositionBox(i, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-	//qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
-
-	// each slot should have emptiness value
-	// sort by emptiness so gaps are filled
-
-	float* slotDistances = NULL;
-	stb_arr_setlen(slotDistances, stb_arr_len(slots));
-	for (int i = 0; i < stb_arr_len(slotDistances); ++i)
-	{
-		//UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
-		UnitIndex nearestUnitIndex = FindNearestUnit(slotTargetPositions[i], members, InvalidUnitIndex);
-		Unit* nearestUnit = units + nearestUnitIndex;
-		v2 ofs = nearestUnit->pos - slotTargetPositions[i];
-		float len = v2lensafe(ofs);
-		slotDistances[i] = len;
-	}
-
-	SlotData* slotDatas = NULL;
-	stb_arr_setlen(slotDatas, stb_arr_len(slots));
-	for (int i = 0; i < stb_arr_len(slotDatas); ++i)
-	{
-		slotDatas[i].pos = slotTargetPositions[i];
-		slotDatas[i].dist = slotDistances[i];
-	}
-	qsort_s(slotDatas, stb_arr_len(slotDatas), sizeof(slotDatas[0]), &SortSlotDataByDistance, (void*)this);
-	for (int i = 0; i < stb_arr_len(slotDatas); ++i)
-		slotTargetPositions[i] = slotDatas[i].pos;
-
-	v2* slotReverse = NULL;
-	stb_arr_setlen(slotReverse, stb_arr_len(slots));
-	for (int i = 0; i < stb_arr_len(slots); ++i)
-		slotReverse[i] = slotTargetPositions[stb_arr_len(slots) - 1 - i];
-	for (int i = 0; i < stb_arr_len(slots); ++i)
-		slotTargetPositions[i] = slotReverse[i];
-	stb_arr_free(slotReverse);
+		slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
 
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
@@ -203,7 +181,6 @@ void Group::UpdateFormation()
 		aliveMemberCounter++;
 	}
 
-	stb_arr_free(slotDatas);
 	stb_arr_free(slotTargetPositions);
 }
 
@@ -252,6 +229,7 @@ void Group::CommandMoveTo(v2 pos, float angle)
 
 void Group::CommandTeleportTo(v2 pos, float angle)
 {
+	groupPos = pos;
 	commandPos = pos;
 	commandAngle = angle;
 
@@ -332,7 +310,9 @@ v2 Group::FormationPositionBox(int index, v2 groupCenter, int unitCount, float u
 		cellsY * unitRadius * (1.0f + loose)
 	);
 
-	v2 pos = groupCenter + v2new(
+	v2 halfSize = totalSize * 0.5f;
+
+	v2 pos = groupCenter - halfSize + v2new(
 		totalSize.x / (float)cellsX * (float)cellX,
 		totalSize.y / (float)cellsY * (float)cellY
 	);
@@ -505,7 +485,7 @@ Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 
 			case FormationType_Box:
 			{
-				v2 pos = FormationPositionBox(aliveMemberCounter, commandPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 pos = FormationPositionBox(aliveMemberCounter, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 				v2 ofs = queryUnit->pos - pos;
 				float lensq = v2lensq(ofs);
 				if (lensq < bestDistance)

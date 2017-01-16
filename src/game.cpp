@@ -205,7 +205,7 @@ void Game::Render()
 
 	v2 gridLower = grid->lower;
 	v2 gridUpper = grid->upper;
-	v2 gridSize = grid->upper - gridLower; 
+	v2 gridSize = grid->upper - gridLower;
 	v2 cellSize = v2new(gridSize.x / (float)grid->dim.x, gridSize.y / (float)grid->dim.y);
 
 	nvgBeginPath(context);
@@ -240,7 +240,7 @@ void Game::Render()
 
 		Touch::Entry* entry = touch->GetEntry(i);
 		if (entry->indexes[0] != 0)
-			color = v4rgb1(0,1,1);
+			color = v4rgb1(0, 1, 1);
 
 		if (!unit->IsAlive())
 			color.w = 0.1f;
@@ -265,6 +265,25 @@ void Game::Render()
 		nvgMoveTo(context, unit->pos.x, unit->pos.y);
 		nvgLineTo(context, unit->targetPos.x, unit->targetPos.y);
 		nvgStrokeColor(context, nvgRGBAf(color.x, color.y, color.z, color.w * 0.5f));
+		nvgStroke(context);
+		nvgClosePath(context);
+	}
+
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+	{
+		Group* group = groups + i;
+
+		nvgBeginPath(context);
+		nvgCircle(context, group->groupPos.x, group->groupPos.y, 7.5f);
+		nvgFillColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f));
+		nvgFill(context);
+		nvgClosePath(context);
+
+		nvgBeginPath(context);
+		nvgMoveTo(context, group->groupPos.x, group->groupPos.y);
+		nvgLineTo(context, group->commandPos.x, group->commandPos.y);
+		nvgStrokeWidth(context, 4.0f);
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f));
 		nvgStroke(context);
 		nvgClosePath(context);
 	}
