@@ -27,6 +27,17 @@ v4rgb1(real r, real g, real b)
 	return v4new(r, g, b, 1.0f);
 }
 
+static inline v2
+v2moveto(v2 src, v2 dst, float d)
+{
+	v2 ofs = dst - src;
+	real len = v2lensafe(ofs);
+	v2 dir = v2div(ofs, len);
+	real move = LINALG_MIN(d, len);
+	v2 result = v2add(src, v2mul(dir, move));
+	return result;
+}
+
 static inline v3
 v3moveto(v3 src, v3 dst, float d)
 {

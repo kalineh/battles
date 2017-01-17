@@ -1,14 +1,16 @@
 
 #include "inc.h"
 
-int SortFurthestV2FromCentroidCompare(void* context, const void* lhs, const void* rhs)
+int SortFurthestV2FromCentroidWithDisplacementCompare(void* context, const void* lhs, const void* rhs)
 {
 	Group* group = (Group*)context;
 	v2* lhsPos = (v2*)lhs;
 	v2* rhsPos = (v2*)rhs;
 	v2 centroid = group->CalcCentroid();
-	v2 lhsOfs = *lhsPos - centroid;
-	v2 rhsOfs = *rhsPos - centroid;
+	v2 bias = group->displacementAggregate * -1.0f;
+	v2 center = centroid + bias;
+	v2 lhsOfs = *lhsPos - center;
+	v2 rhsOfs = *rhsPos - center;
 	float lhsDistSq = v2lensq(lhsOfs);
 	float rhsDistSq = v2lensq(rhsOfs);
 
@@ -113,7 +115,7 @@ void Group::UpdateFormation()
 	stb_arr_setlen(slotTargetPositions, stb_arr_len(slots));
 	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
 		slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
-	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidCompare, (void*)this);
+	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidWithDisplacementCompare, (void*)this);
 
 	// best unit is not least distance
 	// is least intersects with other units
@@ -124,6 +126,9 @@ void Group::UpdateFormation()
 	// compare offset of self to centroid
 	// and point to centroid, dot is diff
 	// consider dist + dot factor
+
+	// track displacement average, use to bias best-choice
+	// so that units fill away from displaced units
 
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
@@ -213,6 +218,30 @@ void Group::UpdateFormation()
 	}
 
 	disarrayRatio = disarray / (float)stb_arr_len(slots);
+
+	displacementAggregate -= displacementAggregate * 0.25f;
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex unitIndex = slots[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		v2 unitTargetPos = slotTargetPositions[i];
+		v2 unitTargetOfs = unit->pos - unitTargetPos;
+
+		// ignore small displacements
+		float lensq = v2lensq(unitTargetOfs);
+		float ignore = (unit->data->radius * 1.25f) * (unit->data->radius * 1.25f);
+		if (lensq < ignore)
+			continue;
+
+		displacementAggregate += unitTargetOfs;
+	}
 
 	stb_arr_free(slotTargetPositions);
 }

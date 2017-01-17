@@ -52,6 +52,7 @@ struct Group
 	FormationType formationType;
 	v2 groupPos;
 	v2 commandPos;
+	v2 displacementAggregate;
 	float disarrayRatio;
 	float commandAngle;
 	float formationRatio;

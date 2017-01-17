@@ -269,7 +269,7 @@ void Game::Render()
 
 		Touch::Entry* entry = touch->GetEntry(i);
 		if (entry->indexes[0] != 0)
-			color = v4rgb1(0, 1, 1);
+			color = v4rgb1(0, 0.1f, 1);
 
 		if (!unit->IsAlive())
 			color.w = 0.1f;
@@ -313,6 +313,14 @@ void Game::Render()
 		nvgLineTo(context, group->commandPos.x, group->commandPos.y);
 		nvgStrokeWidth(context, 4.0f);
 		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f));
+		nvgStroke(context);
+		nvgClosePath(context);
+
+		nvgBeginPath(context);
+		nvgMoveTo(context, group->groupPos.x, group->groupPos.y);
+		nvgLineTo(context, group->groupPos.x + group->displacementAggregate.x, group->groupPos.y + group->displacementAggregate.y);
+		nvgStrokeWidth(context, 4.0f);
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 0.0f, 0.0f, 0.5f));
 		nvgStroke(context);
 		nvgClosePath(context);
 	}
@@ -375,6 +383,7 @@ void Game::RenderImGui()
 	ImGui::LabelText("Alive", "%d/%d", group->CalcUnitAliveCount(), stb_arr_len(group->members));
 	ImGui::LabelText("Radius", "%.2f", group->CalcUnitLargestRadius());
 	ImGui::LabelText("Disarray", "%.2f", group->disarrayRatio);
+	ImGui::LabelText("Displacement", "%.2f,%.2f", group->displacementAggregate.x, group->displacementAggregate.y);
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandTeleportTo(group->commandPos, group->commandAngle);
