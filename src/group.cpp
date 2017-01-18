@@ -117,19 +117,6 @@ void Group::UpdateFormation()
 		slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidWithDisplacementCompare, (void*)this);
 
-	// best unit is not least distance
-	// is least intersects with other units
-	// can we estimate that by offset from centroid?
-	// if we are on other side of centroid
-	// is undesirable
-	// if same side of centroid, is more desirable
-	// compare offset of self to centroid
-	// and point to centroid, dot is diff
-	// consider dist + dot factor
-
-	// track displacement average, use to bias best-choice
-	// so that units fill away from displaced units
-
 	// find best unit for each slot (nearest)
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
@@ -219,7 +206,9 @@ void Group::UpdateFormation()
 
 	disarrayRatio = disarray / (float)stb_arr_len(slots);
 
-	displacementAggregate -= displacementAggregate * 0.25f;
+	const float dt = 1.0f / 60.0f;
+
+	displacementAggregate -= displacementAggregate * 1.5f * dt;
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
@@ -240,7 +229,7 @@ void Group::UpdateFormation()
 		if (lensq < ignore)
 			continue;
 
-		displacementAggregate += unitTargetOfs;
+		displacementAggregate += unitTargetOfs * 0.5f * dt;
 	}
 
 	stb_arr_free(slotTargetPositions);
