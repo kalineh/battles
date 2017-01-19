@@ -126,7 +126,7 @@ void Group::UpdateFormation()
 			break;
 
 		case FormationType_Wedge:
-			//slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			slotTargetPositions[i] = FormationPositionWedge(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 			break;
 
 		case FormationType_Circle:
@@ -382,23 +382,29 @@ v2 Group::FormationPositionBox(int index, v2 groupCenter, int unitCount, float u
 	return pos;
 }
 
-v2 Group::FormationPositionWedge(int memberIndex, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+v2 Group::FormationPositionWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
+	// how do we even calculate a wedge
+
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
 
-	int cellX = memberIndex % cellsX;
-	int cellY = memberIndex / cellsX;
+	int cellX = index % cellsX;
+	int cellY = index / cellsX;
 
 	v2 totalSize = v2new(
 		cellsX * unitRadius * (1.0f + loose),
 		cellsY * unitRadius * (1.0f + loose)
 	);
 
-	v2 pos = groupCenter + v2new(
+	v2 halfSize = totalSize * 0.5f;
+
+	v2 pos = groupCenter - halfSize + v2new(
 		totalSize.x / (float)cellsX * (float)cellX,
 		totalSize.y / (float)cellsY * (float)cellY
 	);
+
+	return pos;
 
 	return pos;
 }
