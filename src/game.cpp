@@ -15,7 +15,7 @@ void Game::Init(void* awindow)
 	printf("game: init start\n");
 
 	const int UnitCount = 512;
-	const int TeamCount = 1;
+	const int TeamCount = 2;
 	const int GroupCountMin = 1;
 	const int GroupCountMax = 2;
 	const int GroupUnitCountMin = 38;
@@ -209,7 +209,12 @@ void Game::Update()
 		{
 			UnitIndex touchID = entry->indexes[j];
 			if (touchID != 0)
-				unit->ResolveTouch(GetUnit(touchID));
+			{
+				Unit* other = GetUnit(touchID);
+				unit->ResolveTouch(other);
+				if (unit->team != other->team)
+					unit->ResolveCombat(other);
+			}
 		}
 
 		unit->AI();

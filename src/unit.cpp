@@ -57,7 +57,27 @@ static UnitVisual unitVisualHeavy = {
 	v4rgb1(0,0,1),
 };
 
-Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual)
+static UnitCombat unitCombatNull = {
+	0.0f,
+	0.0f,
+};
+
+static UnitCombat unitCombatTest = {
+	1.0f,
+	0.0f,
+};
+
+static UnitCombat unitCombatLight = {
+	5.0f,
+	0.5f,
+};
+
+static UnitCombat unitCombatHeavy = {
+	2.5f,
+	1.0f,
+};
+
+Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual, UnitCombat* combat)
 {
 	Unit unit;
 
@@ -65,6 +85,7 @@ Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual)
 
 	unit.data = data;
 	unit.visual = visual;
+	unit.combat = combat;
 
 	unit.health = data->health;
 	unit.resolve = data->resolve;
@@ -74,17 +95,17 @@ Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual)
 
 Unit Unit::CreateUnit(const char* type)
 {
-	if (type == NULL)
-		return CreateUnit(&unitDataNull, &unitVisualNull);
+	if (type != NULL)
+	{
+		if (strcmp(type, "Test") == 0)
+			return CreateUnit(&unitDataTest, &unitVisualTest, &unitCombatTest);
+		else if (strcmp(type, "Light") == 0)
+			return CreateUnit(&unitDataLight, &unitVisualLight, &unitCombatLight);
+		else if (strcmp(type, "Heavy") == 0)
+			return CreateUnit(&unitDataHeavy, &unitVisualHeavy, &unitCombatHeavy);
+	}
 
-	if (strcmp(type, "Test") == 0)
-		return CreateUnit(&unitDataTest, &unitVisualTest);
-	else if (strcmp(type, "Light") == 0)
-		return CreateUnit(&unitDataLight, &unitVisualLight);
-	else if (strcmp(type, "Heavy") == 0)
-		return CreateUnit(&unitDataHeavy, &unitVisualHeavy);
-
-	return CreateUnit(&unitDataNull, &unitVisualNull);
+	return CreateUnit(&unitDataNull, &unitVisualNull, &unitCombatNull);
 }
 
 void Unit::AI()
@@ -190,4 +211,12 @@ void Unit::ResolveTouch(Unit* unit)
 
 	unit->vel += transferAligned;
 	vel -= transferAligned;
+}
+
+void Unit::ResolveCombat(Unit* unit)
+{
+	const float dt = 1.0f / 60.0f;
+	float damage = combat->attack;
+	damage -= fmaxf(unit->combat->defense, 0.0f);
+	health = fmaxf(health - damage * dt, 0.0f);
 }
