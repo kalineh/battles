@@ -114,7 +114,26 @@ void Group::UpdateFormation()
 	v2* slotTargetPositions = NULL;
 	stb_arr_setlen(slotTargetPositions, stb_arr_len(slots));
 	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
-		slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+	{
+		switch (formationType)
+		{
+		case FormationType_None:
+			slotTargetPositions[i] = (units + searchPool[i])->pos;
+			break;
+
+		case FormationType_Box:
+			slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			break;
+
+		case FormationType_Wedge:
+			//slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			break;
+
+		case FormationType_Circle:
+			slotTargetPositions[i] = FormationPositionCircle(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			break;
+		}
+	}
 	qsort_s(slotTargetPositions, stb_arr_len(slotTargetPositions), sizeof(slotTargetPositions[0]), &SortFurthestV2FromCentroidWithDisplacementCompare, (void*)this);
 
 	// find best unit for each slot (nearest)
@@ -159,29 +178,10 @@ void Group::UpdateFormation()
 		if (!unit->IsAlive())
 			continue;
 
-		switch (formationType)
-		{
-			case FormationType_None:
-				unit->targetPos = commandPos;
-				unit->targetAngle = commandAngle;
-				break;
+		v2 unitTargetPos = slotTargetPositions[aliveMemberCounter];
 
-			case FormationType_Box:
-			{
-				v2 unitTargetPos = slotTargetPositions[aliveMemberCounter];
-
-				unit->targetPos = unitTargetPos;
-				unit->targetAngle = commandAngle;
-
-				break;
-			}
-
-			case FormationType_Wedge:
-				// TODO
-				unit->targetPos = commandPos;
-				unit->targetAngle = commandAngle;
-				break;
-		}
+		unit->targetPos = unitTargetPos;
+		unit->targetAngle = commandAngle;
 
 		aliveMemberCounter++;
 	}
@@ -303,6 +303,8 @@ void Group::CommandTeleportTo(v2 pos, float angle)
 void Group::CommandFormationNone()
 {
 	formationType = FormationType_None;
+	formationRatio = 0.5f;
+	formationLoose = 1.0f;
 }
 
 void Group::CommandFormationBox(float ratio, float loose)
@@ -315,6 +317,15 @@ void Group::CommandFormationBox(float ratio, float loose)
 void Group::CommandFormationWedge()
 {
 	formationType = FormationType_Wedge;
+	formationRatio = 0.5f;
+	formationLoose = 1.0f;
+}
+
+void Group::CommandFormationCircle(float ratio, float loose)
+{
+	formationType = FormationType_Circle;
+	formationRatio = ratio;
+	formationLoose = loose;
 }
 
 Group::MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
@@ -390,6 +401,15 @@ v2 Group::FormationPositionWedge(int memberIndex, v2 groupCenter, int unitCount,
 	);
 
 	return pos;
+}
+
+v2 Group::FormationPositionCircle(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+{
+	float step = TWOPI / (float)unitCount;
+	float out = loose * unitRadius * unitCount * (1.0f / PI);
+	float t = (float)index * step;
+	v2 pos = v2new(cosf(t), sinf(t)) * out;
+	return groupCenter + pos;
 }
 
 v2 Group::CalcCentroid()

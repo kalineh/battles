@@ -8,6 +8,7 @@ struct Group
 		FormationType_None,
 		FormationType_Box,
 		FormationType_Wedge,
+		FormationType_Circle,
 	};
 
 	typedef int MemberIndex;
@@ -28,6 +29,7 @@ struct Group
 	void CommandFormationNone();
 	void CommandFormationBox(float ratio, float loose);
 	void CommandFormationWedge();
+	void CommandFormationCircle(float ratio, float loose);
 
 	v2 CalcCentroid();
 	float CalcUnitSlowestMovement();
@@ -41,6 +43,7 @@ struct Group
 
 	v2 FormationPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	v2 FormationPositionWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 FormationPositionCircle(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 
 	MemberIndex FindNearestUnoccupied(MemberIndex queryMemberIndex);
 	UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);

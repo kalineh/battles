@@ -353,12 +353,17 @@ void Game::RenderImGui()
 	changed = changed || ImGui::RadioButton("Formation None", &formation, 0);
 	changed = changed || ImGui::RadioButton("Formation Box", &formation, 1);
 	changed = changed || ImGui::RadioButton("Formation Wedge", &formation, 2);
+	changed = changed || ImGui::RadioButton("Formation Circle", &formation, 3);
 
 	switch (formation)
 	{
 		case Group::FormationType_Box:
 			ImGui::SliderFloat("Box Ratio", &group->formationRatio, 0.0f, 1.0f);			
 			ImGui::SliderFloat("Box Loose", &group->formationLoose, -1.0f, 4.0f);			
+			break;
+		case Group::FormationType_Circle:
+			ImGui::SliderFloat("Circle Ratio", &group->formationRatio, 0.0f, 1.0f);			
+			ImGui::SliderFloat("Circle Loose", &group->formationLoose, -1.0f, 4.0f);			
 			break;
 	}
 	
@@ -376,6 +381,10 @@ void Game::RenderImGui()
 
 			case Group::FormationType_Wedge:
 				group->CommandFormationWedge();
+				break;
+
+			case Group::FormationType_Circle:
+				group->CommandFormationCircle(0.5f, 1.0f);
 				break;
 		}
 	}
