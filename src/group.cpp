@@ -28,19 +28,6 @@ struct SlotData
 	float dist;
 };
 
-int SortSlotDataByDistance(void* context, const void* lhs, const void* rhs)
-{
-	Group* group = (Group*)context;
-	SlotData* lhsSlotData = (SlotData*)lhs;
-	SlotData* rhsSlotData = (SlotData*)rhs;
-	if (lhsSlotData->dist < rhsSlotData->dist)
-		return -1;
-	if (lhsSlotData->dist > rhsSlotData->dist)
-		return +1;
-
-	return 0;
-}
-
 void Group::Init(Unit* ARRAY aunits)
 {
 	formationType = FormationType_None;
@@ -48,6 +35,8 @@ void Group::Init(Unit* ARRAY aunits)
 	commandPos = v2zero();
 	commandAngle = 0.0f;
 	disarrayRatio = 0.0f;
+	displacementAggregate = v2zero();
+	damageAggregate = 0.0f;
 	formationRatio = 0.5f;
 	formationLoose = 0.0f;
 	units = aunits;
@@ -74,8 +63,10 @@ void Group::Update()
 
 	float movementSpeed = CalcUnitSlowestMovement();
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
+	float damageFactor = 1.0f - stb_clamp(damageAggregate / 10.0f, 0.0f, 1.0f);
 
 	// pull group toward centroid
+	groupPos += toCentroid * dt * 0.05f * damageFactor;
 	groupPos += toCentroid * dt * 0.05f * disarrayFactor;
 	groupPos += toCommandDir * dt * movementSpeed * disarrayFactor;
 
@@ -147,6 +138,9 @@ void Group::UpdateFormation()
 		for (int j = 0; j < stb_arr_len(searchPool); ++j)
 		{
 			UnitIndex poolUnitIndex = searchPool[j];
+			if (poolUnitIndex == InvalidUnitIndex)
+				continue;
+
 			Unit* unit = units + poolUnitIndex;
 
 			if (!unit->IsValid())
@@ -238,14 +232,14 @@ void Group::UpdateFormation()
 void Group::AddUnit(UnitIndex index)
 {
 	assert(index != InvalidUnitIndex);
-	assert(index > 0);
+	assert(index >= 0);
 	stb_arr_push(members, index);
 }
 
 void Group::RemoveUnit(UnitIndex index)
 {
 	assert(index != InvalidUnitIndex);
-	assert(index > 0);
+	assert(index >= 0);
 	stb_arr_fastdelete(members, index);
 }
 
@@ -283,6 +277,8 @@ void Group::CommandTeleportTo(v2 pos, float angle)
 	groupPos = pos;
 	commandPos = pos;
 	commandAngle = angle;
+	disarrayRatio = 0.0f;
+	displacementAggregate = v2zero();
 
 	UpdateFormation();
 
@@ -328,7 +324,7 @@ void Group::CommandFormationCircle(float ratio, float loose)
 	formationLoose = loose;
 }
 
-Group::MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
 	int cellsY = unitCount / cellsX;
@@ -354,7 +350,7 @@ Group::MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int u
 	return index;
 }
 
-Group::MemberIndex Group::PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+MemberIndex Group::PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
 	return 0;
 }
@@ -560,7 +556,7 @@ float Group::CalcUnitAverageHealth()
 	return healthCurrent / healthMax;
 }
 
-Group::MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
+MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 {
 	float bestDistance = FLT_MAX;
 	MemberIndex bestIndex  = queryMemberIndex;

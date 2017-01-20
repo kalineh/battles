@@ -25,9 +25,6 @@ struct UnitCombat
 	float defense;
 };
 
-typedef int UnitIndex;
-static const int InvalidUnitIndex = 0;
-
 struct Unit
 {
 	static Unit CreateUnit(UnitData* data, UnitVisual* visual, UnitCombat* combat);
@@ -47,6 +44,7 @@ struct Unit
 	const UnitCombat* combat;
 
 	int team;
+	int group;
 
 	v2 pos;
 	float height;

@@ -28,6 +28,16 @@ struct Cell;
 struct Touch;
 struct Group;
 
+typedef int TeamIndex;
+typedef int GroupIndex;
+typedef int MemberIndex;
+typedef int UnitIndex;
+
+static const int InvalidTeamIndex = -1;
+static const int InvalidGroupIndex = -1;
+static const int InvalidMemberIndex = -1;
+static const int InvalidUnitIndex = -1;
+
 #include "unit.h"
 #include "game.h"
 #include "grid.h"

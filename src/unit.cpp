@@ -83,6 +83,9 @@ Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual, UnitCombat* combat)
 
 	memset(&unit, 0, sizeof(unit));
 
+	unit.team = InvalidTeamIndex;
+	unit.group = InvalidGroupIndex;
+
 	unit.data = data;
 	unit.visual = visual;
 	unit.combat = combat;
@@ -177,7 +180,7 @@ void Unit::Update()
 
 bool Unit::IsValid()
 {
-	return team > 0;
+	return team != InvalidTeamIndex;
 }
 
 bool Unit::IsAlive()
@@ -219,4 +222,10 @@ void Unit::ResolveCombat(Unit* unit)
 	float damage = combat->attack;
 	damage -= fmaxf(unit->combat->defense, 0.0f);
 	health = fmaxf(health - damage * dt, 0.0f);
+	unit->vel -= v2unitsafe(unit->vel) * 25.0f * dt;
+
+	// behind = more dmg
+	// reduce vel
+	// wraparound group
+	// retreat
 }

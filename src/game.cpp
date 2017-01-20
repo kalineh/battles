@@ -18,8 +18,8 @@ void Game::Init(void* awindow)
 	const int TeamCount = 2;
 	const int GroupCountMin = 1;
 	const int GroupCountMax = 2;
-	const int GroupUnitCountMin = 38;
-	const int GroupUnitCountMax = 39;
+	const int GroupUnitCountMin = 12;
+	const int GroupUnitCountMax = 13;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -49,12 +49,11 @@ void Game::Init(void* awindow)
 	stb_arr_setlen(groups, groupCountPerTeam * TeamCount);
 
 	const char* groupTypes[] = {
-		"Test",
 		"Light",
 		"Heavy",
 	};
 
-	int unitWriteCursor = 1;
+	int unitWriteCursor = 0;
 
 	for (int t = 0; t < TeamCount; ++t)
 	{
@@ -64,7 +63,6 @@ void Game::Init(void* awindow)
 		{
 			const char* unitType = groupTypes[stb_rand() % stb_arrcount(groupTypes)];
 			int unitCount = stb_rand() % (GroupUnitCountMax - GroupUnitCountMin) + GroupUnitCountMin;
-
 			printf("game: * group %d (%s x%d)\n", i, unitType, unitCount);
 
 			Group* group = GetGroup(i);
@@ -75,7 +73,8 @@ void Game::Init(void* awindow)
 			{
 				Unit* unit = GetUnit(unitWriteCursor);
 				*unit = Unit::CreateUnit(unitType);
-				unit->team = t + 1;
+				unit->team = t;
+				unit->group = i;
 				group->AddUnit(unitWriteCursor);
 				unitWriteCursor++;
 			}
@@ -204,6 +203,8 @@ void Game::Update()
 		(void)gridCount;
 		(void)touchCount;
 
+		Group* group = GetGroup(unit->group);
+
 		Touch::Entry* entry = touch->GetEntry(i);
 		for (int j = 0; j < stb_arrcount(entry->indexes); ++j)
 		{
@@ -213,7 +214,13 @@ void Game::Update()
 				Unit* other = GetUnit(touchID);
 				unit->ResolveTouch(other);
 				if (unit->team != other->team)
+				{
+					float healthPre = unit->health;
 					unit->ResolveCombat(other);
+					float healthPost = unit->health;
+					float damage = healthPost - healthPre;
+					group->damageAggregate += damage;
+				}
 			}
 		}
 
@@ -419,7 +426,7 @@ void Game::RenderImGui()
 				Unit* unit = &units[i];
 				UnitIndex unitIndex = GetUnitIndex(unit);
 
-				if (ImGui::TreeNode(unit, "%s(%d)", unit->data->type, unitIndex))
+				if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
 				{
 					ImGui::LabelText("Type", unit->data->type);
 

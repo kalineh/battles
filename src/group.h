@@ -11,8 +11,6 @@ struct Group
 		FormationType_Circle,
 	};
 
-	typedef int MemberIndex;
-
 	void Init(Unit* ARRAY aunits);
 	void Release();
 
@@ -56,6 +54,7 @@ struct Group
 	v2 groupPos;
 	v2 commandPos;
 	v2 displacementAggregate;
+	float damageAggregate;
 	float disarrayRatio;
 	float commandAngle;
 	float formationRatio;
