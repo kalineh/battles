@@ -422,7 +422,7 @@ v2 Group::FormationPositionCircle(int index, v2 groupCenter, int unitCount, floa
 v2 Group::CalcCentroid()
 {
 	v2 sum = v2zero();
-	float count = 0.0f;
+	int count = 0;
 
 	for (int i = 0; i < stb_arr_len(members); ++i)
 	{
@@ -435,12 +435,11 @@ v2 Group::CalcCentroid()
 			continue;
 
 		sum += unit->pos;
-		count += 1.0f;
+		count += 1;
 	}
 
 	v2 centroid = v2zero();
-	if (count > 0.0f)
-		centroid = sum / count;
+	centroid = sum / fmaxf((float)count, 0.0f);
 
 	return centroid;
 }
@@ -566,7 +565,7 @@ MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 	float bestDistance = FLT_MAX;
 	MemberIndex bestIndex  = queryMemberIndex;
 	int aliveUnitCount = CalcUnitAliveCount();
-	int aliveMemberCounter = 0;
+	int aliveMemberCursor = 0;
 	float largestUnitRadius = CalcUnitLargestRadius();
 
 	UnitIndex queryUnitIndex = members[queryMemberIndex];
@@ -588,7 +587,7 @@ MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 
 			case FormationType_Box:
 			{
-				v2 pos = FormationPositionBox(aliveMemberCounter, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+				v2 pos = FormationPositionBox(aliveMemberCursor, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 				v2 ofs = queryUnit->pos - pos;
 				float lensq = v2lensq(ofs);
 				if (lensq < bestDistance)
@@ -603,7 +602,7 @@ MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 				break;
 		}
 
-		aliveMemberCounter++;
+		aliveMemberCursor++;
 	}
 
 	return bestIndex;

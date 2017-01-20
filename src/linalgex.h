@@ -32,7 +32,7 @@ v2moveto(v2 src, v2 dst, float d)
 {
 	v2 ofs = dst - src;
 	real len = v2lensafe(ofs);
-	v2 dir = v2div(ofs, len);
+	v2 dir = v2unitsafe(ofs);
 	real move = LINALG_MIN(d, len);
 	v2 result = v2add(src, v2mul(dir, move));
 	return result;
