@@ -65,10 +65,12 @@ void Group::Update()
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 	float damageFactor = 1.0f - stb_clamp(damageAggregate / 10.0f, 0.0f, 1.0f);
 
+	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.05f * damageFactor;
+	float toCommandSpeed = movementSpeed * disarrayFactor * damageFactor;
+
 	// pull group toward centroid
-	groupPos += toCentroid * dt * 0.05f * damageFactor;
-	groupPos += toCentroid * dt * 0.05f * disarrayFactor;
-	groupPos += toCommandDir * dt * movementSpeed * disarrayFactor;
+	groupPos += toCentroid * dt * toCentroidSpeed;
+	groupPos += toCommandDir * dt * toCommandSpeed;
 
 	UpdateFormation();
 }
