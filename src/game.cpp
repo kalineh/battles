@@ -16,10 +16,10 @@ void Game::Init(void* awindow)
 
 	const int UnitCount = 512;
 	const int TeamCount = 2;
-	const int GroupCountMin = 1;
-	const int GroupCountMax = 2;
-	const int GroupUnitCountMin = 12;
-	const int GroupUnitCountMax = 13;
+	const int GroupCountMin = 2;
+	const int GroupCountMax = 3;
+	const int GroupUnitCountMin = 32;
+	const int GroupUnitCountMax = 33;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -61,7 +61,7 @@ void Game::Init(void* awindow)
 
 		for (int i = groupCountPerTeam * t; i < groupCountPerTeam * (t + 1); ++i)
 		{
-			const char* unitType = groupTypes[stb_rand() % stb_arrcount(groupTypes)];
+			const char* unitType = groupTypes[i % stb_arrcount(groupTypes)];
 			int unitCount = stb_rand() % (GroupUnitCountMax - GroupUnitCountMin) + GroupUnitCountMin;
 			printf("game: * group %d (%s x%d)\n", i, unitType, unitCount);
 
@@ -214,13 +214,7 @@ void Game::Update()
 				Unit* other = GetUnit(touchID);
 				unit->ResolveTouch(other);
 				if (unit->team != other->team)
-				{
-					float healthPre = unit->health;
 					unit->ResolveCombat(other);
-					float healthPost = unit->health;
-					float damage = healthPost - healthPre;
-					group->damageAggregate += damage;
-				}
 			}
 		}
 
@@ -285,6 +279,9 @@ void Game::Render()
 
 		if (!unit->IsAlive())
 			color.w = 0.1f;
+
+		if (unit->team == 0)
+			color.x = 1.0f;
 
 		nvgBeginPath(context);
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);

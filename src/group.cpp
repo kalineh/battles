@@ -36,7 +36,6 @@ void Group::Init(Unit* ARRAY aunits)
 	commandAngle = 0.0f;
 	disarrayRatio = 0.0f;
 	displacementAggregate = v2zero();
-	damageAggregate = 0.0f;
 	formationRatio = 0.5f;
 	formationLoose = 0.0f;
 	units = aunits;
@@ -64,7 +63,7 @@ void Group::Update()
 	float movementSpeed = CalcUnitSlowestMovement();
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 
-	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.05f;
+	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.01f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
 
 	// pull group toward centroid
@@ -166,6 +165,9 @@ void Group::UpdateFormation()
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
 		UnitIndex unitIndex = slots[i];
+		if (unitIndex == InvalidUnitIndex)
+			continue;
+
 		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
@@ -182,6 +184,7 @@ void Group::UpdateFormation()
 	}
 
 	float disarray = 0.0f;
+	int disarrayCount = 0;
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
@@ -197,9 +200,10 @@ void Group::UpdateFormation()
 		v2 unitTargetOfs = unit->pos - unitTargetPos;
 		float unitTargetDisarray = v2lensafe(unitTargetOfs) / unit->data->radius;
 		disarray += unitTargetDisarray;
+		disarrayCount += 1;
 	}
 
-	disarrayRatio = disarray / (float)stb_arr_len(slots);
+	disarrayRatio = disarray / fmaxf((float)disarrayCount, 1.0f);
 
 	const float dt = 1.0f / 60.0f;
 

@@ -194,8 +194,9 @@ bool Unit::IsAlive()
 void Unit::ResolveTouch(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
-	const float ejectRate = 125.0f;
-	const float pushRate = 2.0f;
+	const float ejectRate = 100.0f;
+	const float pushRate = 1.5f;
+	const float massExponent = 1.25f;
 
 	v2 dir;
 	float len;
@@ -205,7 +206,7 @@ void Unit::ResolveTouch(Unit* unit)
 
 	const float rads = unit->data->radius + data->radius;
 	const float intersect = -(len - rads);
-	const float ratio = powf(data->mass / (data->mass + unit->data->mass), 2.0f);
+	const float ratio = powf(data->mass / (data->mass + unit->data->mass), massExponent);
 
 	unit->vel += dir * intersect * dt * ejectRate * ratio;
 
@@ -222,7 +223,8 @@ void Unit::ResolveCombat(Unit* unit)
 	float damage = combat->attack;
 	damage -= fmaxf(unit->combat->defense, 0.0f);
 	health = fmaxf(health - damage * dt, 0.0f);
-	unit->vel -= v2unitsafe(unit->vel) * 25.0f * dt;
+	unit->vel -= unit->vel * 10.0f * dt;
+	targetPos = v2moveto(targetPos, unit->pos, 15.0f * dt);
 
 	// behind = more dmg
 	// reduce vel
