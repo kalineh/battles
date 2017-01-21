@@ -14,12 +14,12 @@ void Game::Init(void* awindow)
 {
 	printf("game: init start\n");
 
-	const int UnitCount = 512;
+	const int UnitCount = 10000;
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 32;
-	const int GroupUnitCountMax = 33;
+	const int GroupUnitCountMin = 12;
+	const int GroupUnitCountMax = 13;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -43,6 +43,7 @@ void Game::Init(void* awindow)
 	touch->Init(units);
 
 	selectedGroup = 0;
+	selectedTeam = 0;
 
 	int groupCountPerTeam = stb_rand() % (GroupCountMax - GroupCountMin) + GroupCountMin;
 	groups = NULL;
@@ -119,6 +120,11 @@ void Game::Update()
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 		GetGroup(i)->Update();
+
+	if (ImGui::IsKeyPressed(SDL_SCANCODE_F1))
+		selectedTeam = 0;
+	if (ImGui::IsKeyPressed(SDL_SCANCODE_F2))
+		selectedTeam = 1;
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 	{
@@ -280,8 +286,18 @@ void Game::Render()
 		if (!unit->IsAlive())
 			color.w = 0.1f;
 
-		if (unit->team == 0)
-			color.x = 1.0f;
+		if (unit->team != selectedTeam)
+		{
+			color.x = stb_clamp(color.x - 0.25f, 0, 1);
+			color.y = stb_clamp(color.y - 0.25f, 0, 1);
+			color.z = stb_clamp(color.z - 0.25f, 0, 1);
+		}
+		if (unit->team == selectedTeam)
+		{
+			color.x = stb_clamp(color.x + 0.25f, 0, 1);
+			color.y = stb_clamp(color.y + 0.25f, 0, 1);
+			color.z = stb_clamp(color.z + 0.25f, 0, 1);
+		}
 
 		nvgBeginPath(context);
 		nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius);

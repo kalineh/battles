@@ -26,5 +26,6 @@ struct Game
 	Touch* OWNER touch;
 	Group* OWNER ARRAY groups;
 
+	int selectedTeam;
 	int selectedGroup;
 };

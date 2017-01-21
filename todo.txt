@@ -1,15 +1,15 @@
-/*
 
-- formation dynamic adjustment
+
+- formation facing
+- team selection
+- group selection
+- group move targets
 - movement preview
-- unit group rotation
 - extra formations
 - drag select formation size
 - group stat summary
-- basic combat handling
 - optimize quad render
 - optimized quad renderer
 - camera / zoom
 - voxel render mode
 
-*/
