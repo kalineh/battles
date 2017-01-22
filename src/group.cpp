@@ -30,6 +30,7 @@ struct SlotData
 
 void Group::Init(Unit* ARRAY aunits)
 {
+	team = 0;
 	formationType = FormationType_None;
 	groupPos = v2zero();
 	commandPos = v2zero();

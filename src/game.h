@@ -9,6 +9,7 @@ struct Game
 	void Update();
 	void Render();
 	void RenderImGui();
+	void RenderImGuiUnit(UnitIndex unitIndex);
 
 	Unit* GetUnit(UnitIndex id);
 	UnitIndex GetUnitIndex(Unit* unit);

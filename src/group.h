@@ -46,6 +46,7 @@ struct Group
 	MemberIndex FindNearestUnoccupied(MemberIndex queryMemberIndex);
 	UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
 
+	int team;
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;
 	UnitIndex* OWNER ARRAY slots;

@@ -68,6 +68,7 @@ void Game::Init(void* awindow)
 
 			Group* group = GetGroup(i);
 			group->Init(units);
+			group->team = t;
 			group->CommandFormationBox(0.5f, 1.25f);
 
 			for (int j = 0; j < unitCount; ++j)
@@ -360,6 +361,7 @@ void Game::RenderImGui()
 	static bool openMetricsWindow = false;
 	static bool openGameWindow = false;
 	static bool openUnitsWindow = false;
+	static bool openUnitsWindow2 = false;
 
 	ImGui::Begin("Game", &openGameWindow);
 
@@ -432,6 +434,31 @@ void Game::RenderImGui()
 
 	if (ImGui::Begin("Units", &openUnitsWindow))
 	{
+		ImGui::Text("Team");
+		ImGui::SameLine();
+		ImGui::RadioButton("0", &selectedTeam, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("1", &selectedTeam, 1);
+
+		ImGui::Text("Group");
+		ImGui::SameLine();
+
+		for (int i = 0; i < stb_arr_len(groups); ++i)
+		{
+			Group* group = groups + i;
+			if (group->team != selectedTeam)
+				continue;
+
+			char txt[8] = { 0 };
+			sprintf(txt, "%d", i);
+			ImGui::PushID(i);
+			ImGui::RadioButton(txt, &selectedGroup, i);
+			ImGui::PopID();
+			ImGui::SameLine();
+		}
+
+		ImGui::NewLine();
+
 		if (ImGui::TreeNode(units, "All Units (%d)", stb_arr_len(units)))
 		{
 			for (int i = 0; i < stb_arr_len(units); ++i)
@@ -441,57 +468,83 @@ void Game::RenderImGui()
 
 				if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
 				{
-					ImGui::LabelText("Type", unit->data->type);
-
-					if (ImGui::TreeNode("Config"))
-					{
-						ImGui::LabelText("Radius", "%.2f", unit->data->radius);
-						ImGui::LabelText("Mass", "%.2f", unit->data->mass);
-						ImGui::LabelText("Accel", "%.2f", unit->data->accel);
-						ImGui::LabelText("Armor", "%.2f", unit->data->armor);
-						ImGui::LabelText("Health", "%.2f", unit->data->health);
-						ImGui::LabelText("Fatigue", "%.2f", unit->data->fatigue);
-						ImGui::LabelText("Resolve", "%.2f", unit->data->resolve);
-						ImGui::LabelText("Flyer", "%s", unit->data->flyer ? "true" : "false");
-						ImGui::TreePop();
-					}
-
-					if (ImGui::TreeNode("Visual"))
-					{
-						ImGui::LabelText("Color", "%.2f,%.2f,%.2f,%.2f",
-							unit->visual->color.x,
-							unit->visual->color.y,
-							unit->visual->color.z,
-							unit->visual->color.w
-						);
-						ImGui::TreePop();
-					}
-
-					if (ImGui::TreeNode("Touching"))
-					{
-						Touch::Entry* entry = touch->GetEntry(i);
-						for (int j = 0; j < stb_arrcount(Touch::Entry::indexes); ++j)
-							ImGui::Text("%d: %d", j, entry->indexes[j]);
-
-						ImGui::TreePop();
-					}
-
-					ImGui::SliderFloat3("pos", &unit->pos.x, 0.0f, stb_max(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()));
-					ImGui::SliderFloat("angle", &unit->angle, 0.0f, TWOPI);
-					ImGui::SliderFloat2("vel", &unit->vel.x, 0.0f, 100.0f);
-
-					ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
-					ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
-					ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
-
+					RenderImGuiUnit(i);
 					ImGui::TreePop();
 				}
 			}
 			
 			ImGui::TreePop();
 		}
+
+		ImGui::PushID(selectedGroup);
+		Group* group = groups + selectedGroup;
+		if (ImGui::TreeNode(units, "Group %d:%d Units (%d)", selectedTeam, selectedGroup, stb_arr_len(group->members)))
+		{
+			for (int i = 0; i < stb_arr_len(group->members); ++i)
+			{
+				UnitIndex unitIndex = group->members[i];
+				Unit* unit = units + unitIndex;
+
+				if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
+				{
+					RenderImGuiUnit(unitIndex);
+					ImGui::TreePop();
+				}
+			}
+			
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
 	}
 	ImGui::End();
+}
+
+void Game::RenderImGuiUnit(UnitIndex unitIndex)
+{
+	Unit* unit = GetUnit(unitIndex);
+
+	ImGui::LabelText("Type", unit->data->type);
+
+	if (ImGui::TreeNode("Config"))
+	{
+		ImGui::LabelText("Radius", "%.2f", unit->data->radius);
+		ImGui::LabelText("Mass", "%.2f", unit->data->mass);
+		ImGui::LabelText("Accel", "%.2f", unit->data->accel);
+		ImGui::LabelText("Armor", "%.2f", unit->data->armor);
+		ImGui::LabelText("Health", "%.2f", unit->data->health);
+		ImGui::LabelText("Fatigue", "%.2f", unit->data->fatigue);
+		ImGui::LabelText("Resolve", "%.2f", unit->data->resolve);
+		ImGui::LabelText("Flyer", "%s", unit->data->flyer ? "true" : "false");
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("Visual"))
+	{
+		ImGui::LabelText("Color", "%.2f,%.2f,%.2f,%.2f",
+			unit->visual->color.x,
+			unit->visual->color.y,
+			unit->visual->color.z,
+			unit->visual->color.w
+		);
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("Touching"))
+	{
+		Touch::Entry* entry = touch->GetEntry(unitIndex);
+		for (int j = 0; j < stb_arrcount(Touch::Entry::indexes); ++j)
+			ImGui::Text("%d: %d", j, entry->indexes[j]);
+
+		ImGui::TreePop();
+	}
+
+	ImGui::SliderFloat3("pos", &unit->pos.x, 0.0f, stb_max(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()));
+	ImGui::SliderFloat("angle", &unit->angle, 0.0f, TWOPI);
+	ImGui::SliderFloat2("vel", &unit->vel.x, 0.0f, 100.0f);
+
+	ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
+	ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
+	ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
 }
 
 Unit* Game::GetUnit(UnitIndex unitIndex)
