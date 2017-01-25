@@ -13,12 +13,13 @@ struct Game
 	void RenderImGuiGroup(GroupIndex groupIndex);
 	void RenderImGuiUnit(UnitIndex unitIndex);
 
-	Unit* GetUnit(UnitIndex id);
+	Team* GetTeam(TeamIndex teamIndex);
+	Group* GetGroup(GroupIndex groupIndex);
+	Unit* GetUnit(UnitIndex unitIndex);
+
 	UnitIndex GetUnitIndex(Unit* unit);
 
 	Grid* GetGrid();
-
-	Group* GetGroup(int index);
 
 	void* window;
 

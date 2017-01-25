@@ -30,6 +30,9 @@ void Game::Init(void* awindow)
 	teams = NULL;
 	stb_arr_setlen(teams, TeamCount);
 
+	for (int i = 0; i < TeamCount; ++i)
+		GetTeam(i)->Init();
+
 	units = NULL;
 	stb_arr_setlen(units, UnitCount);
 
@@ -114,8 +117,11 @@ void Game::Release()
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 		GetGroup(i)->Release();
-
 	stb_arr_free(groups);
+
+	for (int i = 0; i < stb_arr_len(teams); ++i)
+		GetTeam(i)->Release();
+	stb_arr_free(teams);
 }
 
 void Game::Update()
@@ -553,6 +559,20 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
 }
 
+Team* Game::GetTeam(TeamIndex teamIndex)
+{
+	assert(teamIndex >= 0);
+	assert(teamIndex < stb_arr_len(teams));
+	return teams + teamIndex;
+}
+
+Group* Game::GetGroup(GroupIndex groupIndex)
+{
+	assert(groupIndex >= 0);
+	assert(groupIndex < stb_arr_len(groups));
+	return groups + groupIndex;
+}
+
 Unit* Game::GetUnit(UnitIndex unitIndex)
 {
 	assert(unitIndex >= 0);
@@ -574,13 +594,5 @@ UnitIndex Game::GetUnitIndex(Unit* unit)
 Grid* Game::GetGrid()
 {
 	return grid;
-}
-
-Group* Game::GetGroup(int index)
-{
-	assert(index >= 0);
-	assert(index < stb_arr_len(groups));
-
-	return groups + index;
 }
 
