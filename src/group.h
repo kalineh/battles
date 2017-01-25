@@ -46,7 +46,7 @@ struct Group
 	MemberIndex FindNearestUnoccupied(MemberIndex queryMemberIndex);
 	UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
 
-	int team;
+	TeamIndex team;
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;
 	UnitIndex* OWNER ARRAY slots;
@@ -54,10 +54,10 @@ struct Group
 	FormationType formationType;
 	v2 groupPos;
 	v2 commandPos;
+	float commandAngle;
 	v2 displacementAggregate;
 	float damageAggregate;
 	float disarrayRatio;
-	float commandAngle;
 	float formationRatio;
 	float formationLoose;
 };

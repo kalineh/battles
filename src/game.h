@@ -9,6 +9,8 @@ struct Game
 	void Update();
 	void Render();
 	void RenderImGui();
+	void RenderImGuiTeam(TeamIndex teamIndex);
+	void RenderImGuiGroup(GroupIndex groupIndex);
 	void RenderImGuiUnit(UnitIndex unitIndex);
 
 	Unit* GetUnit(UnitIndex id);
@@ -22,10 +24,11 @@ struct Game
 
 	bool paused;
 
+	Team* OWNER ARRAY teams;
+	Group* OWNER ARRAY groups;
 	Unit* OWNER ARRAY units;
 	Grid* OWNER grid;
 	Touch* OWNER touch;
-	Group* OWNER ARRAY groups;
 
 	int selectedTeam;
 	int selectedGroup;

@@ -30,7 +30,7 @@ struct SlotData
 
 void Group::Init(Unit* ARRAY aunits)
 {
-	team = 0;
+	team = InvalidTeamIndex;
 	formationType = FormationType_None;
 	groupPos = v2zero();
 	commandPos = v2zero();
@@ -246,7 +246,7 @@ void Group::RemoveUnit(UnitIndex index)
 {
 	assert(index != InvalidUnitIndex);
 	assert(index >= 0);
-	stb_arr_fastdelete(members, index);
+	stb_arr_find_fastdelete(members, index);
 }
 
 void Group::CommandStop()

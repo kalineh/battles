@@ -1,4 +1,3 @@
-
 #include "inc.h"
 
 static UnitData unitDataNull = {

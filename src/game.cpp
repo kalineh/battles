@@ -27,6 +27,9 @@ void Game::Init(void* awindow)
 
 	paused = false;
 
+	teams = NULL;
+	stb_arr_setlen(teams, TeamCount);
+
 	units = NULL;
 	stb_arr_setlen(units, UnitCount);
 
@@ -65,6 +68,8 @@ void Game::Init(void* awindow)
 			const char* unitType = groupTypes[i % stb_arrcount(groupTypes)];
 			int unitCount = stb_rand() % (GroupUnitCountMax - GroupUnitCountMin) + GroupUnitCountMin;
 			printf("game: * group %d (%s x%d)\n", i, unitType, unitCount);
+
+			teams[t].AddGroup(i);
 
 			Group* group = GetGroup(i);
 			group->Init(units);
@@ -209,8 +214,6 @@ void Game::Update()
 
 		(void)gridCount;
 		(void)touchCount;
-
-		Group* group = GetGroup(unit->group);
 
 		Touch::Entry* entry = touch->GetEntry(i);
 		for (int j = 0; j < stb_arrcount(entry->indexes); ++j)
@@ -377,10 +380,13 @@ void Game::RenderImGui()
 	Group* group = GetGroup(selectedGroup);
 	int formation = (int)group->formationType;
 	bool changed = false;
-	changed = changed || ImGui::RadioButton("Formation None", &formation, 0);
-	changed = changed || ImGui::RadioButton("Formation Box", &formation, 1);
-	changed = changed || ImGui::RadioButton("Formation Wedge", &formation, 2);
-	changed = changed || ImGui::RadioButton("Formation Circle", &formation, 3);
+	ImGui::Text("Formation");
+	ImGui::SameLine();
+	changed = changed || ImGui::RadioButton("None", &formation, 0); ImGui::SameLine();
+	changed = changed || ImGui::RadioButton("Box", &formation, 1); ImGui::SameLine();
+	changed = changed || ImGui::RadioButton("Wedge", &formation, 2); ImGui::SameLine();
+	changed = changed || ImGui::RadioButton("Circle", &formation, 3); ImGui::SameLine();
+	ImGui::NewLine();
 
 	switch (formation)
 	{
