@@ -125,6 +125,20 @@ circleoverlap(v2 ap, float ar, v2 bp, float br)
 	return lensq < radsq;
 }
 
+static inline v3
+v3desaturatergb(v3 rgb)
+{
+	float g = rgb.x * 0.299f + rgb.y * 0.587f + rgb.z * 0.144f;
+	return v3new(g, g, g);
+}
+
+static inline v4
+v4desaturatergb(v4 rgba)
+{
+	float g = rgba.x * 0.299f + rgba.y * 0.587f + rgba.z * 0.144f;
+	return v4new(g, g, g, rgba.w);
+}
+
 #ifdef __cplusplus
 } /* namespace linalg */
 #endif

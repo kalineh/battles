@@ -297,16 +297,15 @@ void Game::Render()
 			color.w = 0.1f;
 
 		if (unit->team != selectedTeam)
+			color = v4desaturatergb(color);
+
+		if (unit->group == selectedGroup)
 		{
-			color.x = stb_clamp(color.x - 0.25f, 0, 1);
-			color.y = stb_clamp(color.y - 0.25f, 0, 1);
-			color.z = stb_clamp(color.z - 0.25f, 0, 1);
-		}
-		if (unit->team == selectedTeam)
-		{
-			color.x = stb_clamp(color.x + 0.25f, 0, 1);
-			color.y = stb_clamp(color.y + 0.25f, 0, 1);
-			color.z = stb_clamp(color.z + 0.25f, 0, 1);
+			nvgBeginPath(context);
+			nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius + 1.5f);
+			nvgFillColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f));
+			nvgFill(context);
+			nvgClosePath(context);
 		}
 
 		nvgBeginPath(context);
