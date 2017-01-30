@@ -1,15 +1,16 @@
 
 
 - formation facing
+- unit footing value
 - team selection
 - group selection
 - group move targets
+- group attack group command
 - movement preview
 - extra formations
 - drag select formation size
 - group stat summary
 - optimize quad render
-- optimized quad renderer
 - camera / zoom
 - voxel render mode
 

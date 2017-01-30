@@ -374,16 +374,116 @@ void Game::RenderImGui()
 
 	ImGui::Begin("Game", &openGameWindow);
 
-	for (int i = 0; i < stb_arr_len(groups); ++i)
+	if (ImGui::TreeNode(units, "All Units (%d)", stb_arr_len(units)))
 	{
-		char name[32] = { 0 };
-		stb_snprintf(name, 31, "group%d", i);
-		if (ImGui::RadioButton(name, &selectedGroup, i))
-			selectedGroup = i;
+		for (int i = 0; i < stb_arr_len(units); ++i)
+		{
+			Unit* unit = &units[i];
+			UnitIndex unitIndex = GetUnitIndex(unit);
+
+			if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
+			{
+				RenderImGuiUnit(i);
+				ImGui::TreePop();
+			}
+		}
+		
+		ImGui::TreePop();
 	}
 
-	ImGui::Separator();
-	Group* group = GetGroup(selectedGroup);
+	ImGui::PushID("alive");
+	if (ImGui::TreeNode(units, "All Units (Alive)"))
+	{
+		for (int i = 0; i < stb_arr_len(units); ++i)
+		{
+			Unit* unit = &units[i];
+			UnitIndex unitIndex = GetUnitIndex(unit);
+
+			if (!unit->IsValid())
+				continue;
+			if (!unit->IsAlive())
+				continue;
+
+			if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
+			{
+				RenderImGuiUnit(i);
+				ImGui::TreePop();
+			}
+		}
+		
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+
+	ImGui::PushID("dead");
+	if (ImGui::TreeNode(units, "All Units (Dead)"))
+	{
+		for (int i = 0; i < stb_arr_len(units); ++i)
+		{
+			Unit* unit = &units[i];
+			UnitIndex unitIndex = GetUnitIndex(unit);
+
+			if (!unit->IsValid())
+				continue;
+			if (unit->IsAlive())
+				continue;
+
+			if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
+			{
+				RenderImGuiUnit(i);
+				ImGui::TreePop();
+			}
+		}
+		
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+
+
+	ImGui::End();
+
+	grid->RenderImGui();
+
+	//ImGui::ShowMetricsWindow(&openMetricsWindow);
+
+	if (ImGui::Begin("Units", &openUnitsWindow))
+	{
+		ImGui::Text("Team");
+		ImGui::SameLine();
+		ImGui::RadioButton("0", &selectedTeam, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("1", &selectedTeam, 1);
+		ImGui::Separator();
+
+		ImGui::Text("Group");
+		ImGui::SameLine();
+
+		for (int i = 0; i < stb_arr_len(groups); ++i)
+		{
+			Group* group = groups + i;
+			if (group->team != selectedTeam)
+				continue;
+
+			char txt[8] = { 0 };
+			sprintf(txt, "%d", i);
+			ImGui::PushID(i);
+			ImGui::RadioButton(txt, &selectedGroup, i);
+			ImGui::PopID();
+			ImGui::SameLine();
+		}
+		ImGui::NewLine();
+		ImGui::Separator();
+
+		RenderImGuiGroup(selectedGroup);
+		ImGui::Indent();
+	}
+	ImGui::End();
+}
+
+void Game::RenderImGuiGroup(GroupIndex groupIndex)
+{
+	Group* group = GetGroup(groupIndex);
+
 	int formation = (int)group->formationType;
 	bool changed = false;
 	ImGui::Text("Formation");
@@ -438,77 +538,6 @@ void Game::RenderImGui()
 	if (ImGui::Button("Teleport Debug") || ImGui::IsKeyPressed(SDLK_y))
 		group->CommandTeleportTo(v2new(450.0f, 400.0f), 0.0f);
 
-	ImGui::End();
-
-	grid->RenderImGui();
-
-	//ImGui::ShowMetricsWindow(&openMetricsWindow);
-
-	if (ImGui::Begin("Units", &openUnitsWindow))
-	{
-		ImGui::Text("Team");
-		ImGui::SameLine();
-		ImGui::RadioButton("0", &selectedTeam, 0);
-		ImGui::SameLine();
-		ImGui::RadioButton("1", &selectedTeam, 1);
-
-		ImGui::Text("Group");
-		ImGui::SameLine();
-
-		for (int i = 0; i < stb_arr_len(groups); ++i)
-		{
-			Group* group = groups + i;
-			if (group->team != selectedTeam)
-				continue;
-
-			char txt[8] = { 0 };
-			sprintf(txt, "%d", i);
-			ImGui::PushID(i);
-			ImGui::RadioButton(txt, &selectedGroup, i);
-			ImGui::PopID();
-			ImGui::SameLine();
-		}
-
-		ImGui::NewLine();
-
-		if (ImGui::TreeNode(units, "All Units (%d)", stb_arr_len(units)))
-		{
-			for (int i = 0; i < stb_arr_len(units); ++i)
-			{
-				Unit* unit = &units[i];
-				UnitIndex unitIndex = GetUnitIndex(unit);
-
-				if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
-				{
-					RenderImGuiUnit(i);
-					ImGui::TreePop();
-				}
-			}
-			
-			ImGui::TreePop();
-		}
-
-		ImGui::PushID(selectedGroup);
-		Group* group = groups + selectedGroup;
-		if (ImGui::TreeNode(units, "Group %d:%d Units (%d)", selectedTeam, selectedGroup, stb_arr_len(group->members)))
-		{
-			for (int i = 0; i < stb_arr_len(group->members); ++i)
-			{
-				UnitIndex unitIndex = group->members[i];
-				Unit* unit = units + unitIndex;
-
-				if (ImGui::TreeNode(unit, "%s(%d:%d:%d)", unit->data->type, unit->team, unit->group, unitIndex))
-				{
-					RenderImGuiUnit(unitIndex);
-					ImGui::TreePop();
-				}
-			}
-			
-			ImGui::TreePop();
-		}
-		ImGui::PopID();
-	}
-	ImGui::End();
 }
 
 void Game::RenderImGuiUnit(UnitIndex unitIndex)
