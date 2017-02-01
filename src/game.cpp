@@ -149,7 +149,9 @@ void Game::Update()
 	if (selectedTeam == 1)
 		groupSelectionOffset = stb_arr_len(GetTeam(0)->groups);
 
-	for (int i = 0; i < stb_arr_len(groups); ++i)
+	int groupSelectMax = stb_arr_len(GetTeam(selectedTeam)->groups);
+
+	for (int i = 0; i < groupSelectMax; ++i)
 	{
 		if (ImGui::IsKeyPressed(SDLK_1 + i))
 			selectedGroup = groupSelectionOffset + i;
