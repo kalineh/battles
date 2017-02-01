@@ -168,10 +168,10 @@ void Game::Update()
 		v2 ofs = mouse - moveCommandAnchor;
 
 		float len = v2lensafe(ofs);
-		float angle = v2toangle(ofs) + HALFPI;
+		float angle = group->commandAngle;
 
-		if (len < GROUP_MOVE_COMMAND_ROTATE_MIN)
-			angle = group->commandAngle;
+		if (len > GROUP_MOVE_COMMAND_ROTATE_MIN)
+			angle = v2toangle(ofs) + HALFPI;
 
 		group->CommandMoveTo(moveCommandAnchor, angle);
 
@@ -399,6 +399,37 @@ void Game::Render()
 		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 0.0f, 0.5f));
 		nvgStroke(context);
 		nvgClosePath(context);
+
+		v2 ofs = mouse - moveCommandAnchor;
+		float len = v2lensafe(ofs);
+		float groupAngle = group->commandAngle;
+		if (len > GROUP_MOVE_COMMAND_ROTATE_MIN)
+			groupAngle = v2toangle(ofs) + HALFPI;
+
+		int aliveUnitCount = group->CalcUnitAliveCount();
+		float largestUnitRadius = group->CalcUnitLargestRadius();
+
+		for (int i = 0; i < stb_arr_len(group->members); ++i)
+		{
+			UnitIndex unitIndex = group->members[i];
+			Unit* unit = GetUnit(unitIndex);
+			v2 pos = v2zero();
+			float angle = 0.0f;
+
+			switch (group->formationType)
+			{
+			case Group::FormationType_Box:
+				pos = group->FormationPositionBox(i, moveCommandAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
+				angle = group->FormationAngleBox(i, moveCommandAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
+				break;
+			}
+
+			nvgBeginPath(context);
+			nvgCircle(context, pos.x, pos.y, largestUnitRadius);
+			nvgFillColor(context, nvgRGBAf(i * 0.05f, 1.0f, 1.0f, 0.25f));
+			nvgFill(context);
+			nvgClosePath(context);
+		}
 	}
 
 	nvgEndFrame(context);

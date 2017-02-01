@@ -1,6 +1,5 @@
 
 
-- formation facing
 - movement preview
 - unit footing value
 - team selection

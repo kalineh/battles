@@ -39,13 +39,13 @@ struct Group
 	MemberIndex PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	MemberIndex PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 
-	v2 FormationPositionBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	v2 FormationPositionWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	v2 FormationPositionCircle(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	v2 FormationPositionBox(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose);
+	v2 FormationPositionWedge(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose);
+	v2 FormationPositionCircle(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose);
 
-	float FormationAngleBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	float FormationAngleWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
-	float FormationAngleCircle(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
+	float FormationAngleBox(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose);
+	float FormationAngleWedge(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose);
+	float FormationAngleCircle(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose);
 
 	MemberIndex FindNearestUnoccupied(MemberIndex queryMemberIndex);
 	UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
