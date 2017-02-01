@@ -14,7 +14,7 @@ void Game::Init(void* awindow)
 {
 	printf("game: init start\n");
 
-	const int UnitCount = 10000;
+	const int UnitCount = 1000;
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
@@ -322,7 +322,10 @@ void Game::Render()
 			border = v4rgb1(0.7f, 0.7f, 0.7f);
 
 		if (!unit->IsAlive())
+		{
 			color.w = 0.1f;
+			border.w = 0.1f;
+		}
 
 		if (unit->team != selectedTeam)
 			color = v4desaturatergb(color);

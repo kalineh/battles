@@ -1,14 +1,14 @@
 
-
-- movement preview
+- handle dead units in preview
+- group click selection
+- group click attack
 - unit footing value
-- team selection
-- group selection
-- group move targets
 - group attack group command
+- group multi-select
 - extra formations
 - drag select formation size
 - group stat summary
+- better unit types
 - optimize quad render
 - camera / zoom
 - voxel render mode
