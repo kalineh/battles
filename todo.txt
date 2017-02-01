@@ -1,12 +1,12 @@
 
 
 - formation facing
+- movement preview
 - unit footing value
 - team selection
 - group selection
 - group move targets
 - group attack group command
-- movement preview
 - extra formations
 - drag select formation size
 - group stat summary

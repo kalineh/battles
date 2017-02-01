@@ -42,6 +42,7 @@ static const int InvalidGroupIndex = -1;
 static const int InvalidMemberIndex = -1;
 static const int InvalidUnitIndex = -1;
 
+#include "settings.h"
 #include "game.h"
 #include "team.h"
 #include "group.h"

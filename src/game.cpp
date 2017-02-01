@@ -157,11 +157,25 @@ void Game::Update()
 			selectedGroup = groupSelectionOffset + i;
 	}
 
-	if (ImGui::IsMouseDown(1) || ImGui::IsKeyPressed(SDLK_SPACE))
+	if (ImGui::IsMouseClicked(1) || ImGui::IsKeyPressed(SDLK_SPACE))
+		moveCommandAnchor = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+
+	if (ImGui::IsMouseReleased(1) || ImGui::IsKeyReleased(SDLK_SPACE))
 	{
-		v2 click = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		Group* group = GetGroup(selectedGroup);
-		group->CommandMoveTo(click, 0.0f);
+
+		v2 mouse = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+		v2 ofs = mouse - moveCommandAnchor;
+
+		float len = v2lensafe(ofs);
+		float angle = v2toangle(ofs) + HALFPI;
+
+		if (len < GROUP_MOVE_COMMAND_ROTATE_MIN)
+			angle = group->commandAngle;
+
+		group->CommandMoveTo(moveCommandAnchor, angle);
+
+		moveCommandAnchor = v2zero();
 	}
 
 	if (ImGui::IsKeyPressed(SDLK_p))
@@ -369,6 +383,20 @@ void Game::Render()
 		nvgLineTo(context, group->groupPos.x + group->displacementAggregate.x, group->groupPos.y + group->displacementAggregate.y);
 		nvgStrokeWidth(context, 4.0f);
 		nvgStrokeColor(context, nvgRGBAf(1.0f, 0.0f, 0.0f, 0.5f));
+		nvgStroke(context);
+		nvgClosePath(context);
+	}
+
+	if (moveCommandAnchor.x != 0.0f && moveCommandAnchor.y != 0.0f)
+	{
+		Group* group = GetGroup(selectedGroup);
+		v2 mouse = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+
+		nvgBeginPath(context);
+		nvgMoveTo(context, moveCommandAnchor.x, moveCommandAnchor.y);
+		nvgLineTo(context, mouse.x, mouse.y);
+		nvgStrokeWidth(context, 4.0f);
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 0.0f, 0.5f));
 		nvgStroke(context);
 		nvgClosePath(context);
 	}

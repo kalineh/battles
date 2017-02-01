@@ -33,4 +33,6 @@ struct Game
 
 	int selectedTeam;
 	int selectedGroup;
+
+	v2 moveCommandAnchor;
 };
