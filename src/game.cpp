@@ -134,14 +134,25 @@ void Game::Update()
 		GetGroup(i)->Update();
 
 	if (ImGui::IsKeyPressed(SDL_SCANCODE_F1))
+	{
 		selectedTeam = 0;
+		selectedGroup = 0;
+	}
+
 	if (ImGui::IsKeyPressed(SDL_SCANCODE_F2))
+	{
 		selectedTeam = 1;
+		selectedGroup = stb_arr_len(GetTeam(0)->groups);
+	}
+
+	int groupSelectionOffset = 0;
+	if (selectedTeam == 1)
+		groupSelectionOffset = stb_arr_len(GetTeam(0)->groups);
 
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 	{
 		if (ImGui::IsKeyPressed(SDLK_1 + i))
-			selectedGroup = i;
+			selectedGroup = groupSelectionOffset + i;
 	}
 
 	if (ImGui::IsMouseDown(1) || ImGui::IsKeyPressed(SDLK_SPACE))
@@ -368,8 +379,7 @@ void Game::RenderImGui()
 {
 	static bool openMetricsWindow = false;
 	static bool openGameWindow = false;
-	static bool openUnitsWindow = false;
-	static bool openUnitsWindow2 = false;
+	static bool openTeamWindow = false;
 
 	ImGui::Begin("Game", &openGameWindow);
 
@@ -445,7 +455,7 @@ void Game::RenderImGui()
 
 	//ImGui::ShowMetricsWindow(&openMetricsWindow);
 
-	if (ImGui::Begin("Units", &openUnitsWindow))
+	if (ImGui::Begin("Team", &openTeamWindow))
 	{
 		ImGui::Text("Team");
 		ImGui::SameLine();
@@ -457,14 +467,18 @@ void Game::RenderImGui()
 		ImGui::Text("Group");
 		ImGui::SameLine();
 
-		for (int i = 0; i < stb_arr_len(groups); ++i)
+		int groupSelectionOffset = 0;
+		if (selectedTeam == 1)
+			groupSelectionOffset = stb_arr_len(GetTeam(0)->groups);
+
+		for (int i = groupSelectionOffset; i < stb_arr_len(groups); ++i)
 		{
 			Group* group = groups + i;
 			if (group->team != selectedTeam)
 				continue;
 
 			char txt[8] = { 0 };
-			sprintf(txt, "%d", i);
+			sprintf(txt, "%d", i - groupSelectionOffset);
 			ImGui::PushID(i);
 			ImGui::RadioButton(txt, &selectedGroup, i);
 			ImGui::PopID();
