@@ -301,10 +301,11 @@ void Game::Render()
 			continue;
 
 		v4 color = unit->visual->color;
+		v4 border = v4new(1.0f, 1.0f, 1.0f, 1.0f);
 
 		Touch::Entry* entry = touch->GetEntry(i);
 		if (entry->indexes[0] != 0)
-			color = v4rgb1(0, 0.1f, 1);
+			border = v4rgb1(0.7f, 0.7f, 0.7f);
 
 		if (!unit->IsAlive())
 			color.w = 0.1f;
@@ -316,7 +317,7 @@ void Game::Render()
 		{
 			nvgBeginPath(context);
 			nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius + 1.5f);
-			nvgFillColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 1.0f));
+			nvgFillColor(context, nvgRGBAf(border.x, border.y, border.z, border.w));
 			nvgFill(context);
 			nvgClosePath(context);
 		}
@@ -333,7 +334,7 @@ void Game::Render()
 		nvgBeginPath(context);
 		nvgMoveTo(context, unit->pos.x, unit->pos.y);
 		nvgLineTo(context, tip.x, tip.y);
-		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, color.w));
+		nvgStrokeColor(context, nvgRGBAf(0.2f, 0.2f, 0.2f, color.w));
 		nvgStroke(context);
 		nvgClosePath(context);
 
@@ -512,6 +513,7 @@ void Game::RenderImGuiGroup(GroupIndex groupIndex)
 	switch (formation)
 	{
 		case Group::FormationType_Box:
+			ImGui::SliderFloat("Angle", &group->commandAngle, 0.0f, TWOPI);			
 			ImGui::SliderFloat("Box Ratio", &group->formationRatio, 0.0f, 1.0f);			
 			ImGui::SliderFloat("Box Loose", &group->formationLoose, -1.0f, 4.0f);			
 			break;

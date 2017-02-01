@@ -105,24 +105,31 @@ void Group::UpdateFormation()
 
 	v2* slotTargetPositions = NULL;
 	stb_arr_setlen(slotTargetPositions, stb_arr_len(slots));
+	float* slotTargetAngles = NULL;
+	stb_arr_setlen(slotTargetAngles, stb_arr_len(slots));
+
 	for (int i = 0; i < stb_arr_len(slotTargetPositions); ++i)
 	{
 		switch (formationType)
 		{
 		case FormationType_None:
 			slotTargetPositions[i] = (units + searchPool[i])->pos;
+			slotTargetAngles[i] = 0.0f;
 			break;
 
 		case FormationType_Box:
 			slotTargetPositions[i] = FormationPositionBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			slotTargetAngles[i] = FormationAngleBox(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 			break;
 
 		case FormationType_Wedge:
 			slotTargetPositions[i] = FormationPositionWedge(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			slotTargetAngles[i] = FormationAngleWedge(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 			break;
 
 		case FormationType_Circle:
 			slotTargetPositions[i] = FormationPositionCircle(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
+			slotTargetAngles[i] = FormationAngleWedge(i, groupPos, aliveUnitCount, largestUnitRadius, formationRatio, formationLoose);
 			break;
 		}
 	}
@@ -179,7 +186,7 @@ void Group::UpdateFormation()
 		v2 unitTargetPos = slotTargetPositions[aliveMemberCounter];
 
 		unit->targetPos = unitTargetPos;
-		unit->targetAngle = commandAngle;
+		unit->targetAngle = slotTargetAngles[aliveMemberCounter];
 
 		aliveMemberCounter++;
 	}
@@ -376,10 +383,13 @@ v2 Group::FormationPositionBox(int index, v2 groupCenter, int unitCount, float u
 
 	v2 halfSize = totalSize * 0.5f;
 
-	v2 pos = groupCenter - halfSize + v2new(
+	v2 localPos = halfSize * -1.0f + v2new(
 		totalSize.x / (float)cellsX * (float)cellX,
 		totalSize.y / (float)cellsY * (float)cellY
 	);
+
+	v2 rotatedPos = v2rotate(localPos, commandAngle);
+	v2 pos = groupCenter + rotatedPos;
 
 	return pos;
 }
@@ -418,6 +428,21 @@ v2 Group::FormationPositionCircle(int index, v2 groupCenter, int unitCount, floa
 	float t = (float)index * step;
 	v2 pos = v2new(cosf(t), sinf(t)) * out;
 	return groupCenter + pos;
+}
+
+float Group::FormationAngleBox(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+{
+	return anglewrap0TWOPI(commandAngle - HALFPI);
+}
+
+float Group::FormationAngleWedge(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+{
+	return commandAngle;
+}
+
+float Group::FormationAngleCircle(int index, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
+{
+	return commandAngle;
 }
 
 v2 Group::CalcCentroid()

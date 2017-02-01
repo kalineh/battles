@@ -139,6 +139,14 @@ v4desaturatergb(v4 rgba)
 	return v4new(g, g, g, rgba.w);
 }
 
+static inline v2
+v2rotate(v2 v, float a)
+{
+	float c = cosf(a);
+	float s = sinf(a);
+	return v2new(c * v.x - s * v.y, s * v.x + c * v.y);
+}
+
 #ifdef __cplusplus
 } /* namespace linalg */
 #endif

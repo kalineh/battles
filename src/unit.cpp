@@ -112,13 +112,6 @@ Unit Unit::CreateUnit(const char* type)
 
 void Unit::AI()
 {
-	if ((stb_rand() % 5000) == 0)		
-	{
-		targetPos = v2new(
-			pos.x + (float)(stb_frand() * (float)100.0f),
-			pos.y + (float)(stb_frand() * (float)100.0f)
-		);
-	}
 }
 
 void Unit::Update()
