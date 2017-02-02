@@ -2,3 +2,4 @@
 #include "inc.h"
 
 #define GROUP_MOVE_COMMAND_ROTATE_MIN 2.5f
+#define GROUP_SELECT_SEARCH_RADIUS 4.0f

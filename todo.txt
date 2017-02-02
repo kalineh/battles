@@ -1,5 +1,4 @@
 
-- handle dead units in preview
 - group click selection
 - group click attack
 - unit footing value

@@ -157,6 +157,40 @@ void Game::Update()
 			selectedGroup = groupSelectionOffset + i;
 	}
 
+	if (ImGui::IsMouseClicked(0))
+	{
+		UnitIndex* selectGroupQuery = NULL;
+		stb_arr_setsize(selectGroupQuery, 4);
+		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+		grid->Query(&selectGroupQuery, mousePos, mousePos, NULL);
+		float nearestSql = 10000.0f;
+		UnitIndex nearestUnitIndex = InvalidUnitIndex;
+		for (int i = 0; i < stb_arr_len(selectGroupQuery); ++i)
+		{
+			UnitIndex id = selectGroupQuery[i];
+			Unit* unit = GetUnit(id);
+			if (unit->team != selectedTeam)
+				continue;
+
+			if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius + GROUP_SELECT_SEARCH_RADIUS))
+			{
+				v2 ofs = unit->pos - mousePos;
+				float sql = v2lensq(ofs);
+				if (sql < nearestSql)
+				{
+					nearestSql = sql;
+					nearestUnitIndex = id;
+				}
+			}
+		}
+
+		if (nearestUnitIndex != InvalidUnitIndex)
+		{
+			Unit* unit = GetUnit(nearestUnitIndex);
+			selectedGroup = unit->group;
+		}
+	}
+
 	if (ImGui::IsMouseClicked(1) || ImGui::IsKeyPressed(SDLK_SPACE))
 		moveCommandAnchor = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 
@@ -368,8 +402,8 @@ void Game::Render()
 		Group* group = groups + i;
 
 		nvgBeginPath(context);
-		nvgCircle(context, group->groupPos.x, group->groupPos.y, 7.5f);
-		nvgFillColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f));
+		nvgCircle(context, group->groupPos.x, group->groupPos.y, 10.0f);
+		nvgFillColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.25f));
 		nvgFill(context);
 		nvgClosePath(context);
 
