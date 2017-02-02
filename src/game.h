@@ -31,10 +31,12 @@ struct Game
 	Grid* OWNER grid;
 	Touch* OWNER touch;
 
-	UnitIndex hoverUnit;
-	UnitIndex selectedUnit;
 	TeamIndex selectedTeam;
 	GroupIndex selectedGroup;
+	UnitIndex selectedUnit;
+
+	UnitIndex hoverUnitFriendly;
+	UnitIndex hoverUnitHostile;
 
 	v2 moveCommandAnchor;
 };

@@ -28,17 +28,20 @@ struct SlotData
 	float dist;
 };
 
-void Group::Init(Unit* ARRAY aunits)
+void Group::Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits)
 {
 	team = InvalidTeamIndex;
 	formationType = FormationType_None;
 	groupPos = v2zero();
 	commandPos = v2zero();
 	commandAngle = 0.0f;
+	commandTargetGroup = InvalidGroupIndex;
 	disarrayRatio = 0.0f;
 	displacementAggregate = v2zero();
 	formationRatio = 0.5f;
 	formationLoose = 0.0f;
+	teams = ateams;
+	groups = agroups;
 	units = aunits;
 	members = NULL;
 	stb_arr_setsize(members, 8);
@@ -55,6 +58,17 @@ void Group::Release()
 void Group::Update()
 {
 	const float dt = 1.0f / 60.0f;
+
+	if (commandTargetGroup != InvalidGroupIndex)
+	{
+		Group* targetGroup = groups + commandTargetGroup;
+
+		commandPos = targetGroup->groupPos;
+		v2 ofs = commandPos - groupPos;
+		float len = v2lensafe(ofs);
+		if (len > 0.2f)
+			commandAngle = v2toangle(ofs);
+	}
 
 	v2 centroid = CalcCentroid();
 	v2 toCentroid = centroid - groupPos;
@@ -197,6 +211,10 @@ void Group::UpdateFormation()
 	for (int i = 0; i < stb_arr_len(slots); ++i)
 	{
 		UnitIndex unitIndex = slots[i];
+
+		// TODO: how are we getting invalid here?
+		assert(unitIndex != InvalidUnitIndex);
+
 		Unit* unit = units + unitIndex;
 
 		if (!unit->IsValid())
@@ -279,17 +297,26 @@ void Group::CommandStop()
 		commandPos = centroid / count;
 }
 
+void Group::CommandMoveAttack(GroupIndex group)
+{
+	commandPos = v2zero();
+	commandAngle = 0.0f;
+	commandTargetGroup = group;
+}
+
 void Group::CommandMoveTo(v2 pos, float angle)
 {
 	commandPos = pos;
 	commandAngle = angle;
+	commandTargetGroup = InvalidGroupIndex;
 }
 
-void Group::CommandTeleportTo(v2 pos, float angle)
+void Group::CommandMoveToInstant(v2 pos, float angle)
 {
 	groupPos = pos;
 	commandPos = pos;
 	commandAngle = angle;
+	commandTargetGroup = InvalidGroupIndex;
 	disarrayRatio = 0.0f;
 	displacementAggregate = v2zero();
 

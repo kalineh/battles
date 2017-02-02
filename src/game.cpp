@@ -48,8 +48,12 @@ void Game::Init(void* awindow)
 	touch = (Touch*)stb_malloc(this, sizeof(Touch));
 	touch->Init(units);
 
-	selectedGroup = 0;
 	selectedTeam = 0;
+	selectedGroup = 0;
+	selectedUnit = InvalidUnitIndex;
+
+	hoverUnitFriendly = InvalidUnitIndex;
+	hoverUnitHostile = InvalidUnitIndex;
 
 	int groupCountPerTeam = stb_rand() % (GroupCountMax - GroupCountMin) + GroupCountMin;
 	groups = NULL;
@@ -75,7 +79,7 @@ void Game::Init(void* awindow)
 			teams[t].AddGroup(i);
 
 			Group* group = GetGroup(i);
-			group->Init(units);
+			group->Init(teams, groups, units);
 			group->team = t;
 			group->CommandFormationBox(0.5f, 1.25f);
 
@@ -98,7 +102,7 @@ void Game::Init(void* awindow)
 			((float)stb_frand()) * height
 		);
 
-		GetGroup(i)->CommandTeleportTo(pos, 0.0f);
+		GetGroup(i)->CommandMoveToInstant(pos, 0.0f);
 		GetGroup(i)->CommandStop();
 	}
 
@@ -157,15 +161,16 @@ void Game::Update()
 			selectedGroup = groupSelectionOffset + i;
 	}
 
-	UnitIndex* hoverUnitQuery = NULL;
-	stb_arr_setsize(hoverUnitQuery, 4);
 	v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-	grid->Query(&hoverUnitQuery, mousePos, mousePos, NULL);
-	float hoverUnitQueryNearestSql = 10000.0f;
-	UnitIndex hoverUnitQueryNearestUnitIndex = InvalidUnitIndex;
-	for (int i = 0; i < stb_arr_len(hoverUnitQuery); ++i)
+
+	UnitIndex* hoverUnitFriendlyQuery = NULL;
+	stb_arr_setsize(hoverUnitFriendlyQuery, 4);
+	grid->Query(&hoverUnitFriendlyQuery, mousePos, mousePos, NULL);
+	float hoverUnitFriendlyQueryNearestSql = 10000.0f;
+	UnitIndex hoverUnitFriendlyQueryNearestUnitIndex = InvalidUnitIndex;
+	for (int i = 0; i < stb_arr_len(hoverUnitFriendlyQuery); ++i)
 	{
-		UnitIndex id = hoverUnitQuery[i];
+		UnitIndex id = hoverUnitFriendlyQuery[i];
 		Unit* unit = GetUnit(id);
 		if (unit->team != selectedTeam)
 			continue;
@@ -174,44 +179,84 @@ void Game::Update()
 		{
 			v2 ofs = unit->pos - mousePos;
 			float sql = v2lensq(ofs);
-			if (sql < hoverUnitQueryNearestSql)
+			if (sql < hoverUnitFriendlyQueryNearestSql)
 			{
-				hoverUnitQueryNearestSql = sql;
-				hoverUnitQueryNearestUnitIndex = id;
+				hoverUnitFriendlyQueryNearestSql = sql;
+				hoverUnitFriendlyQueryNearestUnitIndex = id;
 			}
 		}
 	}
 
-	hoverUnit = hoverUnitQueryNearestUnitIndex;
+	hoverUnitFriendly = hoverUnitFriendlyQueryNearestUnitIndex;
 
-	if (hoverUnit != InvalidUnitIndex)
+	UnitIndex* hoverUnitHostileQuery = NULL;
+	stb_arr_setsize(hoverUnitHostileQuery, 4);
+	grid->Query(&hoverUnitHostileQuery, mousePos, mousePos, NULL);
+	float hoverUnitHostileQueryNearestSql = 10000.0f;
+	UnitIndex hoverUnitHostileQueryNearestUnitIndex = InvalidUnitIndex;
+	for (int i = 0; i < stb_arr_len(hoverUnitHostileQuery); ++i)
 	{
-		if (ImGui::IsMouseClicked(0))
+		UnitIndex id = hoverUnitHostileQuery[i];
+		Unit* unit = GetUnit(id);
+		if (unit->team == selectedTeam)
+			continue;
+
+		if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius + GROUP_SELECT_SEARCH_RADIUS))
 		{
-			Unit* unit = GetUnit(hoverUnit);
+			v2 ofs = unit->pos - mousePos;
+			float sql = v2lensq(ofs);
+			if (sql < hoverUnitHostileQueryNearestSql)
+			{
+				hoverUnitHostileQueryNearestSql = sql;
+				hoverUnitHostileQueryNearestUnitIndex = id;
+			}
+		}
+	}
+
+	hoverUnitHostile = hoverUnitHostileQueryNearestUnitIndex;
+
+	if (hoverUnitFriendly != InvalidUnitIndex)
+	{
+		if (ImGui::IsMouseReleased(0))
+		{
+			Unit* unit = GetUnit(hoverUnitFriendly);
 			selectedGroup = unit->group;
 		}
 	}
 
-	if (ImGui::IsMouseClicked(1) || ImGui::IsKeyPressed(SDLK_SPACE))
-		moveCommandAnchor = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-
-	if (ImGui::IsMouseReleased(1) || ImGui::IsKeyReleased(SDLK_SPACE))
+	if (hoverUnitHostile != InvalidUnitIndex)
 	{
-		Group* group = GetGroup(selectedGroup);
+		if (selectedGroup != InvalidGroupIndex)
+		{
+			Unit* hostileUnit = GetUnit(hoverUnitHostile);
+			Group* selected = GetGroup(selectedGroup);
 
-		v2 mouse = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-		v2 ofs = mouse - moveCommandAnchor;
+			if (ImGui::IsMouseClicked(1))
+				selected->CommandMoveAttack(hostileUnit->group);
+		}
+	}
+	else
+	{
+		if (ImGui::IsMouseClicked(1) || ImGui::IsKeyPressed(SDLK_SPACE))
+			moveCommandAnchor = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 
-		float len = v2lensafe(ofs);
-		float angle = group->commandAngle;
+		if (ImGui::IsMouseReleased(1) || ImGui::IsKeyReleased(SDLK_SPACE))
+		{
+			Group* group = GetGroup(selectedGroup);
 
-		if (len > GROUP_MOVE_COMMAND_ROTATE_MIN)
-			angle = v2toangle(ofs) + HALFPI;
+			v2 mouse = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+			v2 ofs = mouse - moveCommandAnchor;
 
-		group->CommandMoveTo(moveCommandAnchor, angle);
+			float len = v2lensafe(ofs);
+			float angle = group->commandAngle;
 
-		moveCommandAnchor = v2zero();
+			if (len > GROUP_MOVE_COMMAND_ROTATE_MIN)
+				angle = v2toangle(ofs) + HALFPI;
+
+			group->CommandMoveTo(moveCommandAnchor, angle);
+
+			moveCommandAnchor = v2zero();
+		}
 	}
 
 	if (ImGui::IsKeyPressed(SDLK_p))
@@ -223,7 +268,6 @@ void Game::Update()
 	{
 		UnitIndex* killQuery = NULL;
 		stb_arr_setsize(killQuery, 4);
-		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		grid->Query(&killQuery, mousePos, mousePos, NULL);
 		for (int i = 0; i < stb_arr_len(killQuery); ++i)
 		{
@@ -237,8 +281,6 @@ void Game::Update()
 	static UnitIndex moveIndex = InvalidUnitIndex;
 	if (ImGui::IsKeyDown(SDLK_z))
 	{
-		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-
 		if (moveIndex == InvalidUnitIndex)
 		{
 			UnitIndex* moveQuery = NULL;
@@ -344,11 +386,18 @@ void Game::Render()
 		}
 	}
 
-	int hoverGroupIndex = InvalidGroupIndex;
-	if (hoverUnit != InvalidUnitIndex)
+	int hoverGroupIndexFriendly = InvalidGroupIndex;
+	if (hoverUnitFriendly != InvalidUnitIndex)
 	{
-		Unit* unit = GetUnit(hoverUnit);
-		hoverGroupIndex = unit->group;
+		Unit* unit = GetUnit(hoverUnitFriendly);
+		hoverGroupIndexFriendly = unit->group;
+	}
+
+	int hoverGroupIndexHostile = InvalidGroupIndex;
+	if (hoverUnitHostile != InvalidUnitIndex)
+	{
+		Unit* unit = GetUnit(hoverUnitHostile);
+		hoverGroupIndexHostile = unit->group;
 	}
 
 	for (int i = 0; i < stb_arr_len(units); ++i)
@@ -382,11 +431,20 @@ void Game::Render()
 			nvgClosePath(context);
 		}
 
-		if (unit->group == hoverGroupIndex)
+		if (unit->group == hoverGroupIndexFriendly)
 		{
 			nvgBeginPath(context);
 			nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius + 1.5f);
 			nvgFillColor(context, nvgRGBAf(border.x, border.y, border.z, border.w * 0.25f));
+			nvgFill(context);
+			nvgClosePath(context);
+		}
+
+		if (unit->group == hoverGroupIndexHostile)
+		{
+			nvgBeginPath(context);
+			nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius + 1.5f);
+			nvgFillColor(context, nvgRGBAf(border.x, 0.1f, 0.1f, border.w * 0.25f));
 			nvgFill(context);
 			nvgClosePath(context);
 		}
@@ -622,8 +680,8 @@ void Game::RenderImGui()
 
 	if (ImGui::Begin("Hover", &openHoverWindow))
 	{
-		if (hoverUnit != InvalidUnitIndex)
-			RenderImGuiUnit(hoverUnit);
+		if (hoverUnitFriendly != InvalidUnitIndex)
+			RenderImGuiUnit(hoverUnitFriendly);
 	}
 
 	ImGui::End();
@@ -684,9 +742,9 @@ void Game::RenderImGuiGroup(GroupIndex groupIndex)
 	ImGui::LabelText("Displacement", "%.2f,%.2f", group->displacementAggregate.x, group->displacementAggregate.y);
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
-		group->CommandTeleportTo(group->commandPos, group->commandAngle);
+		group->CommandMoveToInstant(group->commandPos, group->commandAngle);
 	if (ImGui::Button("Teleport Debug") || ImGui::IsKeyPressed(SDLK_y))
-		group->CommandTeleportTo(v2new(450.0f, 400.0f), 0.0f);
+		group->CommandMoveToInstant(v2new(450.0f, 400.0f), 0.0f);
 
 }
 

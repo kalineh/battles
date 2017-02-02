@@ -11,7 +11,7 @@ struct Group
 		FormationType_Circle,
 	};
 
-	void Init(Unit* ARRAY aunits);
+	void Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits);
 	void Release();
 
 	void Update();
@@ -21,8 +21,9 @@ struct Group
 	void RemoveUnit(UnitIndex index);
 
 	void CommandStop();
+	void CommandMoveAttack(GroupIndex group);
 	void CommandMoveTo(v2 pos, float angle);
-	void CommandTeleportTo(v2 pos, float angle);
+	void CommandMoveToInstant(v2 pos, float angle);
 
 	void CommandFormationNone();
 	void CommandFormationBox(float ratio, float loose);
@@ -51,6 +52,8 @@ struct Group
 	UnitIndex FindNearestUnit(v2 pos, UnitIndex* ARRAY source, UnitIndex failureIndex);
 
 	TeamIndex team;
+	Team* ARRAY teams;
+	Group* ARRAY groups;
 	Unit* ARRAY units;
 	UnitIndex* OWNER ARRAY members;
 	UnitIndex* OWNER ARRAY slots;
@@ -59,6 +62,7 @@ struct Group
 	v2 groupPos;
 	v2 commandPos;
 	float commandAngle;
+	GroupIndex commandTargetGroup;
 	v2 displacementAggregate;
 	float damageAggregate;
 	float disarrayRatio;
