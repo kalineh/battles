@@ -157,36 +157,38 @@ void Game::Update()
 			selectedGroup = groupSelectionOffset + i;
 	}
 
-	if (ImGui::IsMouseClicked(0))
+	UnitIndex* hoverUnitQuery = NULL;
+	stb_arr_setsize(hoverUnitQuery, 4);
+	v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+	grid->Query(&hoverUnitQuery, mousePos, mousePos, NULL);
+	float hoverUnitQueryNearestSql = 10000.0f;
+	UnitIndex hoverUnitQueryNearestUnitIndex = InvalidUnitIndex;
+	for (int i = 0; i < stb_arr_len(hoverUnitQuery); ++i)
 	{
-		UnitIndex* selectGroupQuery = NULL;
-		stb_arr_setsize(selectGroupQuery, 4);
-		v2 mousePos = v2new(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-		grid->Query(&selectGroupQuery, mousePos, mousePos, NULL);
-		float nearestSql = 10000.0f;
-		UnitIndex nearestUnitIndex = InvalidUnitIndex;
-		for (int i = 0; i < stb_arr_len(selectGroupQuery); ++i)
-		{
-			UnitIndex id = selectGroupQuery[i];
-			Unit* unit = GetUnit(id);
-			if (unit->team != selectedTeam)
-				continue;
+		UnitIndex id = hoverUnitQuery[i];
+		Unit* unit = GetUnit(id);
+		if (unit->team != selectedTeam)
+			continue;
 
-			if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius + GROUP_SELECT_SEARCH_RADIUS))
+		if (circleoverlap(mousePos, 0.0f, unit->pos, unit->data->radius + GROUP_SELECT_SEARCH_RADIUS))
+		{
+			v2 ofs = unit->pos - mousePos;
+			float sql = v2lensq(ofs);
+			if (sql < hoverUnitQueryNearestSql)
 			{
-				v2 ofs = unit->pos - mousePos;
-				float sql = v2lensq(ofs);
-				if (sql < nearestSql)
-				{
-					nearestSql = sql;
-					nearestUnitIndex = id;
-				}
+				hoverUnitQueryNearestSql = sql;
+				hoverUnitQueryNearestUnitIndex = id;
 			}
 		}
+	}
 
-		if (nearestUnitIndex != InvalidUnitIndex)
+	hoverUnit = hoverUnitQueryNearestUnitIndex;
+
+	if (hoverUnit != InvalidUnitIndex)
+	{
+		if (ImGui::IsMouseClicked(0))
 		{
-			Unit* unit = GetUnit(nearestUnitIndex);
+			Unit* unit = GetUnit(hoverUnit);
 			selectedGroup = unit->group;
 		}
 	}
@@ -342,6 +344,13 @@ void Game::Render()
 		}
 	}
 
+	int hoverGroupIndex = InvalidGroupIndex;
+	if (hoverUnit != InvalidUnitIndex)
+	{
+		Unit* unit = GetUnit(hoverUnit);
+		hoverGroupIndex = unit->group;
+	}
+
 	for (int i = 0; i < stb_arr_len(units); ++i)
 	{
 		Unit* unit = GetUnit(i);
@@ -369,6 +378,15 @@ void Game::Render()
 			nvgBeginPath(context);
 			nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius + 1.5f);
 			nvgFillColor(context, nvgRGBAf(border.x, border.y, border.z, border.w));
+			nvgFill(context);
+			nvgClosePath(context);
+		}
+
+		if (unit->group == hoverGroupIndex)
+		{
+			nvgBeginPath(context);
+			nvgCircle(context, unit->pos.x, unit->pos.y, unit->data->radius + 1.5f);
+			nvgFillColor(context, nvgRGBAf(border.x, border.y, border.z, border.w * 0.25f));
 			nvgFill(context);
 			nvgClosePath(context);
 		}
@@ -488,6 +506,7 @@ void Game::RenderImGui()
 	static bool openMetricsWindow = false;
 	static bool openGameWindow = false;
 	static bool openTeamWindow = false;
+	static bool openHoverWindow = false;
 
 	ImGui::Begin("Game", &openGameWindow);
 
@@ -598,6 +617,15 @@ void Game::RenderImGui()
 		RenderImGuiGroup(selectedGroup);
 		ImGui::Indent();
 	}
+
+	ImGui::End();
+
+	if (ImGui::Begin("Hover", &openHoverWindow))
+	{
+		if (hoverUnit != InvalidUnitIndex)
+			RenderImGuiUnit(hoverUnit);
+	}
+
 	ImGui::End();
 }
 

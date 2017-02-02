@@ -1,10 +1,13 @@
 
 - group click selection
+- hover unit info
 - group click attack
 - unit footing value
 - group attack group command
 - group multi-select
 - extra formations
+- better small unit movement
+- improve displacement on collisions
 - drag select formation size
 - group stat summary
 - better unit types

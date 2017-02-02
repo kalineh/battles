@@ -31,8 +31,10 @@ struct Game
 	Grid* OWNER grid;
 	Touch* OWNER touch;
 
-	int selectedTeam;
-	int selectedGroup;
+	UnitIndex hoverUnit;
+	UnitIndex selectedUnit;
+	TeamIndex selectedTeam;
+	GroupIndex selectedGroup;
 
 	v2 moveCommandAnchor;
 };
