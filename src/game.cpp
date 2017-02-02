@@ -411,19 +411,26 @@ void Game::Render()
 
 		int aliveUnitCount = group->CalcUnitAliveCount();
 		float largestUnitRadius = group->CalcUnitLargestRadius();
+		int aliveUnitCursor = 0;
 
 		for (int i = 0; i < stb_arr_len(group->members); ++i)
 		{
 			UnitIndex unitIndex = group->members[i];
 			Unit* unit = GetUnit(unitIndex);
+
+			if (!unit->IsValid())
+				continue;
+			if (!unit->IsAlive())
+				continue;
+
 			v2 pos = v2zero();
 			float angle = 0.0f;
 
 			switch (group->formationType)
 			{
 			case Group::FormationType_Box:
-				pos = group->FormationPositionBox(i, moveCommandAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
-				angle = group->FormationAngleBox(i, moveCommandAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
+				pos = group->FormationPositionBox(aliveUnitCursor, moveCommandAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
+				angle = group->FormationAngleBox(aliveUnitCursor, moveCommandAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
 				break;
 			}
 
@@ -432,6 +439,8 @@ void Game::Render()
 			nvgFillColor(context, nvgRGBAf(i * 0.05f, 1.0f, 1.0f, 0.25f));
 			nvgFill(context);
 			nvgClosePath(context);
+
+			aliveUnitCursor++;
 		}
 	}
 
