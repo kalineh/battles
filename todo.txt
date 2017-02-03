@@ -1,10 +1,11 @@
 
-- group multi-select
 - unit footing value
 - extra formations
+- fix crash when all units in group die?
 - better small unit movement
 - improve displacement on collisions
 - drag select formation size
+- group multi-select
 - group stat summary
 - better unit types
 - optimize quad render

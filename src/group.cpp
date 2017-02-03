@@ -86,6 +86,9 @@ void Group::Update()
 	groupPos += toCentroid * dt * toCentroidSpeed;
 	groupPos += toCommandDir * dt * toCommandSpeed;
 
+	assert(!isnan(groupPos.x));
+	assert(!isnan(groupPos.y));
+
 	UpdateFormation();
 }
 
@@ -503,7 +506,7 @@ v2 Group::CalcCentroid()
 	}
 
 	v2 centroid = v2zero();
-	centroid = sum / fmaxf((float)count, 0.0f);
+	centroid = sum / fmaxf((float)count, 1.0f);
 
 	return centroid;
 }
