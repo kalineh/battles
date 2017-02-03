@@ -331,13 +331,6 @@ void Game::UpdateInput()
 
 	hoverUnitHostile = hoverUnitHostileQueryNearestUnitIndex;
 
-	// if cursor none:
-	//  can hover friendly, enemy
-	//  left: can start drag select, select hover
-	//  right: selected: none/pan camera, unselected: move command start
-	// 
-	// if cursor hover friendly:
-
 	switch (cursorState)
 	{
 	case CursorState_None:
@@ -363,7 +356,10 @@ void Game::UpdateInput()
 	{
 	case CursorState_None:
 		if (ImGui::IsMouseClicked(0))
+		{
 			cursorState = CursorState_DragSelect;
+			cursorAnchor = cursorPos;
+		}
 		else if (ImGui::IsMouseClicked(1))
 			if (selectedGroup != InvalidGroupIndex)
 			{
@@ -703,6 +699,23 @@ void Game::Render()
 
 			aliveUnitCursor++;
 		}
+	}
+
+	if (cursorState == CursorState_DragSelect)
+	{
+		v2 boxA = cursorPos;
+		v2 boxB = cursorAnchor;
+
+		nvgBeginPath(context);
+		nvgMoveTo(context, boxA.x, boxA.y);
+		nvgLineTo(context, boxB.x, boxA.y);
+		nvgLineTo(context, boxB.x, boxB.y);
+		nvgLineTo(context, boxA.x, boxB.y);
+		nvgLineTo(context, boxA.x, boxA.y);
+		nvgStrokeWidth(context, 2.0f);
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f));
+		nvgStroke(context);
+		nvgClosePath(context);
 	}
 
 	nvgEndFrame(context);

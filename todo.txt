@@ -1,9 +1,6 @@
 
-- group click attack improve
-- fix group rotating on move-attack
-- unit footing value
-- group attack group command
 - group multi-select
+- unit footing value
 - extra formations
 - better small unit movement
 - improve displacement on collisions
