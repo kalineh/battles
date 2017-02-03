@@ -198,6 +198,15 @@ void Game::UpdateInput()
 
 	// keyboard input
 
+	if (ImGui::IsKeyPressed(SDLK_TAB))
+	{
+		selectedTeam = !selectedTeam;
+		if (selectedTeam == 0)
+			selectedGroup = 0;
+		else
+			selectedGroup = stb_arr_len(GetTeam(0)->groups);
+	}
+
 	if (ImGui::IsKeyPressed(SDL_SCANCODE_F1))
 	{
 		selectedTeam = 0;
