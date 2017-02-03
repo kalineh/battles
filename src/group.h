@@ -11,6 +11,13 @@ struct Group
 		FormationType_Circle,
 	};
 
+	enum CommandType
+	{
+		CommandType_None,
+		CommandType_Move,
+		CommandType_Attack,
+	};
+
 	void Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits);
 	void Release();
 
@@ -59,6 +66,7 @@ struct Group
 	UnitIndex* OWNER ARRAY slots;
 
 	FormationType formationType;
+	CommandType commandType;
 	v2 groupPos;
 	v2 commandPos;
 	float commandAngle;

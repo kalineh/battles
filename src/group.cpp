@@ -32,6 +32,7 @@ void Group::Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits)
 {
 	team = InvalidTeamIndex;
 	formationType = FormationType_None;
+	commandType = CommandType_None;
 	groupPos = v2zero();
 	commandPos = v2zero();
 	commandAngle = 0.0f;

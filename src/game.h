@@ -7,6 +7,7 @@ struct Game
 	void Release();
 
 	void Update();
+	void UpdateInput();
 	void Render();
 	void RenderImGui();
 	void RenderImGuiTeam(TeamIndex teamIndex);
@@ -38,5 +39,17 @@ struct Game
 	UnitIndex hoverUnitFriendly;
 	UnitIndex hoverUnitHostile;
 
-	v2 moveCommandAnchor;
+	enum CursorState
+	{
+		CursorState_None,
+		CursorState_MoveCommand,
+		CursorState_HoverFriendly,
+		CursorState_HoverHostile,
+		CursorState_DragSelect,
+		CursorState_Pan,
+	};
+
+	CursorState cursorState;
+	v2 cursorPos;
+	v2 cursorAnchor;
 };
