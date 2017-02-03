@@ -1,5 +1,6 @@
 
-- group click attack
+- fix command centering off by half-radius
+- group click attack improve
 - unit footing value
 - group attack group command
 - group multi-select

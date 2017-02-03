@@ -409,11 +409,11 @@ v2 Group::FormationPositionBox(int index, v2 groupCenter, float groupAngle, int 
 	);
 
 	v2 halfSize = totalSize * 0.5f;
-
+	v2 unitSize = v2new(unitRadius, unitRadius);
 	v2 localPos = halfSize * -1.0f + v2new(
 		totalSize.x / (float)cellsX * (float)cellX,
 		totalSize.y / (float)cellsY * (float)cellY
-	);
+	) + unitSize;
 
 	v2 rotatedPos = v2rotate(localPos, groupAngle);
 	v2 pos = groupCenter + rotatedPos;
