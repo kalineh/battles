@@ -95,11 +95,19 @@ void Game::Init(void* awindow)
 		}
 	}
 
+	int groupSelectionOffset = 0;
+	if (selectedTeam == 1)
+		groupSelectionOffset = stb_arr_len(GetTeam(0)->groups);
+
 	for (int i = 0; i < stb_arr_len(groups); ++i)
 	{
+		int groupsPerTeam = stb_arr_len(groups) / stb_arr_len(teams);
+		int teamIndex = i / groupsPerTeam;
+		int groupIndex = i % groupsPerTeam;
+
 		v2 pos = v2new(
-			((float)stb_frand()) * width,
-			((float)stb_frand()) * height
+			(0.35f + 0.3f * (1.0f / (float)groupsPerTeam) * groupIndex) * width,
+			(0.4f + 0.2f * (float)teamIndex) * height
 		);
 
 		GetGroup(i)->CommandMoveToInstant(pos, 0.0f);
