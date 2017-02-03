@@ -60,7 +60,7 @@ void Group::Update()
 {
 	const float dt = 1.0f / 60.0f;
 
-	if (commandTargetGroup != InvalidGroupIndex)
+	if (commandType == CommandType_Attack)
 	{
 		Group* targetGroup = groups + commandTargetGroup;
 
@@ -68,7 +68,7 @@ void Group::Update()
 		v2 ofs = commandPos - groupPos;
 		float len = v2lensafe(ofs);
 		if (len > 0.2f)
-			commandAngle = v2toangle(ofs);
+			commandAngle = v2toangle(ofs) + HALFPI;
 	}
 
 	v2 centroid = CalcCentroid();
@@ -277,6 +277,8 @@ void Group::RemoveUnit(UnitIndex index)
 
 void Group::CommandStop()
 {
+	commandType = CommandType_None;
+
 	v2 centroid = v2zero();
 	float count = 0.0f;
 
@@ -300,13 +302,20 @@ void Group::CommandStop()
 
 void Group::CommandMoveAttack(GroupIndex group)
 {
-	commandPos = v2zero();
-	commandAngle = 0.0f;
+	commandType = CommandType_Attack;
 	commandTargetGroup = group;
+
+	Group* targetGroup = groups + group;
+	commandPos = targetGroup->groupPos;
+	v2 ofs = commandPos - groupPos;
+	float len = v2lensafe(ofs);
+	if (len > 0.2f)
+		commandAngle = v2toangle(ofs) + HALFPI;
 }
 
 void Group::CommandMoveTo(v2 pos, float angle)
 {
+	commandType = CommandType_Move;
 	commandPos = pos;
 	commandAngle = angle;
 	commandTargetGroup = InvalidGroupIndex;
@@ -314,6 +323,7 @@ void Group::CommandMoveTo(v2 pos, float angle)
 
 void Group::CommandMoveToInstant(v2 pos, float angle)
 {
+	commandType = CommandType_None;
 	groupPos = pos;
 	commandPos = pos;
 	commandAngle = angle;
