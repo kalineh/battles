@@ -411,6 +411,11 @@ void Game::UpdateInput()
 
 			cursorAnchor = v2zero();
 		}
+		else
+		{
+			hoverUnitFriendly = InvalidUnitIndex;
+			hoverUnitHostile = InvalidUnitIndex;
+		}
 		break;
 
 	case CursorState_DragSelect:
@@ -423,6 +428,11 @@ void Game::UpdateInput()
 			else
 				cursorState = CursorState_None;
 		}
+		else
+		{
+			hoverUnitFriendly = InvalidUnitIndex;
+			hoverUnitHostile = InvalidUnitIndex;
+		}
 		break;
 
 	case CursorState_Pan:
@@ -434,6 +444,11 @@ void Game::UpdateInput()
 				cursorState = CursorState_HoverHostile;
 			else
 				cursorState = CursorState_None;
+		}
+		else
+		{
+			hoverUnitFriendly = InvalidUnitIndex;
+			hoverUnitHostile = InvalidUnitIndex;
 		}
 		break;
 	}
