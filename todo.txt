@@ -1,7 +1,10 @@
 
 - unit footing value
+- unit charge bonus
+- improve unit movement when most enemy units dead
+- unit morale/leadership handling + flee
+- drag-draw movement paths
 - extra formations
-- fix crash when all units in group die?
 - better small unit movement
 - improve displacement on collisions
 - drag select formation size

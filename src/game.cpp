@@ -14,7 +14,7 @@ void Game::Init(void* awindow)
 {
 	printf("game: init start\n");
 
-	const int UnitCount = 1000;
+	const int UnitCount = 10000;
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
@@ -258,9 +258,12 @@ void Game::UpdateInput()
 			}
 		}
 
-		Unit* unit = GetUnit(debugMoveIndex);
-		if (unit->IsValid())
-			unit->pos = cursorPos;
+		if (debugMoveIndex != InvalidUnitIndex)
+		{
+			Unit* unit = GetUnit(debugMoveIndex);
+			if (unit->IsValid())
+				unit->pos = cursorPos;
+		}
 	}
 	else
 		debugMoveIndex = InvalidUnitIndex;
@@ -623,7 +626,7 @@ void Game::Render()
 		nvgMoveTo(context, group->groupPos.x, group->groupPos.y);
 		nvgLineTo(context, group->groupPos.x + group->displacementAggregate.x, group->groupPos.y + group->displacementAggregate.y);
 		nvgStrokeWidth(context, 4.0f);
-		nvgStrokeColor(context, nvgRGBAf(1.0f, 0.0f, 0.0f, 0.5f));
+		nvgStrokeColor(context, nvgRGBAf(0.0f, 0.2f, 0.2f, 0.5f));
 		nvgStroke(context);
 		nvgClosePath(context);
 	}
