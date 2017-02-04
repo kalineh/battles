@@ -18,8 +18,8 @@ void Game::Init(void* awindow)
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 12;
-	const int GroupUnitCountMax = 13;
+	const int GroupUnitCountMin = 32;
+	const int GroupUnitCountMax = 33;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -400,13 +400,41 @@ void Game::UpdateInput()
 		if (ImGui::IsMouseReleased(1))
 		{
 			Group* group = GetGroup(selectedGroup);
-			v2 ofs = cursorPos - cursorAnchor;
 
-			float len = v2lensafe(ofs);
+			int aliveCount = group->CalcUnitAliveCount();
+			float largestUnitRadius = group->CalcUnitLargestRadius();
+
+			v2 a = group->groupPos;
+			v2 b = group->groupPos;
+
+			switch (group->formationType)
+			{
+			case Group::FormationType_Box:
+				a = group->FormationPositionBox(0, cursorAnchor, 0.0f, aliveCount, largestUnitRadius, 0.0f, group->formationLoose);
+				b = group->FormationPositionBox(aliveCount - 1, cursorAnchor, 0.0f, aliveCount, largestUnitRadius, 0.0f, group->formationLoose);
+				break;
+			}
+
+			v2 ofsLine = b - a;
+			float ofsLineLen = v2lensafe(ofsLine);
+			float ratio = group->formationRatio;
 			float angle = group->commandAngle;
 
-			if (len > GROUP_MOVE_COMMAND_ROTATE_MIN)
-				angle = v2toangle(ofs) + HALFPI;
+			v2 ofsDrag = cursorPos - cursorAnchor;
+			float ofsDragLen = v2lensafe(ofsDrag);
+
+			if (ofsDragLen > GROUP_MOVE_COMMAND_ROTATE_MIN)
+			{
+				ratio = ofsDragLen / ofsLineLen;
+
+				ratio *= 2.0f;
+				ratio = fmaxf(ratio, 0.0f);
+				ratio = fminf(ratio, 1.0f);
+
+				angle = v2toangle(ofsDrag);
+
+				group->CommandFormationBox(ratio, group->formationLoose);
+			}
 
 			group->CommandMoveTo(cursorAnchor, angle);
 
@@ -418,6 +446,7 @@ void Game::UpdateInput()
 				cursorState = CursorState_None;
 
 			cursorAnchor = v2zero();
+
 		}
 		else
 		{
@@ -654,24 +683,38 @@ void Game::Render()
 	if (cursorState == CursorState_MoveCommand)
 	{
 		Group* group = GetGroup(selectedGroup);
-
-		nvgBeginPath(context);
-		nvgMoveTo(context, cursorAnchor.x, cursorAnchor.y);
-		nvgLineTo(context, cursorPos.x, cursorPos.y);
-		nvgStrokeWidth(context, 4.0f);
-		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 0.0f, 0.5f));
-		nvgStroke(context);
-		nvgClosePath(context);
-
-		v2 ofs = cursorPos - cursorAnchor;
-		float len = v2lensafe(ofs);
-		float groupAngle = group->commandAngle;
-		if (len > GROUP_MOVE_COMMAND_ROTATE_MIN)
-			groupAngle = v2toangle(ofs) + HALFPI;
-
-		int aliveUnitCount = group->CalcUnitAliveCount();
+		int aliveCount = group->CalcUnitAliveCount();
 		float largestUnitRadius = group->CalcUnitLargestRadius();
+
+		v2 a = group->groupPos;
+		v2 b = group->groupPos;
+
+		switch (group->formationType)
+		{
+		case Group::FormationType_Box:
+			a = group->FormationPositionBox(0, cursorAnchor, 0.0f, aliveCount, largestUnitRadius, 0.0f, group->formationLoose);
+			b = group->FormationPositionBox(aliveCount - 1, cursorAnchor, 0.0f, aliveCount, largestUnitRadius, 0.0f, group->formationLoose);
+			break;
+		}
+
+		v2 ofsLine = b - a;
+		float ofsLineLen = v2lensafe(ofsLine);
+		float ratio = group->formationRatio;
+
+		v2 ofsDrag = cursorPos - cursorAnchor;
+		float ofsDragLen = v2lensafe(ofsDrag);
+
+		if (ofsDragLen > GROUP_MOVE_COMMAND_ROTATE_MIN)
+		{
+			ratio = ofsDragLen / ofsLineLen;
+
+			ratio *= 2.0f;
+			ratio = fmaxf(ratio, 0.0f);
+			ratio = fminf(ratio, 1.0f);
+		}
+
 		int aliveUnitCursor = 0;
+		float groupAngle = v2toangle(ofsDrag);
 
 		for (int i = 0; i < stb_arr_len(group->members); ++i)
 		{
@@ -689,8 +732,8 @@ void Game::Render()
 			switch (group->formationType)
 			{
 			case Group::FormationType_Box:
-				pos = group->FormationPositionBox(aliveUnitCursor, cursorAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
-				angle = group->FormationAngleBox(aliveUnitCursor, cursorAnchor, groupAngle, aliveUnitCount, largestUnitRadius, group->formationRatio, group->formationLoose);
+				pos = group->FormationPositionBox(aliveUnitCursor, cursorAnchor, groupAngle, aliveCount, largestUnitRadius, ratio, group->formationLoose);
+				angle = group->FormationAngleBox(aliveUnitCursor, cursorAnchor, groupAngle, aliveCount, largestUnitRadius, ratio, group->formationLoose);
 				break;
 			}
 
@@ -702,6 +745,23 @@ void Game::Render()
 
 			aliveUnitCursor++;
 		}
+
+		v2 groupForward = v2fromangle(groupAngle - HALFPI);
+		v2 groupArrowTip = cursorAnchor + groupForward * 25.0f;
+		v2 groupArrowTipL = groupArrowTip + v2rotate(groupForward * -8.0f, PI * -0.25f);
+		v2 groupArrowTipR = groupArrowTip + v2rotate(groupForward * -8.0f, PI * +0.25f);
+
+		nvgBeginPath(context);
+		nvgLineCap(context, NVG_ROUND);
+		nvgMoveTo(context, cursorAnchor.x, cursorAnchor.y);
+		nvgLineTo(context, groupArrowTip.x, groupArrowTip.y);
+		nvgLineTo(context, groupArrowTipL.x, groupArrowTipL.y);
+		nvgMoveTo(context, groupArrowTip.x, groupArrowTip.y);
+		nvgLineTo(context, groupArrowTipR.x, groupArrowTipR.y);
+		nvgStrokeWidth(context, 4.0f);
+		nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 0.0f, 0.5f));
+		nvgStroke(context);
+		nvgClosePath(context);
 	}
 
 	if (cursorState == CursorState_DragSelect)

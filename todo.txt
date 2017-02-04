@@ -1,4 +1,5 @@
 
+- drag select formation size
 - unit footing value
 - unit charge bonus
 - improve unit movement when most enemy units dead
@@ -7,7 +8,6 @@
 - extra formations
 - better small unit movement
 - improve displacement on collisions
-- drag select formation size
 - group multi-select
 - group stat summary
 - better unit types

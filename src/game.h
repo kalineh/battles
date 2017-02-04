@@ -52,4 +52,5 @@ struct Game
 	CursorState cursorState;
 	v2 cursorPos;
 	v2 cursorAnchor;
+	float commandFormationRatio;
 };
