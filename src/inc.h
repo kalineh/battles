@@ -37,6 +37,9 @@ typedef int GroupIndex;
 typedef int MemberIndex;
 typedef int UnitIndex;
 
+extern int GameFrame;
+extern float GameTime;
+
 static const int InvalidTeamIndex = -1;
 static const int InvalidGroupIndex = -1;
 static const int InvalidMemberIndex = -1;

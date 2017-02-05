@@ -175,7 +175,7 @@ int Grid::Query(UnitIndex** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 			Cell* cell = GetCellIndexed(cellIndex);
 
 			v2 cellLower = lower + v2mulv(cellSize, v2new((float)(x + 0), (float)(y + 0)));
-			v2 cellUpper = lower + v2mulv(cellSize, v2new((float)(x + 1), (float)(y + 1)));
+			v2 cellUpper = lower + v2mulv(cellSize, v2new((float)(x + 2), (float)(y + 1)));
 
 			if (!rectoverlap(alower, aupper, cellLower, cellUpper))
 				continue;

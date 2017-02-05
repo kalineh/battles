@@ -10,16 +10,19 @@
 
 #include "inc.h"
 
+int GameFrame = 0;
+float GameTime = 0.0f;
+
 void Game::Init(void* awindow)
 {
 	printf("game: init start\n");
 
 	const int UnitCount = 10000;
 	const int TeamCount = 2;
-	const int GroupCountMin = 2;
-	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 12;
-	const int GroupUnitCountMax = 13;
+	const int GroupCountMin = 1;
+	const int GroupCountMax = 2;
+	const int GroupUnitCountMin = 1;
+	const int GroupUnitCountMax = 2;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -64,7 +67,6 @@ void Game::Init(void* awindow)
 	stb_arr_setlen(groups, groupCountPerTeam * TeamCount);
 
 	const char* groupTypes[] = {
-		"Light",
 		"Heavy",
 	};
 
@@ -142,17 +144,22 @@ void Game::Release()
 
 void Game::Update()
 {
+	const float dt = 1.0f / 60.0f;
+
+	GameFrame += 1;
+	GameTime += dt;
+
 	grid->Rebuild();
 
 	touch->Clear();
-
-	for (int i = 0; i < stb_arr_len(groups); ++i)
-		GetGroup(i)->Update();
 
 	UpdateInput();
 
 	if (paused)
 		return;
+
+	for (int i = 0; i < stb_arr_len(groups); ++i)
+		GetGroup(i)->Update();
 
 	UnitIndex* query = NULL;
 	stb_arr_setsize(query, 16);
@@ -166,7 +173,8 @@ void Game::Update()
 		if (!unit->IsAlive())
 			continue;
 
-		int gridCount = grid->Query(&query, unit->pos, unit->pos, unit);
+		v2 unitSize = v2new(unit->data->radius, unit->data->radius);
+		int gridCount = grid->Query(&query, unit->pos - unitSize, unit->pos + unitSize, unit);
 		int touchCount = touch->Collect(unit, query);
 
 		(void)gridCount;
@@ -175,15 +183,25 @@ void Game::Update()
 		Touch::Entry* entry = touch->GetEntry(i);
 		for (int j = 0; j < stb_arrcount(entry->indexes); ++j)
 		{
-			UnitIndex touchID = entry->indexes[j];
-			if (touchID != 0)
+			UnitIndex touchingUnitIndex = entry->indexes[j];
+			if (touchingUnitIndex != InvalidUnitIndex)
 			{
-				Unit* other = GetUnit(touchID);
+				Unit* other = GetUnit(touchingUnitIndex);
 				unit->ResolveTouch(other);
 				if (unit->team != other->team)
 					unit->ResolveCombat(other);
 			}
 		}
+	}
+
+	for (int i = 0; i < stb_arr_len(units); ++i)
+	{
+		Unit* unit = GetUnit(i);
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
 
 		unit->AI();
 		unit->Update();
