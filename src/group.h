@@ -73,6 +73,7 @@ struct Group
 	GroupIndex commandTargetGroup;
 	v2 displacementAggregate;
 	float damageAggregate;
+	float combatRatio;
 	float disarrayRatio;
 	float formationRatio;
 	float formationLoose;

@@ -18,8 +18,8 @@ void Game::Init(void* awindow)
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 32;
-	const int GroupUnitCountMax = 33;
+	const int GroupUnitCountMin = 12;
+	const int GroupUnitCountMax = 13;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -1021,6 +1021,8 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
 	ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
 	ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
+	ImGui::SliderFloat("fighting", &unit->fighting, 0.0f, 1.0f);
+	ImGui::SliderFloat("footing", &unit->footing, 0.0f, 1.0f);
 }
 
 Team* Game::GetTeam(TeamIndex teamIndex)

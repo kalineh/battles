@@ -54,6 +54,8 @@ struct Unit
 	float health;
 	float fatigue;
 	float resolve;
+	float fighting;
+	float footing;
 
 	v2 targetPos;
 	float targetAngle;

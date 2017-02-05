@@ -37,6 +37,7 @@ void Group::Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits)
 	commandPos = v2zero();
 	commandAngle = 0.0f;
 	commandTargetGroup = InvalidGroupIndex;
+	combatRatio = 0.0f;
 	disarrayRatio = 0.0f;
 	displacementAggregate = v2zero();
 	formationRatio = 0.5f;
@@ -312,7 +313,7 @@ void Group::CommandMoveAttack(GroupIndex group)
 	commandPos = targetGroup->groupPos;
 	v2 ofs = commandPos - groupPos;
 	float len = v2lensafe(ofs);
-	if (len > 0.2f)
+	if (len > 2.5f)
 		commandAngle = v2toangle(ofs) + HALFPI;
 }
 

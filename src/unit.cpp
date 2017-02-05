@@ -92,6 +92,8 @@ Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual, UnitCombat* combat)
 	unit.health = data->health;
 	unit.resolve = data->resolve;
 
+	unit.footing = 1.0f;
+
 	return unit;
 }
 
@@ -168,6 +170,9 @@ void Unit::Update()
 	vel -= movingDir * data->accel * dt * targetApproachBrake * brakeForce * arriveFactor;
 	vel -= vel * stb_min(frictionForce * data->mass * dt, 1.0f);
 	pos += vel * dt;
+
+	fighting = fmaxf(fighting - 0.2f * dt, 0.0f);
+	footing = fminf(footing + 0.2f * dt, 1.0f);
 }
 
 bool Unit::IsValid()
@@ -207,6 +212,8 @@ void Unit::ResolveTouch(Unit* unit)
 
 	unit->vel += transferAligned;
 	vel -= transferAligned;
+
+	footing = fmaxf(footing - v2lensafe(transfer) * 0.05f * dt, 0.0f);
 }
 
 void Unit::ResolveCombat(Unit* unit)
@@ -215,9 +222,13 @@ void Unit::ResolveCombat(Unit* unit)
 	float damage = combat->attack;
 	damage -= fmaxf(unit->combat->defense, 0.0f);
 	health = fmaxf(health - damage * dt, 0.0f);
-	unit->vel -= unit->vel * 10.0f * dt;
+	fighting = fminf(fighting + damage * 0.35f * dt, 1.0f);
+	const v2 push = unit->vel * 10.0f * (1.0f - fighting) * footing * dt;
+	unit->vel -= push;
 	targetPos = v2moveto(targetPos, unit->pos, 15.0f * dt);
+	footing = fmaxf(footing - v2lensafe(push) * 0.35f * dt, 0.0f);
 
+	// morale impact, debuffs, etc
 	// behind = more dmg
 	// reduce vel
 	// wraparound group

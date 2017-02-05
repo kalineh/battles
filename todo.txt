@@ -1,9 +1,10 @@
 
-- drag select formation size
+- better combat movement handling
 - unit footing value
 - unit charge bonus
 - improve unit movement when most enemy units dead
 - unit morale/leadership handling + flee
+- shift-click command queue
 - drag-draw movement paths
 - extra formations
 - better small unit movement
@@ -11,6 +12,7 @@
 - group multi-select
 - group stat summary
 - better unit types
+- height handling
 - optimize quad render
 - camera / zoom
 - voxel render mode
