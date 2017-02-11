@@ -21,8 +21,8 @@ void Game::Init(void* awindow)
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 10;
-	const int GroupUnitCountMax = 12;
+	const int GroupUnitCountMin = 4;
+	const int GroupUnitCountMax = 5;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -189,7 +189,12 @@ void Game::Update()
 				Unit* other = GetUnit(touchingUnitIndex);
 				unit->ResolveTouch(other);
 				if (unit->team != other->team)
+				{
 					unit->ResolveCombat(other);
+
+					// only fight one unit at a time
+					break;
+				}
 			}
 		}
 	}
@@ -645,7 +650,7 @@ void Game::Render()
 
 		nvgBeginPath(context);
 		nvgMoveTo(context, unit->pos.x - unit->data->radius, unit->pos.y);
-		nvgLineTo(context, unit->pos.x + unit->data->radius * unit->health / 100.0f, unit->pos.y);
+		nvgLineTo(context, unit->pos.x - unit->data->radius + unit->data->radius * 2.0f * unit->health / 100.0f, unit->pos.y);
 		nvgStrokeColor(context, nvgRGBAf(color.x - 0.2f, color.y - 0.2f, color.z - 0.2f, color.w * 0.5f));
 		nvgStrokeWidth(context, 2.0f);
 		nvgStroke(context);

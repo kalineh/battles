@@ -139,20 +139,22 @@ void Unit::Update()
 	float arriveFactor = 1.0f - fminf(targetLen / arriveRange, 1.0f);
 	float travelFactor = 1.0f - arriveFactor;
 
+	float turnDampingFactor = fmaxf(1.0f - attacking - (1.0f - footing), 0.0f);
+
 	float targetPosAngle = v2toangle(targetDir);
 	float targetPosAngleDiff = anglediff(angle, targetPosAngle);
 	float targetPosAngleApproach = fminf(fabsf(targetPosAngleDiff), 0.5f) / 0.5f;
 
 	targetPosAngleApproach = fmaxf(targetPosAngleApproach, 0.25f);
 
-	angle = angleto(angle, targetPosAngle, PI * dt * rotationRate * targetPosAngleApproach * travelFactor);
+	angle = angleto(angle, targetPosAngle, PI * dt * rotationRate * targetPosAngleApproach * travelFactor * turnDampingFactor);
 
 	float targetAngleDiff = anglediff(angle, targetAngle);
 	float targetAngleApproach = fminf(fabsf(targetAngleDiff), 0.5f) / 0.5f;
 
 	targetAngleApproach = fmaxf(targetAngleApproach, 0.25f);
 
-	angle = angleto(angle, targetAngle, PI * dt * rotationRate * targetAngleApproach * arriveFactor);
+	angle = angleto(angle, targetAngle, PI * dt * rotationRate * targetAngleApproach * arriveFactor * turnDampingFactor);
 
 	float velAngle = v2toangle(movingDir);
 	float targetAngleVelAdjust = anglediff(velAngle, targetPosAngle);
