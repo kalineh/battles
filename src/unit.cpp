@@ -123,6 +123,7 @@ void Unit::Update()
 
 	const float rotationRate = 2.0f;
 	const float frictionForce = 0.25f;
+	const float attackingForce = 2.5f;
 	const float brakeForce = 2.5f;
 	const float arriveRange = 0.5f * radius;
 	const float overshootForce = 0.1f;
@@ -169,9 +170,10 @@ void Unit::Update()
 	vel += facingDir * data->accel * dt * targetApproach * travelFactor;
 	vel -= movingDir * data->accel * dt * targetApproachBrake * brakeForce * arriveFactor;
 	vel -= vel * stb_min(frictionForce * data->mass * dt, 1.0f);
+	vel -= vel * stb_min(attackingForce * data->mass * dt * attacking, 1.0f);
 	pos += vel * dt;
 
-	fighting = fmaxf(fighting - 0.2f * dt, 0.0f);
+	attacking = fmaxf(attacking - 0.2f * dt, 0.0f);
 	footing = fminf(footing + 0.2f * dt, 1.0f);
 }
 
@@ -213,21 +215,28 @@ void Unit::ResolveTouch(Unit* unit)
 	unit->vel += transferAligned;
 	vel -= transferAligned;
 
-	footing = fmaxf(footing - v2lensafe(transfer) * 0.05f * dt, 0.0f);
+	unit->footing = fmaxf(footing - v2lensafe(transfer) * 0.15f * dt, 0.0f);
 }
 
 void Unit::ResolveCombat(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
+	const v2 ofs = unit->pos - pos;
+	const v2 dir = v2unitsafe(ofs);
+	const v2 fwd = v2fromangle(angle);
+	const float d = v2dot(dir, fwd);
+	const float meleeFacing = fmaxf(d, 0.0f);
+
 	float damage = combat->attack;
-	damage -= fmaxf(unit->combat->defense, 0.0f);
-	health = fmaxf(health - damage * dt, 0.0f);
-	fighting = fminf(fighting + damage * 0.35f * dt, 1.0f);
-	const v2 push = unit->vel * 10.0f * (1.0f - fighting) * footing * dt;
+	damage *= meleeFacing;
+	damage = fmaxf(damage - unit->combat->defense, 0.0f);
+	unit->health = fmaxf(unit->health - damage * dt, 0.0f);
+	attacking = fminf(attacking + damage * 0.35f * dt, 1.0f);
+	const v2 push = unit->vel * 5.0f * (1.0f - attacking) * footing * dt;
 	unit->vel -= push;
 	targetPos = v2moveto(targetPos, unit->pos, 15.0f * dt);
-	footing = fmaxf(footing - v2lensafe(push) * 0.35f * dt, 0.0f);
-
+	unit->footing = fmaxf(unit->footing - v2lensafe(push) * 0.35f * dt, 0.0f);
+	
 	// morale impact, debuffs, etc
 	// behind = more dmg
 	// reduce vel

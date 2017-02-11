@@ -1,5 +1,6 @@
 
 - better combat movement handling
+- group movement improve when fighting
 - unit footing value
 - unit charge bonus
 - improve unit movement when most enemy units dead

@@ -19,8 +19,8 @@ void Game::Init(void* awindow)
 
 	const int UnitCount = 10000;
 	const int TeamCount = 2;
-	const int GroupCountMin = 1;
-	const int GroupCountMax = 2;
+	const int GroupCountMin = 2;
+	const int GroupCountMax = 3;
 	const int GroupUnitCountMin = 1;
 	const int GroupUnitCountMax = 2;
 
@@ -113,7 +113,7 @@ void Game::Init(void* awindow)
 
 		v2 pos = v2new(
 			(0.35f + 0.3f * (1.0f / (float)groupsPerTeam) * groupIndex) * width,
-			(0.4f + 0.2f * (float)teamIndex) * height
+			(0.45f + 0.1f * (float)teamIndex) * height
 		);
 
 		GetGroup(i)->CommandMoveToInstant(pos, 0.0f);
@@ -1039,7 +1039,7 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
 	ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
 	ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
-	ImGui::SliderFloat("fighting", &unit->fighting, 0.0f, 1.0f);
+	ImGui::SliderFloat("fighting", &unit->attacking, 0.0f, 1.0f);
 	ImGui::SliderFloat("footing", &unit->footing, 0.0f, 1.0f);
 }
 
