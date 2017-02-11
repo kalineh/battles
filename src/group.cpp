@@ -79,8 +79,9 @@ void Group::Update()
 
 	float movementSpeed = CalcUnitSlowestMovement();
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
+	float combatFactor = stb_clamp(combatRatio, 0.0f, 1.0f);
 
-	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.01f;
+	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.01f + movementSpeed * combatFactor * 0.20f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
 
 	// pull group toward centroid
@@ -218,6 +219,7 @@ void Group::UpdateFormation()
 		UnitIndex unitIndex = slots[i];
 
 		// TODO: how are we getting invalid here?
+		// if sorting fails and there are NaN, invalid slot arranging occurs
 		assert(unitIndex != InvalidUnitIndex);
 
 		Unit* unit = units + unitIndex;
@@ -235,6 +237,25 @@ void Group::UpdateFormation()
 	}
 
 	disarrayRatio = disarray / fmaxf((float)disarrayCount, 1.0f);
+
+	float combat = 0.0f;
+	int combatCount = 0;
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex unitIndex = slots[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		combat += unit->attacking;
+		combatCount += 1;
+	}
+
+	combatRatio = combat / fmaxf((float)combatCount, 1.0f);
 
 	const float dt = 1.0f / 60.0f;
 

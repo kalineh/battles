@@ -238,8 +238,6 @@ void Unit::ResolveCombat(Unit* unit)
 	unit->footing = fmaxf(unit->footing - v2lensafe(push) * 0.35f * dt, 0.0f);
 	
 	// morale impact, debuffs, etc
-	// behind = more dmg
-	// reduce vel
 	// wraparound group
 	// retreat
 }
