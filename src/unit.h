@@ -56,6 +56,7 @@ struct Unit
 	float resolve;
 	float attacking;
 	float footing;
+	float charging;
 
 	v2 targetPos;
 	float targetAngle;

@@ -68,12 +68,12 @@ static UnitCombat unitCombatTest = {
 
 static UnitCombat unitCombatLight = {
 	5.0f,
-	0.5f,
+	1.0f,
 };
 
 static UnitCombat unitCombatHeavy = {
 	2.5f,
-	1.0f,
+	2.0f,
 };
 
 Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual, UnitCombat* combat)
@@ -123,7 +123,7 @@ void Unit::Update()
 
 	const float rotationRate = 2.0f;
 	const float frictionForce = 0.25f;
-	const float attackingForce = 2.5f;
+	const float attackingForce = 2.0f;
 	const float brakeForce = 2.5f;
 	const float arriveRange = 0.5f * radius;
 	const float overshootForce = 0.1f;
@@ -173,10 +173,18 @@ void Unit::Update()
 	vel -= movingDir * data->accel * dt * targetApproachBrake * brakeForce * arriveFactor;
 	vel -= vel * stb_min(frictionForce * data->mass * dt, 1.0f);
 	vel -= vel * stb_min(attackingForce * data->mass * dt * attacking, 1.0f);
+
+	if (vel.x > -0.001f && vel.x < -0.001f) vel.x = 0.0f;
+	if (vel.y > -0.001f && vel.y < -0.001f) vel.y = 0.0f;
+
 	pos += vel * dt;
 
 	attacking = fmaxf(attacking - 0.2f * dt, 0.0f);
 	footing = fminf(footing + 0.2f * dt, 1.0f);
+
+	float charge = fmaxf(v2lensafe(vel) - 7.0f, 0.0f);
+	charging = fminf(charging + charge * 0.1f * dt, 1.0f);
+	charging = fmaxf(charging - 0.1f * dt, 0.0f);
 }
 
 bool Unit::IsValid()
@@ -195,9 +203,9 @@ bool Unit::IsAlive()
 void Unit::ResolveTouch(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
-	const float ejectRate = 100.0f;
-	const float pushRate = 1.5f;
-	const float massExponent = 1.25f;
+	const float ejectRate = 150.0f;
+	const float pushRate = 5.0f;
+	const float massExponent = 1.15f;
 
 	v2 dir;
 	float len;
@@ -228,9 +236,13 @@ void Unit::ResolveCombat(Unit* unit)
 	const v2 fwd = v2fromangle(angle);
 	const float d = v2dot(dir, fwd);
 	const float meleeFacing = fmaxf(d, 0.0f);
+	const float chargeBonusDamage = v2lensafe(vel) * 2.5f;
+	const float lostFootingBonusDamageFactor = 1.0f - fmaxf(1.0f - unit->footing, 0.0f) * 0.25f;
 
 	float damage = combat->attack;
 	damage *= meleeFacing;
+	damage += chargeBonusDamage;
+	damage *= lostFootingBonusDamageFactor;
 	damage = fmaxf(damage - unit->combat->defense, 0.0f);
 	unit->health = fmaxf(unit->health - damage * dt, 0.0f);
 	attacking = fminf(attacking + damage * 0.35f * dt, 1.0f);

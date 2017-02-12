@@ -21,8 +21,8 @@ void Game::Init(void* awindow)
 	const int TeamCount = 2;
 	const int GroupCountMin = 2;
 	const int GroupCountMax = 3;
-	const int GroupUnitCountMin = 4;
-	const int GroupUnitCountMax = 5;
+	const int GroupUnitCountMin = 20;
+	const int GroupUnitCountMax = 21;
 
 	assert(UnitCount > (TeamCount * GroupCountMax * GroupUnitCountMax));
 
@@ -67,6 +67,7 @@ void Game::Init(void* awindow)
 	stb_arr_setlen(groups, groupCountPerTeam * TeamCount);
 
 	const char* groupTypes[] = {
+		"Light",
 		"Heavy",
 	};
 
@@ -1007,6 +1008,7 @@ void Game::RenderImGuiGroup(GroupIndex groupIndex)
 	ImGui::LabelText("Radius", "%.2f", group->CalcUnitLargestRadius());
 	ImGui::LabelText("Disarray", "%.2f", group->disarrayRatio);
 	ImGui::LabelText("Displacement", "%.2f,%.2f", group->displacementAggregate.x, group->displacementAggregate.y);
+	ImGui::LabelText("Combat", "%.2f", group->combatRatio);
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandMoveToInstant(group->commandPos, group->commandAngle);
@@ -1061,8 +1063,9 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
 	ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
 	ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
-	ImGui::SliderFloat("fighting", &unit->attacking, 0.0f, 1.0f);
+	ImGui::SliderFloat("attacking", &unit->attacking, 0.0f, 1.0f);
 	ImGui::SliderFloat("footing", &unit->footing, 0.0f, 1.0f);
+	ImGui::SliderFloat("charging", &unit->charging, 0.0f, 1.0f);
 }
 
 Team* Game::GetTeam(TeamIndex teamIndex)

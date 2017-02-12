@@ -1,12 +1,11 @@
 
-- better combat movement handling
-- group movement improve when fighting
-- unit footing value
-- unit charge bonus
+- fix rear group members pushing front lines too much
 - improve unit movement when most enemy units dead
 - unit morale/leadership handling + flee
 - shift-click command queue
 - drag-draw movement paths
+- pause time stepping
+- debug watch single unit
 - extra formations
 - better small unit movement
 - improve displacement on collisions
