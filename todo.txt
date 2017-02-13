@@ -1,5 +1,4 @@
 
-- charge/shot fight mechanic
 - improve unit movement when most enemy units dead
 - unit morale/leadership handling + flee
 - shift-click command queue
@@ -17,3 +16,4 @@
 - camera / zoom
 - voxel render mode
 - improve rear units pushing
+- improve group rotating when fighting

@@ -68,8 +68,13 @@ void Group::Update()
 		commandPos = targetGroup->groupPos;
 		v2 ofs = commandPos - groupPos;
 		float len = v2lensafe(ofs);
-		if (len > 0.2f)
-			commandAngle = v2toangle(ofs) + HALFPI;
+		if (len > 2.5f)
+		{
+			const float src = commandAngle;
+			const float dst = v2toangle(ofs) + HALFPI;
+			const float t = fmaxf(1.0f - combatRatio * 5.0f, 0.0f) * 1.0f * dt;
+			commandAngle = stb_lerp(t, src, dst);
+		}
 	}
 
 	v2 centroid = CalcCentroid();
@@ -334,7 +339,7 @@ void Group::CommandMoveAttack(GroupIndex group)
 	commandPos = targetGroup->groupPos;
 	v2 ofs = commandPos - groupPos;
 	float len = v2lensafe(ofs);
-	if (len > 2.5f)
+	if (len > 5.0f)
 		commandAngle = v2toangle(ofs) + HALFPI;
 }
 

@@ -67,7 +67,7 @@ static UnitCombat unitCombatTest = {
 };
 
 static UnitCombat unitCombatLight = {
-	10.0f,
+	3.5f,
 	1.0f,
 };
 
