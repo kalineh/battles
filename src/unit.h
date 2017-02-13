@@ -55,6 +55,7 @@ struct Unit
 	float fatigue;
 	float resolve;
 	float attacking;
+	float reload;
 	float footing;
 	float charging;
 

@@ -17,6 +17,8 @@
 #define TWOPI 6.28318530717958647692f
 #define HALFPI 1.57079632679489661923132f
 
+#define stepf(f) (f < 1.0f ? 0.0f : 1.0f)
+
 #define stb_arr_find_fastdelete(a,v)  \
    do { for (int __index = 0; __index < stb_arr_len(a); ++__index) if (a[__index] == v) { stb_arr_fastdelete(a, __index); break; } } while (false)
 

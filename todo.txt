@@ -1,5 +1,5 @@
 
-- fix rear group members pushing front lines too much
+- charge/shot fight mechanic
 - improve unit movement when most enemy units dead
 - unit morale/leadership handling + flee
 - shift-click command queue
@@ -16,4 +16,4 @@
 - optimize quad render
 - camera / zoom
 - voxel render mode
-
+- improve rear units pushing

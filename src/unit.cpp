@@ -63,17 +63,17 @@ static UnitCombat unitCombatNull = {
 
 static UnitCombat unitCombatTest = {
 	1.0f,
-	0.0f,
+	0.5f,
 };
 
 static UnitCombat unitCombatLight = {
-	5.0f,
+	10.0f,
 	1.0f,
 };
 
 static UnitCombat unitCombatHeavy = {
+	10.0f,
 	2.5f,
-	2.0f,
 };
 
 Unit Unit::CreateUnit(UnitData* data, UnitVisual* visual, UnitCombat* combat)
@@ -181,6 +181,7 @@ void Unit::Update()
 
 	attacking = fmaxf(attacking - 0.2f * dt, 0.0f);
 	footing = fminf(footing + 0.2f * dt, 1.0f);
+	reload = fminf(reload + 0.5f * dt, 1.0f);
 
 	float charge = fmaxf(v2lensafe(vel) - 7.0f, 0.0f);
 	charging = fminf(charging + charge * 0.1f * dt, 1.0f);
@@ -236,16 +237,22 @@ void Unit::ResolveCombat(Unit* unit)
 	const v2 fwd = v2fromangle(angle);
 	const float d = v2dot(dir, fwd);
 	const float meleeFacing = fmaxf(d, 0.0f);
-	const float chargeBonusDamage = v2lensafe(vel) * 2.5f;
+	const float chargeBonusDamage = charging * 0.5f * unit->data->mass;
 	const float lostFootingBonusDamageFactor = 1.0f - fmaxf(1.0f - unit->footing, 0.0f) * 0.25f;
+	const float attackSpeed = 1.0f;
 
 	float damage = combat->attack;
 	damage *= meleeFacing;
 	damage += chargeBonusDamage;
 	damage *= lostFootingBonusDamageFactor;
 	damage = fmaxf(damage - unit->combat->defense, 0.0f);
-	unit->health = fmaxf(unit->health - damage * dt, 0.0f);
-	attacking = fminf(attacking + damage * 0.35f * dt, 1.0f);
+
+	damage *= stepf(reload);
+	reload -= stepf(reload);
+
+	unit->health = fmaxf(unit->health - damage, 0.0f);
+
+	attacking = fminf(attacking + 0.35f * dt, 1.0f);
 	const v2 push = unit->vel * 5.0f * (1.0f - attacking) * footing * dt;
 	unit->vel -= push;
 	targetPos = v2moveto(targetPos, unit->pos, 15.0f * dt);

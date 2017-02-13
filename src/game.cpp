@@ -1066,6 +1066,7 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("attacking", &unit->attacking, 0.0f, 1.0f);
 	ImGui::SliderFloat("footing", &unit->footing, 0.0f, 1.0f);
 	ImGui::SliderFloat("charging", &unit->charging, 0.0f, 1.0f);
+	ImGui::SliderFloat("reload", &unit->reload, 0.0f, 1.0f);
 }
 
 Team* Game::GetTeam(TeamIndex teamIndex)
