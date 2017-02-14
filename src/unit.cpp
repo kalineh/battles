@@ -123,7 +123,7 @@ void Unit::Update()
 
 	const float rotationRate = 2.0f;
 	const float frictionForce = 0.25f;
-	const float attackingForce = 2.0f;
+	const float attackingDamping = 0.75f;
 	const float brakeForce = 2.5f;
 	const float arriveRange = 0.5f * radius;
 	const float overshootForce = 0.1f;
@@ -168,11 +168,10 @@ void Unit::Update()
 
 	targetApproach = fminf(targetApproach, 1.0f);
 
-	vel += targetDir * data->accel * dt * arriveFactor;
-	vel += facingDir * data->accel * dt * targetApproach * travelFactor;
+	vel += targetDir * data->accel * dt * arriveFactor * (1.0f - attacking) * attackingDamping;
+	vel += facingDir * data->accel * dt * targetApproach * travelFactor * (1.0f - attacking) * attackingDamping;
 	vel -= movingDir * data->accel * dt * targetApproachBrake * brakeForce * arriveFactor;
 	vel -= vel * stb_min(frictionForce * data->mass * dt, 1.0f);
-	vel -= vel * stb_min(attackingForce * data->mass * dt * attacking, 1.0f);
 
 	if (vel.x > -0.001f && vel.x < -0.001f) vel.x = 0.0f;
 	if (vel.y > -0.001f && vel.y < -0.001f) vel.y = 0.0f;
@@ -204,9 +203,9 @@ bool Unit::IsAlive()
 void Unit::ResolveTouch(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
-	const float ejectRate = 150.0f;
-	const float pushRate = 5.0f;
-	const float massExponent = 1.15f;
+	const float ejectRate = 120.0f;
+	const float pushRate = 10.0f;
+	const float massExponent = 0.85f;
 
 	v2 dir;
 	float len;
@@ -253,12 +252,18 @@ void Unit::ResolveCombat(Unit* unit)
 	unit->health = fmaxf(unit->health - damage, 0.0f);
 
 	attacking = fminf(attacking + 0.35f * dt, 1.0f);
-	const v2 push = unit->vel * 5.0f * (1.0f - attacking) * footing * dt;
-	unit->vel -= push;
-	targetPos = v2moveto(targetPos, unit->pos, 15.0f * dt);
-	unit->footing = fmaxf(unit->footing - v2lensafe(push) * 0.35f * dt, 0.0f);
-	
-	// morale impact, debuffs, etc
-	// wraparound group
-	// retreat
+
+	unit->footing = fmaxf(unit->footing - data->mass * 0.1f * dt, 0.0f);
+
+	if (d > 0.5f)
+	{
+		vel += ofs * -2.5f * dt;
+		vel = vel * (1.0f - 1.5f * dt);
+	}
+	else
+	{
+		vel += ofs * -1.5f * dt;
+	}
+
+	targetPos = v2moveto(targetPos, unit->pos, 0.1f * dt);
 }
