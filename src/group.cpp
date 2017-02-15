@@ -324,6 +324,7 @@ void Group::UpdateRout()
 	const float dt = 1.0f / 60.0f;
 
 	float routFactor = 0.0f;
+	float resolveFactor = 0.0f;
 	int routCount = 0;
 
 	for (int i = 0; i < stb_arr_len(slots); ++i)
@@ -337,11 +338,15 @@ void Group::UpdateRout()
 			continue;
 
 		routFactor += unit->scared;
+		resolveFactor += unit->data->resolve;
 		routCount += 1.0f;
 	}
 
 	if (routCount > 0.0f)
+	{
+		routFactor /= resolveFactor / routCount;
 		routFactor /= routCount;
+	}
 
 	routRatio = fmaxf(routRatio - 0.1f * dt, 0.0f);
 	routRatio = fminf(routRatio + 0.5f * routFactor * dt, 1.0f);

@@ -11,7 +11,7 @@ static UnitData unitDataTest = {
 	250.0f, // accel
 	10.0f, // armor
 	100.0f, // health
-	100.0f, // resolve
+	0.5f, // resolve
 	false, // flyer
 };
 
@@ -22,7 +22,7 @@ static UnitData unitDataLight = {
 	125.0f, // accel
 	10.0f, // armor
 	100.0f, // health
-	100.0f, // resolve
+	0.5f, // resolve
 	false, // flyer
 };
 
@@ -33,7 +33,7 @@ static UnitData unitDataHeavy = {
 	200.0f, // accel
 	10.0f, // armor
 	100.0f, // health
-	100.0f, // resolve
+	0.5f, // resolve
 	false, // flyer
 };
 
@@ -285,7 +285,7 @@ void Unit::ResolveTouchHostile(Unit* unit)
 	reload -= stepf(reload);
 
 	unit->health = fmaxf(unit->health - damage, 0.0f);
-	unit->scared = fmaxf(unit->scared + damage * 0.1f * (1.0f - (unit->health / unit->data->health)), 0.0f);
+	unit->scared = fminf(unit->scared + damage * 0.05f * (1.0f - (unit->health / unit->data->health)), 1.0f);
 
 	attacking = fminf(attacking + 0.65f * dt, 1.0f);
 
