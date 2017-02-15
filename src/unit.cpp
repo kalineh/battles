@@ -209,9 +209,9 @@ void Unit::ResolveTouchFriendly(Unit* unit)
 	DEBUG_BREAK_IF(debug);
 
 	const float dt = 1.0f / 60.0f;
-	const float ejectRate = 20.0f;
-	const float pushRate = 10.0f;
-	const float massExponent = 1.5f;
+	const float ejectRate = 10.0f;
+	const float pushRate = 6.0f;
+	const float massExponent = 0.8f;
 
 	v2 dir;
 	float len;
@@ -221,7 +221,7 @@ void Unit::ResolveTouchFriendly(Unit* unit)
 
 	const float rads = unit->data->radius + data->radius;
 	const float intersect = -(len - rads);
-	const float massRatio = powf(data->mass / (data->mass + unit->data->mass), massExponent);
+	const float massRatio = powf(data->mass / unit->data->mass, massExponent);
 
 	const v2 eject = dir * intersect * dt * ejectRate * massRatio;
 
@@ -243,9 +243,9 @@ void Unit::ResolveTouchHostile(Unit* unit)
 	DEBUG_BREAK_IF(debug);
 
 	const float dt = 1.0f / 60.0f;
-	const float ejectRate = 25.0f;
-	const float pushRate = 10.0f;
-	const float massExponent = 1.25f;
+	const float ejectRate = 15.0f;
+	const float pushRate = 5.0f;
+	const float massExponent = 0.75f;
 
 	v2 dir;
 	float len;
@@ -254,7 +254,7 @@ void Unit::ResolveTouchHostile(Unit* unit)
 
 	const float rads = unit->data->radius + data->radius;
 	const float intersect = -(len - rads);
-	const float massRatio = powf(data->mass / (data->mass + unit->data->mass), massExponent);
+	const float massRatio = powf(data->mass / unit->data->mass, massExponent);
 
 	const v2 eject = dir * intersect * dt * ejectRate * massRatio;
 
