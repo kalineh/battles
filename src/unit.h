@@ -58,6 +58,7 @@ struct Unit
 	float reload;
 	float footing;
 	float charging;
+	float bunching;
 
 	v2 targetPos;
 	float targetAngle;

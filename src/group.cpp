@@ -37,6 +37,7 @@ void Group::Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits)
 	commandPos = v2zero();
 	commandAngle = 0.0f;
 	commandTargetGroup = InvalidGroupIndex;
+	bunchedRatio = 0.0f;
 	combatRatio = 0.0f;
 	disarrayRatio = 0.0f;
 	displacementAggregate = v2zero();
@@ -60,12 +61,17 @@ void Group::Release()
 void Group::Update()
 {
 	const float dt = 1.0f / 60.0f;
+	v2 centroid = CalcCentroid();
 
 	if (commandType == CommandType_Attack)
 	{
 		Group* targetGroup = groups + commandTargetGroup;
 
-		commandPos = targetGroup->groupPos;
+		const v2 commandSrc = centroid;
+		const v2 commandDst = targetGroup->groupPos;
+		const float commandLerp = stb_clamp(0.25f + combatRatio * -0.2f + bunchedRatio * -0.3f, 0.0f, 1.0f);
+		commandPos = v2lerp(commandSrc, commandDst, commandLerp);
+
 		v2 ofs = commandPos - groupPos;
 		float len = v2lensafe(ofs);
 		if (len > 2.5f)
@@ -77,7 +83,7 @@ void Group::Update()
 		}
 	}
 
-	v2 centroid = CalcCentroid();
+	v2 toRetreat = groupPos - commandPos;
 	v2 toCentroid = centroid - groupPos;
 	v2 toCommand = commandPos - groupPos;
 	v2 toCommandDir = v2unitsafe(toCommand);
@@ -86,10 +92,9 @@ void Group::Update()
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 	float combatFactor = stb_clamp(combatRatio, 0.0f, 1.0f);
 
-	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.10f;
+	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.08f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
 
-	// pull group toward centroid
 	groupPos += toCentroid * dt * toCentroidSpeed;
 	groupPos += toCommandDir * dt * toCommandSpeed;
 
@@ -242,6 +247,25 @@ void Group::UpdateFormation()
 	}
 
 	disarrayRatio = disarray / fmaxf((float)disarrayCount, 1.0f);
+
+	float bunched = 0.0f;
+	int bunchedCount = 0;
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex unitIndex = slots[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		bunched += unit->bunching;
+		bunchedCount += 1;
+	}
+
+	bunchedRatio = bunched / fmaxf((float)bunchedCount, 1.0f);
 
 	float combat = 0.0f;
 	int combatCount = 0;

@@ -182,9 +182,11 @@ void Unit::Update()
 	footing = fminf(footing + 0.2f * dt, 1.0f);
 	reload = fminf(reload + 0.5f * dt, 1.0f);
 
-	float charge = fmaxf(v2lensafe(vel) - 7.0f, 0.0f);
+	float charge = fmaxf(v2lensafe(vel) - 5.0f, 0.0f);
 	charging = fminf(charging + charge * 0.1f * dt, 1.0f);
 	charging = fmaxf(charging - 0.1f * dt, 0.0f);
+
+	bunching = fmaxf(bunching - 0.2f * dt, 0.0f);
 }
 
 bool Unit::IsValid()
@@ -224,16 +226,19 @@ void Unit::ResolveTouchFriendly(Unit* unit)
 
 	const v2 transfer = vel * dt * pushRate * massRatio;
 	const v2 transferAligned = v2projsafe(transfer, dir);
+	const v2 transferActual = transferAligned * (1.0f - unit->attacking);
 
-	unit->vel += transferAligned;
+	unit->vel += transferActual;
 	vel -= transferAligned;
+
+	bunching = fminf(bunching + 0.5f * intersect * dt, 1.0f);
 }
 
 void Unit::ResolveTouchHostile(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
 	const float ejectRate = 25.0f;
-	const float pushRate = 5.0f;
+	const float pushRate = 10.0f;
 	const float massExponent = 1.25f;
 
 	v2 dir;
@@ -256,7 +261,10 @@ void Unit::ResolveTouchHostile(Unit* unit)
 	unit->vel += transferAligned;
 	vel -= transferAligned;
 
-	unit->footing = fmaxf(footing - v2lensafe(transferAligned) * charging * 0.25f * dt, 0.0f);
+	const float footingLoss = v2lensafe(transferAligned) * charging * 5.0f * dt * massRatio;
+
+	unit->footing = fmaxf(unit->footing - footingLoss, 0.0f);
+	charging = fmaxf(charging - footingLoss, 0.0f);
 
 	const v2 fwd = v2fromangle(angle);
 	const float d = v2dot(dir, fwd);
@@ -272,7 +280,7 @@ void Unit::ResolveTouchHostile(Unit* unit)
 
 	unit->health = fmaxf(unit->health - damage, 0.0f);
 
-	attacking = fminf(attacking + 0.35f * dt, 1.0f);
+	attacking = fminf(attacking + 0.65f * dt, 1.0f);
 
 	targetPos = v2moveto(targetPos, unit->pos, 0.1f * dt);
 }

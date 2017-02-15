@@ -1,6 +1,7 @@
 
 - improve unit movement when most enemy units dead
 - unit morale/leadership handling + flee
+- unit retreat/flee factor
 - shift-click command queue
 - drag-draw movement paths
 - pause time stepping

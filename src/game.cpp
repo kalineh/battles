@@ -1006,6 +1006,7 @@ void Game::RenderImGuiGroup(GroupIndex groupIndex)
 	ImGui::LabelText("Disarray", "%.2f", group->disarrayRatio);
 	ImGui::LabelText("Displacement", "%.2f,%.2f", group->displacementAggregate.x, group->displacementAggregate.y);
 	ImGui::LabelText("Combat", "%.2f", group->combatRatio);
+	ImGui::LabelText("Bunched", "%.2f", group->bunchedRatio);
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandMoveToInstant(group->commandPos, group->commandAngle);
@@ -1064,6 +1065,7 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("footing", &unit->footing, 0.0f, 1.0f);
 	ImGui::SliderFloat("charging", &unit->charging, 0.0f, 1.0f);
 	ImGui::SliderFloat("reload", &unit->reload, 0.0f, 1.0f);
+	ImGui::SliderFloat("bunching", &unit->bunching, 0.0f, 1.0f);
 }
 
 Team* Game::GetTeam(TeamIndex teamIndex)

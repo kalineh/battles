@@ -28,6 +28,12 @@ v4rgb1(real r, real g, real b)
 }
 
 static inline v2
+v2lerp(v2 src, v2 dst, float t)
+{
+	return v2new(src.x + t * (dst.x - src.x), src.y + t * (dst.y - src.y));
+}
+
+static inline v2
 v2moveto(v2 src, v2 dst, float d)
 {
 	v2 ofs = dst - src;
