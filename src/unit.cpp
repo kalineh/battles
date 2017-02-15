@@ -200,12 +200,12 @@ bool Unit::IsAlive()
 	return true;
 }
 
-void Unit::ResolveTouch(Unit* unit)
+void Unit::ResolveTouchFriendly(Unit* unit)
 {
 	const float dt = 1.0f / 60.0f;
-	const float ejectRate = 120.0f;
+	const float ejectRate = 20.0f;
 	const float pushRate = 10.0f;
-	const float massExponent = 0.85f;
+	const float massExponent = 1.5f;
 
 	v2 dir;
 	float len;
@@ -215,35 +215,56 @@ void Unit::ResolveTouch(Unit* unit)
 
 	const float rads = unit->data->radius + data->radius;
 	const float intersect = -(len - rads);
-	const float ratio = powf(data->mass / (data->mass + unit->data->mass), massExponent);
+	const float massRatio = powf(data->mass / (data->mass + unit->data->mass), massExponent);
 
-	unit->vel += dir * intersect * dt * ejectRate * ratio;
+	const v2 eject = dir * intersect * dt * ejectRate * massRatio;
 
-	const v2 transfer = vel * dt * pushRate * ratio;
+	unit->vel += eject;
+	vel -= eject;
+
+	const v2 transfer = vel * dt * pushRate * massRatio;
+	const v2 transferAligned = v2projsafe(transfer, dir);
+
+	unit->vel += transferAligned;
+	vel -= transferAligned;
+}
+
+void Unit::ResolveTouchHostile(Unit* unit)
+{
+	const float dt = 1.0f / 60.0f;
+	const float ejectRate = 25.0f;
+	const float pushRate = 5.0f;
+	const float massExponent = 1.25f;
+
+	v2 dir;
+	float len;
+	const v2 ofs = unit->pos - pos;
+	v2unitlensafe(ofs, &dir, &len);
+
+	const float rads = unit->data->radius + data->radius;
+	const float intersect = -(len - rads);
+	const float massRatio = powf(data->mass / (data->mass + unit->data->mass), massExponent);
+
+	const v2 eject = dir * intersect * dt * ejectRate * massRatio;
+
+	unit->vel += eject;
+	vel -= eject;
+
+	const v2 transfer = vel * dt * pushRate * massRatio;
 	const v2 transferAligned = v2projsafe(transfer, dir);
 
 	unit->vel += transferAligned;
 	vel -= transferAligned;
 
-	unit->footing = fmaxf(footing - v2lensafe(transfer) * 0.15f * dt, 0.0f);
-}
+	unit->footing = fmaxf(footing - v2lensafe(transferAligned) * charging * 0.25f * dt, 0.0f);
 
-void Unit::ResolveCombat(Unit* unit)
-{
-	const float dt = 1.0f / 60.0f;
-	const v2 ofs = unit->pos - pos;
-	const v2 dir = v2unitsafe(ofs);
 	const v2 fwd = v2fromangle(angle);
 	const float d = v2dot(dir, fwd);
-	const float meleeFacing = fmaxf(d, 0.0f);
-	const float chargeBonusDamage = charging * 0.5f * unit->data->mass;
-	const float lostFootingBonusDamageFactor = 1.0f - fmaxf(1.0f - unit->footing, 0.0f) * 0.25f;
-	const float attackSpeed = 1.0f;
+	const float footingBonus = 1.0f - fmaxf(1.0f - unit->footing, 0.0f) * 0.25f;
 
 	float damage = combat->attack;
-	damage *= meleeFacing;
-	damage += chargeBonusDamage;
-	damage *= lostFootingBonusDamageFactor;
+	damage *= fmaxf(d, 0.0f);
+	damage *= footingBonus;
 	damage = fmaxf(damage - unit->combat->defense, 0.0f);
 
 	damage *= stepf(reload);
@@ -252,18 +273,6 @@ void Unit::ResolveCombat(Unit* unit)
 	unit->health = fmaxf(unit->health - damage, 0.0f);
 
 	attacking = fminf(attacking + 0.35f * dt, 1.0f);
-
-	unit->footing = fmaxf(unit->footing - data->mass * 0.1f * dt, 0.0f);
-
-	if (d > 0.5f)
-	{
-		vel += ofs * -2.5f * dt;
-		vel = vel * (1.0f - 1.5f * dt);
-	}
-	else
-	{
-		vel += ofs * -1.5f * dt;
-	}
 
 	targetPos = v2moveto(targetPos, unit->pos, 0.1f * dt);
 }

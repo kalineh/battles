@@ -86,7 +86,7 @@ void Group::Update()
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 	float combatFactor = stb_clamp(combatRatio, 0.0f, 1.0f);
 
-	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.01f + movementSpeed * combatFactor * 0.50f;
+	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.10f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
 
 	// pull group toward centroid

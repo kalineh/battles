@@ -36,8 +36,8 @@ struct Unit
 	bool IsValid();
 	bool IsAlive();
 
-	void ResolveTouch(Unit* unit);
-	void ResolveCombat(Unit* unit);
+	void ResolveTouchFriendly(Unit* unit);
+	void ResolveTouchHostile(Unit* unit);
 
 	const UnitData* data;
 	const UnitVisual* visual;

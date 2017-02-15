@@ -188,14 +188,11 @@ void Game::Update()
 			if (touchingUnitIndex != InvalidUnitIndex)
 			{
 				Unit* other = GetUnit(touchingUnitIndex);
-				unit->ResolveTouch(other);
-				if (unit->team != other->team)
-				{
-					unit->ResolveCombat(other);
 
-					// only fight one unit at a time
-					break;
-				}
+				if (unit->team == other->team)
+					unit->ResolveTouchFriendly(other);
+				else
+					unit->ResolveTouchHostile(other);
 			}
 		}
 	}
