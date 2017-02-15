@@ -1021,6 +1021,7 @@ void Game::RenderImGuiGroup(GroupIndex groupIndex)
 	ImGui::LabelText("Displacement", "%.2f,%.2f", group->displacementAggregate.x, group->displacementAggregate.y);
 	ImGui::LabelText("Combat", "%.2f", group->combatRatio);
 	ImGui::LabelText("Bunched", "%.2f", group->bunchedRatio);
+	ImGui::LabelText("Rout", "%.2f", group->routRatio);
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandMoveToInstant(group->commandPos, group->commandAngle);
@@ -1042,7 +1043,6 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 		ImGui::LabelText("Accel", "%.2f", unit->data->accel);
 		ImGui::LabelText("Armor", "%.2f", unit->data->armor);
 		ImGui::LabelText("Health", "%.2f", unit->data->health);
-		ImGui::LabelText("Fatigue", "%.2f", unit->data->fatigue);
 		ImGui::LabelText("Resolve", "%.2f", unit->data->resolve);
 		ImGui::LabelText("Flyer", "%s", unit->data->flyer ? "true" : "false");
 		ImGui::TreePop();
@@ -1073,7 +1073,7 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat2("vel", &unit->vel.x, 0.0f, 100.0f);
 
 	ImGui::SliderFloat("health", &unit->health, 0.0f, unit->data->health);
-	ImGui::SliderFloat("fatigue", &unit->fatigue, 0.0f, unit->data->fatigue);
+	ImGui::SliderFloat("scared", &unit->scared, 0.0f, 1.0f);
 	ImGui::SliderFloat("resolve", &unit->resolve, 0.0f, unit->data->resolve);
 	ImGui::SliderFloat("attacking", &unit->attacking, 0.0f, 1.0f);
 	ImGui::SliderFloat("footing", &unit->footing, 0.0f, 1.0f);

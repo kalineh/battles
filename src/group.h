@@ -23,6 +23,7 @@ struct Group
 
 	void Update();
 	void UpdateFormation();
+	void UpdateRout();
 
 	void AddUnit(UnitIndex index);
 	void RemoveUnit(UnitIndex index);
@@ -78,4 +79,5 @@ struct Group
 	float disarrayRatio;
 	float formationRatio;
 	float formationLoose;
+	float routRatio;
 };

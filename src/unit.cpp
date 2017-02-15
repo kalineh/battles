@@ -11,7 +11,6 @@ static UnitData unitDataTest = {
 	250.0f, // accel
 	10.0f, // armor
 	100.0f, // health
-	100.0f, // fatigue
 	100.0f, // resolve
 	false, // flyer
 };
@@ -23,7 +22,6 @@ static UnitData unitDataLight = {
 	125.0f, // accel
 	10.0f, // armor
 	100.0f, // health
-	100.0f, // fatigue
 	100.0f, // resolve
 	false, // flyer
 };
@@ -35,7 +33,6 @@ static UnitData unitDataHeavy = {
 	200.0f, // accel
 	10.0f, // armor
 	100.0f, // health
-	100.0f, // fatigue
 	100.0f, // resolve
 	false, // flyer
 };
@@ -189,6 +186,8 @@ void Unit::Update()
 	charging = fmaxf(charging - 0.1f * dt, 0.0f);
 
 	bunching = fmaxf(bunching - 0.1f * dt, 0.0f);
+
+	scared = fmaxf(scared - 0.01f * dt, 0.0f);
 }
 
 bool Unit::IsValid()
@@ -286,6 +285,7 @@ void Unit::ResolveTouchHostile(Unit* unit)
 	reload -= stepf(reload);
 
 	unit->health = fmaxf(unit->health - damage, 0.0f);
+	unit->scared = fmaxf(unit->scared + damage * 0.1f * (1.0f - (unit->health / unit->data->health)), 0.0f);
 
 	attacking = fminf(attacking + 0.65f * dt, 1.0f);
 

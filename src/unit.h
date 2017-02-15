@@ -9,7 +9,6 @@ struct UnitData
 	float accel;
 	float armor;
 	float health;
-	float fatigue;
 	float resolve;
 	bool flyer;
 };
@@ -54,7 +53,7 @@ struct Unit
 	v2 vel;
 
 	float health;
-	float fatigue;
+	float scared;
 	float resolve;
 	float attacking;
 	float reload;

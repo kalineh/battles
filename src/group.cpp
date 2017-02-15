@@ -83,7 +83,7 @@ void Group::Update()
 		}
 	}
 
-	v2 toRetreat = groupPos - commandPos;
+	v2 toRetreat = v2unitsafe(groupPos - commandPos);
 	v2 toCentroid = centroid - groupPos;
 	v2 toCommand = commandPos - groupPos;
 	v2 toCommandDir = v2unitsafe(toCommand);
@@ -91,17 +91,21 @@ void Group::Update()
 	float movementSpeed = CalcUnitSlowestMovement();
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 	float combatFactor = stb_clamp(combatRatio, 0.0f, 1.0f);
+	float routFactor = stb_clamp(routRatio - 0.8f, 0.0f, 1.0f) * 1.0f / 0.2f;
 
 	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.05f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
+	float toRetreatSpeed = movementSpeed * routFactor;
 
 	groupPos += toCentroid * dt * toCentroidSpeed;
 	groupPos += toCommandDir * dt * toCommandSpeed;
+	groupPos += toRetreat * dt * toRetreatSpeed;
 
 	assert(!isnan(groupPos.x));
 	assert(!isnan(groupPos.y));
 
 	UpdateFormation();
+	UpdateRout();
 }
 
 void Group::UpdateFormation()
@@ -313,6 +317,34 @@ void Group::UpdateFormation()
 	}
 
 	stb_arr_free(slotTargetPositions);
+}
+
+void Group::UpdateRout()
+{
+	const float dt = 1.0f / 60.0f;
+
+	float routFactor = 0.0f;
+	int routCount = 0;
+
+	for (int i = 0; i < stb_arr_len(slots); ++i)
+	{
+		UnitIndex unitIndex = slots[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		routFactor += unit->scared;
+		routCount += 1.0f;
+	}
+
+	if (routCount > 0.0f)
+		routFactor /= routCount;
+
+	routRatio = fmaxf(routRatio - 0.1f * dt, 0.0f);
+	routRatio = fminf(routRatio + 0.5f * routFactor * dt, 1.0f);
 }
 
 void Group::AddUnit(UnitIndex index)

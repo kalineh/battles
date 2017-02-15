@@ -1,14 +1,9 @@
 
-- improve unit movement when most enemy units dead
-- unit morale/leadership handling + flee
-- unit retreat/flee factor
+- unit morale
 - shift-click command queue
 - drag-draw movement paths
 - pause time stepping
-- debug watch single unit
 - extra formations
-- better small unit movement
-- improve displacement on collisions
 - group multi-select
 - group stat summary
 - better unit types
