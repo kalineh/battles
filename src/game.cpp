@@ -245,6 +245,20 @@ void Game::UpdateInput()
 		paused = !paused;
 	}
 
+	if (ImGui::IsKeyDown(SDLK_b))
+	{
+		UnitIndex* debugBreakQuery = NULL;
+		stb_arr_setsize(debugBreakQuery, 4);
+		grid->Query(&debugBreakQuery, cursorPos, cursorPos, NULL);
+		for (int i = 0; i < stb_arr_len(debugBreakQuery); ++i)
+		{
+			UnitIndex id = debugBreakQuery[i];
+			Unit* unit = GetUnit(id);
+			if (circleoverlap(cursorPos, 0.0f, unit->pos, unit->data->radius))
+				unit->debug = true;
+		}
+	}
+
 	if (ImGui::IsKeyDown(SDLK_x))
 	{
 		UnitIndex* debugKillQuery = NULL;

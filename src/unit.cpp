@@ -118,6 +118,8 @@ void Unit::AI()
 
 void Unit::Update()
 {
+	DEBUG_BREAK_IF(debug);
+
 	const float dt = 1.0f / 60.0f;
 	const float radius = data->radius;
 
@@ -139,7 +141,7 @@ void Unit::Update()
 	float arriveFactor = 1.0f - fminf(targetLen / arriveRange, 1.0f);
 	float travelFactor = 1.0f - arriveFactor;
 
-	float turnDampingFactor = fmaxf(1.0f - attacking - (1.0f - footing), 0.0f);
+	float turnDampingFactor = fmaxf(1.0f - attacking * 0.5f - (1.0f - footing) * 0.8f, 0.0f);
 
 	float targetPosAngle = v2toangle(targetDir);
 	float targetPosAngleDiff = anglediff(angle, targetPosAngle);
@@ -186,7 +188,7 @@ void Unit::Update()
 	charging = fminf(charging + charge * 0.1f * dt, 1.0f);
 	charging = fmaxf(charging - 0.1f * dt, 0.0f);
 
-	bunching = fmaxf(bunching - 0.2f * dt, 0.0f);
+	bunching = fmaxf(bunching - 0.1f * dt, 0.0f);
 }
 
 bool Unit::IsValid()
@@ -204,6 +206,8 @@ bool Unit::IsAlive()
 
 void Unit::ResolveTouchFriendly(Unit* unit)
 {
+	DEBUG_BREAK_IF(debug);
+
 	const float dt = 1.0f / 60.0f;
 	const float ejectRate = 20.0f;
 	const float pushRate = 10.0f;
@@ -231,11 +235,13 @@ void Unit::ResolveTouchFriendly(Unit* unit)
 	unit->vel += transferActual;
 	vel -= transferAligned;
 
-	bunching = fminf(bunching + 0.5f * intersect * dt, 1.0f);
+	bunching = fminf(bunching + 0.2f * intersect * dt, 1.0f);
 }
 
 void Unit::ResolveTouchHostile(Unit* unit)
 {
+	DEBUG_BREAK_IF(debug);
+
 	const float dt = 1.0f / 60.0f;
 	const float ejectRate = 25.0f;
 	const float pushRate = 10.0f;
@@ -255,7 +261,10 @@ void Unit::ResolveTouchHostile(Unit* unit)
 	unit->vel += eject;
 	vel -= eject;
 
-	const v2 transfer = vel * dt * pushRate * massRatio;
+	const v2 fwd = v2fromangle(angle);
+	const float d = v2dot(dir, fwd);
+
+	const v2 transfer = vel * dt * pushRate * massRatio * d;
 	const v2 transferAligned = v2projsafe(transfer, dir);
 
 	unit->vel += transferAligned;
@@ -266,8 +275,6 @@ void Unit::ResolveTouchHostile(Unit* unit)
 	unit->footing = fmaxf(unit->footing - footingLoss, 0.0f);
 	charging = fmaxf(charging - footingLoss, 0.0f);
 
-	const v2 fwd = v2fromangle(angle);
-	const float d = v2dot(dir, fwd);
 	const float footingBonus = 1.0f - fmaxf(1.0f - unit->footing, 0.0f) * 0.25f;
 
 	float damage = combat->attack;
@@ -282,5 +289,5 @@ void Unit::ResolveTouchHostile(Unit* unit)
 
 	attacking = fminf(attacking + 0.65f * dt, 1.0f);
 
-	targetPos = v2moveto(targetPos, unit->pos, 0.1f * dt);
+	targetPos = v2moveto(targetPos, unit->pos, fmaxf(d - 0.3f, 0.0f) * dt);
 }

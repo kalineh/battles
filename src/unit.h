@@ -43,6 +43,8 @@ struct Unit
 	const UnitVisual* visual;
 	const UnitCombat* combat;
 
+	bool debug;
+
 	int team;
 	int group;
 

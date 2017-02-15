@@ -69,7 +69,7 @@ void Group::Update()
 
 		const v2 commandSrc = centroid;
 		const v2 commandDst = targetGroup->groupPos;
-		const float commandLerp = stb_clamp(0.25f + combatRatio * -0.2f + bunchedRatio * -0.3f, 0.0f, 1.0f);
+		const float commandLerp = stb_clamp(0.25f + combatRatio * -0.1f + bunchedRatio * -0.1f, 0.0f, 1.0f);
 		commandPos = v2lerp(commandSrc, commandDst, commandLerp);
 
 		v2 ofs = commandPos - groupPos;
@@ -92,7 +92,7 @@ void Group::Update()
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 	float combatFactor = stb_clamp(combatRatio, 0.0f, 1.0f);
 
-	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.08f;
+	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.05f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
 
 	groupPos += toCentroid * dt * toCentroidSpeed;

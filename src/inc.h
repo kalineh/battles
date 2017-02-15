@@ -13,6 +13,9 @@
 #define ARRAY
 #define HASHTABLE
 
+#define DEBUG_BREAK __debugbreak
+#define DEBUG_BREAK_IF(x) if (x) { __debugbreak(); } else { }
+
 #define PI 3.1415926535897932384f
 #define TWOPI 6.28318530717958647692f
 #define HALFPI 1.57079632679489661923132f
