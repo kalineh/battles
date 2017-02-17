@@ -23,7 +23,7 @@
 #define stepf(f) (f < 1.0f ? 0.0f : 1.0f)
 
 #define stb_arr_find_fastdelete(a,v)  \
-   do { for (int __index = 0; __index < stb_arr_len(a); ++__index) if (a[__index] == v) { stb_arr_fastdelete(a, __index); break; } } while (false)
+   for (int __index = 0; __index < stb_arr_len(a); ++__index) if (a[__index] == v) { stb_arr_fastdelete(a, __index); break; }
 
 using namespace linalg;
 
@@ -33,6 +33,7 @@ struct Group;
 struct Unit;
 struct UnitData;
 struct UnitVisual;
+struct Combat;
 struct Grid;
 struct Cell;
 struct Touch;
@@ -42,8 +43,7 @@ typedef int GroupIndex;
 typedef int MemberIndex;
 typedef int UnitIndex;
 
-extern int GameFrame;
-extern float GameTime;
+extern Game game;
 
 static const int InvalidTeamIndex = -1;
 static const int InvalidGroupIndex = -1;
@@ -57,4 +57,5 @@ static const int InvalidUnitIndex = -1;
 #include "unit.h"
 #include "grid.h"
 #include "touch.h"
+#include "combat.h"
 

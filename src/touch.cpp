@@ -1,11 +1,10 @@
 
 #include "inc.h"
 
-void Touch::Init(Unit* aunits)
+void Touch::Init()
 {
-	units = aunits;
 	entries = NULL;
-	stb_arr_setlen(entries, stb_arr_len(units));
+	stb_arr_setlen(entries, stb_arr_len(game.units));
 	for (int i = 0; i < stb_arr_len(entries); ++i)
 	{
 		Entry* entry = entries + i;
@@ -34,12 +33,12 @@ int Touch::Collect(Unit* unit, UnitIndex* ARRAY candidates)
 	int found = 0;
 	v2 srcp = unit->pos;
 	float srcr = unit->data->radius;
-	UnitIndex unitIndex = (int)(unit - units);
+	UnitIndex unitIndex = (int)(unit - game.units);
 
 	for (int i = 0; i < stb_arr_len(candidates); ++i)
 	{
 		UnitIndex* candidateIndex = candidates + i;
-		Unit* candidate = units + *candidateIndex;
+		Unit* candidate = game.units + *candidateIndex;
 
 		if (unit == candidate)
 			continue;

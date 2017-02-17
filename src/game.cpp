@@ -10,9 +10,6 @@
 
 #include "inc.h"
 
-int GameFrame = 0;
-float GameTime = 0.0f;
-
 void Game::Init(void* awindow)
 {
 	printf("game: init start\n");
@@ -46,10 +43,13 @@ void Game::Init(void* awindow)
 	SDL_GetWindowSize((SDL_Window*)window, &width, &height);
 
 	grid = (Grid*)stb_malloc(this, sizeof(Grid));
-	grid->Init(units, v2inew(16, 16), v2zero(), v2new((float)width, (float)height));
+	grid->Init(v2inew(16, 16), v2zero(), v2new((float)width, (float)height));
 
 	touch = (Touch*)stb_malloc(this, sizeof(Touch));
-	touch->Init(units);
+	touch->Init();
+
+	combat = (Combat*)malloc(sizeof(Combat));
+	combat->Init();
 
 	selectedTeam = 0;
 	selectedGroup = 0;
@@ -147,8 +147,8 @@ void Game::Update()
 {
 	const float dt = 1.0f / 60.0f;
 
-	GameFrame += 1;
-	GameTime += dt;
+	frame += 1;
+	time += dt;
 
 	grid->Rebuild();
 
@@ -529,10 +529,15 @@ void Game::UpdateInput()
 void Game::Render()
 {
 	static bool guiOpen = true;
-	static NVGcontext* context = NULL;
 
+	// TODO: i dont know why context != NULL
+	static NVGcontext* context = NULL;
+	static NVGcontext* context2 = NULL;
+
+	context = context2;
 	if (context == NULL)
 		context = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+	context2 = context;
 
 	int width, height;
 	SDL_GetWindowSize((SDL_Window*)window, &width, &height);

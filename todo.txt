@@ -1,5 +1,15 @@
 
-- unit morale
+- routing:
+  - recent damage tracking
+  - charge morale hit
+  - winning/losing fight
+  - group rout state?
+  - waver state
+  - deaths + ally routs
+  - rear attacks
+  - flanks secure
+  - damage while routing => lose recovery
+
 - shift-click command queue
 - drag-draw movement paths
 - pause time stepping

@@ -23,9 +23,8 @@ void Cell::Add(UnitIndex id)
 	stb_arr_push(unitIndexes, id);
 }
 
-void Grid::Init(Unit* ARRAY aunits, v2i adim, v2 alower, v2 aupper)
+void Grid::Init(v2i adim, v2 alower, v2 aupper)
 {
-	units = aunits;
 	dim = adim;
 	lower = alower;
 	upper = aupper;
@@ -52,9 +51,9 @@ void Grid::Rebuild()
 	v2 span = upper - lower;
 	v2 cellSize = v2new(span.x / dim.x, span.y / dim.y);
 
-	for (int i = 0; i < stb_arr_len(units); ++i)
+	for (int i = 0; i < stb_arr_len(game.units); ++i)
 	{
-		Unit* unit = units + i;
+		Unit* unit = game.units + i;
 
 		if (!unit->IsValid())
 			continue;
@@ -129,7 +128,7 @@ void Grid::RenderImGui()
 						for (int i = 0; i < stb_arr_len(cell->unitIndexes); ++i)
 						{
 							UnitIndex id = cell->unitIndexes[i];
-							Unit* unit = units + id;
+							Unit* unit = game.units + id;
 
 							ImGui::LabelText("unit", "%d (%s)", id, unit->data->type);
 						}
@@ -185,7 +184,7 @@ int Grid::Query(UnitIndex** ARRAY results, v2 alower, v2 aupper, Unit* ignore)
 			for (int j = 0; j < stb_arr_len(cellUnitIndexes); ++j)
 			{
 				UnitIndex unitIndex = cellUnitIndexes[j];
-				Unit* unit = units + unitIndex;
+				Unit* unit = game.units + unitIndex;
 				if (unit == ignore)
 					continue;
 

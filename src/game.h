@@ -24,6 +24,8 @@ struct Game
 
 	void* window;
 
+	int frame;
+	float time;
 	bool paused;
 
 	Team* OWNER ARRAY teams;
@@ -31,6 +33,7 @@ struct Game
 	Unit* OWNER ARRAY units;
 	Grid* OWNER grid;
 	Touch* OWNER touch;
+	Combat* OWNER combat;
 
 	TeamIndex selectedTeam;
 	GroupIndex selectedGroup;

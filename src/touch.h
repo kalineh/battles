@@ -3,7 +3,7 @@
 
 struct Touch
 {
-	void Init(Unit* aunits);
+	void Init();
 	void Release();
 
 	void Clear();
@@ -17,6 +17,5 @@ struct Touch
 
 	Entry* GetEntry(UnitIndex id);
 
-	Unit* ARRAY units;
 	Entry* OWNER ARRAY entries;
 };

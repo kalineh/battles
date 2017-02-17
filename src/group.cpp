@@ -339,13 +339,13 @@ void Group::UpdateRout()
 
 		routFactor += unit->scared;
 		resolveFactor += unit->data->resolve;
-		routCount += 1.0f;
+		routCount++;
 	}
 
 	if (routCount > 0.0f)
 	{
-		routFactor /= resolveFactor / routCount;
-		routFactor /= routCount;
+		routFactor /= resolveFactor / (float)routCount;
+		routFactor /= (float)routCount;
 	}
 
 	routRatio = fmaxf(routRatio - 0.1f * dt, 0.0f);
@@ -494,6 +494,13 @@ MemberIndex Group::PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCoun
 
 MemberIndex Group::PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose)
 {
+	(void)pos;
+	(void)groupCenter;
+	(void)unitCount;
+	(void)unitRadius;
+	(void)ratio;
+	(void)loose;
+
 	return 0;
 }
 
@@ -525,6 +532,9 @@ v2 Group::FormationPositionBox(int index, v2 groupCenter, float groupAngle, int 
 
 v2 Group::FormationPositionWedge(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose)
 {
+	(void)groupAngle;
+	(void)ratio;
+
 	// how do we even calculate a wedge
 
 	int cellsX = stb_max((int)((float)unitCount * ratio), 1);
@@ -546,12 +556,13 @@ v2 Group::FormationPositionWedge(int index, v2 groupCenter, float groupAngle, in
 	);
 
 	return pos;
-
-	return pos;
 }
 
 v2 Group::FormationPositionCircle(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose)
 {
+	(void)groupAngle;
+	(void)ratio;
+
 	float step = TWOPI / (float)unitCount;
 	float out = loose * unitRadius * unitCount * (1.0f / PI);
 	float t = (float)index * step;
@@ -561,16 +572,37 @@ v2 Group::FormationPositionCircle(int index, v2 groupCenter, float groupAngle, i
 
 float Group::FormationAngleBox(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose)
 {
+	(void)index;
+	(void)groupCenter;
+	(void)unitCount;
+	(void)unitRadius;
+	(void)ratio;
+	(void)loose;
+
 	return anglewrap0TWOPI(groupAngle - HALFPI);
 }
 
 float Group::FormationAngleWedge(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose)
 {
+	(void)index;
+	(void)groupCenter;
+	(void)unitCount;
+	(void)unitRadius;
+	(void)ratio;
+	(void)loose;
+
 	return groupAngle;
 }
 
 float Group::FormationAngleCircle(int index, v2 groupCenter, float groupAngle, int unitCount, float unitRadius, float ratio, float loose)
 {
+	(void)index;
+	(void)groupCenter;
+	(void)unitCount;
+	(void)unitRadius;
+	(void)ratio;
+	(void)loose;
+
 	return groupAngle;
 }
 

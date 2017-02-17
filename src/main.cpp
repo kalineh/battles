@@ -43,9 +43,7 @@ int xmain(int, char**)
 
     ImVec4 clear_color = ImColor(30, 30, 30);
 
-	Game* game = (Game*)stb_malloc_global(sizeof(Game));
-
-	game->Init((void*)window);
+	game.Init((void*)window);
 
     bool done = false;
     while (!done)
@@ -60,20 +58,19 @@ int xmain(int, char**)
 
         ImGui_ImplSdlGL3_NewFrame(window);
 
-		game->Update();
+		game.Update();
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
         glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
-		game->Render();
+		game.Render();
         ImGui::Render();
         SDL_GL_SwapWindow(window);
     }
 
-	game->Release();
-	stb_free(game);
+	game.Release();
 
     ImGui_ImplSdlGL3_Shutdown();
     SDL_GL_DeleteContext(glcontext);

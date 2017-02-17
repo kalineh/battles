@@ -14,7 +14,7 @@ struct Cell
 
 struct Grid
 {
-	void Init(Unit* aunits, v2i adim, v2 alower, v2 aupper);
+	void Init(v2i adim, v2 alower, v2 aupper);
 	void Release();
 
 	void Rebuild();
@@ -27,7 +27,6 @@ struct Grid
 	Cell* GetCellIndexed(int index);
 	v2i GetGridCoord(v2 pos);
 
-	Unit* ARRAY units;
 	Cell* OWNER ARRAY cells;
 
 	v2i dim;
