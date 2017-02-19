@@ -16,6 +16,7 @@ struct Group
 		CommandType_None,
 		CommandType_Move,
 		CommandType_Attack,
+		CommandType_Rout,
 	};
 
 	void Init(Team* ARRAY ateams, Group* ARRAY agroups, Unit* ARRAY aunits);
@@ -32,6 +33,7 @@ struct Group
 	void CommandMoveAttack(GroupIndex group);
 	void CommandMoveTo(v2 pos, float angle);
 	void CommandMoveToInstant(v2 pos, float angle);
+	void CommandRout();
 
 	void CommandFormationNone();
 	void CommandFormationBox(float ratio, float loose);
@@ -44,6 +46,7 @@ struct Group
 	int CalcUnitAliveCount();
 	float CalcUnitAverageResolve();
 	float CalcUnitAverageHealth();
+	v2 CalcUnitFightingAggregateOffset();
 
 	MemberIndex PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	MemberIndex PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
@@ -73,11 +76,11 @@ struct Group
 	float commandAngle;
 	GroupIndex commandTargetGroup;
 	v2 displacementAggregate;
-	float damageAggregate;
 	float bunchedRatio;
 	float combatRatio;
 	float disarrayRatio;
 	float formationRatio;
 	float formationLoose;
 	float routRatio;
+	float healthAggregatePrev;
 };

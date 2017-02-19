@@ -83,7 +83,6 @@ void Group::Update()
 		}
 	}
 
-	v2 toRetreat = v2unitsafe(groupPos - commandPos);
 	v2 toCentroid = centroid - groupPos;
 	v2 toCommand = commandPos - groupPos;
 	v2 toCommandDir = v2unitsafe(toCommand);
@@ -91,21 +90,22 @@ void Group::Update()
 	float movementSpeed = CalcUnitSlowestMovement();
 	float disarrayFactor = 1.0f - stb_clamp(disarrayRatio - 1.5f, 0.0f, 1.0f);
 	float combatFactor = stb_clamp(combatRatio, 0.0f, 1.0f);
-	float routFactor = stb_clamp(routRatio - 0.8f, 0.0f, 1.0f) * 1.0f / 0.2f;
 
 	float toCentroidSpeed = movementSpeed * disarrayFactor * 0.02f + movementSpeed * combatFactor * 0.05f;
 	float toCommandSpeed = movementSpeed * disarrayFactor;
-	float toRetreatSpeed = movementSpeed * routFactor;
 
 	groupPos += toCentroid * dt * toCentroidSpeed;
 	groupPos += toCommandDir * dt * toCommandSpeed;
-	groupPos += toRetreat * dt * toRetreatSpeed;
 
 	assert(!isnan(groupPos.x));
 	assert(!isnan(groupPos.y));
 
 	UpdateFormation();
 	UpdateRout();
+
+	float average = CalcUnitAverageHealth();
+	float change = healthAggregatePrev - average;
+	healthAggregatePrev = average;
 }
 
 void Group::UpdateFormation()
@@ -348,8 +348,34 @@ void Group::UpdateRout()
 		routFactor /= (float)routCount;
 	}
 
+	if (commandType == CommandType_Rout)
+	{
+		for (int i = 0; i < stb_arr_len(slots); ++i)
+		{
+			UnitIndex unitIndex = slots[i];
+			Unit* unit = units + unitIndex;
+
+			if (!unit->IsValid())
+				continue;
+			if (!unit->IsAlive())
+				continue;
+
+			// TODO: don't really want to touch unit from group
+			unit->reload = 0.0f;
+		}
+
+		routRatio = fmaxf(routRatio - 0.01f * dt, 0.0f);
+		if (routRatio <= 0.0f)
+			CommandStop();
+		
+		return;
+	}
+
 	routRatio = fmaxf(routRatio - 0.1f * dt, 0.0f);
 	routRatio = fminf(routRatio + 0.5f * routFactor * dt, 1.0f);
+
+	if (routRatio >= 1.0f)
+		CommandRout();
 }
 
 void Group::AddUnit(UnitIndex index)
@@ -436,6 +462,14 @@ void Group::CommandMoveToInstant(v2 pos, float angle)
 			unit->vel = v2zero();
 		}
 	}
+}
+
+void Group::CommandRout()
+{
+	commandType = CommandType_Rout;
+	commandTargetGroup = InvalidGroupIndex;
+
+	commandPos = groupPos + v2unitsafe(commandPos - groupPos) * -500.0f;
 }
 
 void Group::CommandFormationNone()
@@ -745,6 +779,28 @@ float Group::CalcUnitAverageHealth()
 		return 0.0f;
 
 	return healthCurrent / healthMax;
+}
+
+v2 Group::CalcUnitFightingAggregateOffset()
+{
+	v2 aggregate = v2zero();
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		v2 ofs = unit->targetPos - unit->pos;
+		
+		aggregate += ofs * unit->attacking;
+	}
+
+	return aggregate;
 }
 
 MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)

@@ -273,6 +273,23 @@ void Game::UpdateInput()
 		}
 	}
 
+	if (ImGui::IsKeyDown(SDLK_r))
+	{
+		UnitIndex* debugRoutQuery = NULL;
+		stb_arr_setsize(debugRoutQuery, 4);
+		grid->Query(&debugRoutQuery, cursorPos, cursorPos, NULL);
+		for (int i = 0; i < stb_arr_len(debugRoutQuery); ++i)
+		{
+			UnitIndex id = debugRoutQuery[i];
+			Unit* unit = GetUnit(id);
+			if (circleoverlap(cursorPos, 0.0f, unit->pos, unit->data->radius))
+			{
+				Group* group = GetGroup(unit->group);
+				group->routRatio = ImGui::IsKeyDown(SDL_SCANCODE_LSHIFT) ? 0.0f : 1.0f;
+			}
+		}
+	}
+
 	static UnitIndex debugMoveIndex = InvalidUnitIndex;
 	if (ImGui::IsKeyDown(SDLK_z))
 	{
@@ -703,6 +720,16 @@ void Game::Render()
 			nvgLineTo(context, group->commandPos.x, group->commandPos.y);
 			nvgStrokeWidth(context, 3.0f);
 			nvgStrokeColor(context, nvgRGBAf(1.0f, 0.2f, 0.2f, 0.7f));
+			nvgStroke(context);
+			nvgClosePath(context);
+			break;
+
+		case Group::CommandType_Rout:
+			nvgBeginPath(context);
+			nvgMoveTo(context, group->groupPos.x, group->groupPos.y);
+			nvgLineTo(context, group->commandPos.x, group->commandPos.y);
+			nvgStrokeWidth(context, 3.0f);
+			nvgStrokeColor(context, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.7f));
 			nvgStroke(context);
 			nvgClosePath(context);
 			break;
