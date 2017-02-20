@@ -286,6 +286,8 @@ void Game::UpdateInput()
 			{
 				Group* group = GetGroup(unit->group);
 				group->routRatio = ImGui::IsKeyDown(SDL_SCANCODE_LSHIFT) ? 0.0f : 1.0f;
+				if (group->routRatio >= 1.0f)
+					group->CommandRout();
 			}
 		}
 	}
@@ -614,6 +616,10 @@ void Game::Render()
 		Touch::Entry* entry = touch->GetEntry(i);
 		if (entry->indexes[0] != 0)
 			border = v4rgb1(0.7f, 0.7f, 0.7f);
+
+		Group* group = GetGroup(unit->group);
+		if (group->commandType == Group::CommandType_Rout)
+			border = border * (fabsf(sinf(game.time * 1.0f)) * 0.5f + 0.5f);
 
 		if (!unit->IsAlive())
 		{

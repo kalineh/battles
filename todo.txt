@@ -1,15 +1,9 @@
 
-- routing:
-  - recent damage tracking
-  - charge morale hit
-  - winning/losing fight
-  - group rout state?
-  - waver state
-  - deaths + ally routs
-  - rear attacks
-  - flanks secure
-  - damage while routing => lose recovery
-
+- calculate group flank status
+- calculate group collective damage in/out
+- improve rout direction (flank data)
+- morale reduce from nearby deaths
+- stop rear units pushing in too much
 - shift-click command queue
 - drag-draw movement paths
 - pause time stepping
