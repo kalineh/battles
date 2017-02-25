@@ -1,10 +1,12 @@
 
 - calculate group flank status
 - calculate group collective damage in/out
+- change debug stats displays to graphs
 - improve rout direction (flank data)
 - morale reduce from nearby deaths
 - stop rear units pushing in too much
 - shift-click command queue
+- disable commands when routing
 - drag-draw movement paths
 - pause time stepping
 - extra formations

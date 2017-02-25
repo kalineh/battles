@@ -60,6 +60,7 @@ struct Unit
 	float footing;
 	float charging;
 	float bunching;
+	float flanked;
 
 	v2 targetPos;
 	float targetAngle;

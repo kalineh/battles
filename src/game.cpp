@@ -1118,6 +1118,7 @@ void Game::RenderImGuiUnit(UnitIndex unitIndex)
 	ImGui::SliderFloat("charging", &unit->charging, 0.0f, 1.0f);
 	ImGui::SliderFloat("reload", &unit->reload, 0.0f, 1.0f);
 	ImGui::SliderFloat("bunching", &unit->bunching, 0.0f, 1.0f);
+	ImGui::SliderFloat("flanked", &unit->flanked, 0.0f, 1.0f);
 }
 
 Team* Game::GetTeam(TeamIndex teamIndex)

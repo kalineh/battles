@@ -186,8 +186,8 @@ void Unit::Update()
 	charging = fmaxf(charging - 0.1f * dt, 0.0f);
 
 	bunching = fmaxf(bunching - 0.1f * dt, 0.0f);
-
 	scared = fmaxf(scared - 0.01f * dt, 0.0f);
+	flanked = fmaxf(flanked - 0.01f * dt, 0.0f);
 }
 
 bool Unit::IsValid()
@@ -286,6 +286,7 @@ void Unit::ResolveTouchHostile(Unit* unit)
 
 	unit->health = fmaxf(unit->health - damage, 0.0f);
 	unit->scared = fminf(unit->scared + damage * 0.05f * (1.0f - (unit->health / unit->data->health)), 1.0f);
+	unit->flanked = fminf(unit->flanked + (1.0f - fmaxf(d + 0.25f, 0.0f)) * 0.5f * dt, 1.0f);
 
 	attacking = fminf(attacking + 0.65f * dt, 1.0f);
 
