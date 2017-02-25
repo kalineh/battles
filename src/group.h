@@ -47,6 +47,7 @@ struct Group
 	float CalcUnitAverageResolve();
 	float CalcUnitAverageHealth();
 	v2 CalcUnitFightingAggregateOffset();
+	float CalcUnitAverageFlank();
 
 	MemberIndex PositionToMemberIndexBox(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);
 	MemberIndex PositionToMemberIndexWedge(v2 pos, v2 groupCenter, int unitCount, float unitRadius, float ratio, float loose);

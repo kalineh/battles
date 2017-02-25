@@ -803,6 +803,31 @@ v2 Group::CalcUnitFightingAggregateOffset()
 	return aggregate;
 }
 
+float Group::CalcUnitAverageFlank()
+{
+	float flank = 0.0f;
+	float flankCount = 0.0f;
+
+	for (int i = 0; i < stb_arr_len(members); ++i)
+	{
+		UnitIndex unitIndex = members[i];
+		Unit* unit = units + unitIndex;
+
+		if (!unit->IsValid())
+			continue;
+		if (!unit->IsAlive())
+			continue;
+
+		flank += unit->flanked;
+		flankCount += 1.0f;
+	}
+
+	if (flankCount > 0.0f)
+		return flank / flankCount;
+
+	return flank;
+}
+
 MemberIndex Group::FindNearestUnoccupied(MemberIndex queryMemberIndex)
 {
 	float bestDistance = FLT_MAX;

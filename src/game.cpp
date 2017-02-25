@@ -1060,6 +1060,7 @@ void Game::RenderImGuiGroup(GroupIndex groupIndex)
 	ImGui::LabelText("Combat", "%.2f", group->combatRatio);
 	ImGui::LabelText("Bunched", "%.2f", group->bunchedRatio);
 	ImGui::LabelText("Rout", "%.2f", group->routRatio);
+	ImGui::LabelText("Flank", "%.2f", group->CalcUnitAverageFlank());
 
 	if (ImGui::Button("Teleport") || ImGui::IsKeyPressed(SDLK_t))
 		group->CommandMoveToInstant(group->commandPos, group->commandAngle);
